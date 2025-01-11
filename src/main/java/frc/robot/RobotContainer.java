@@ -23,10 +23,10 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 public class RobotContainer {
 
         // 6 meters per second desired top speed.
-    private static final double kMaxSpeed = 6;
+    private static final double kMaxSpeed = 0.2;
 
     // Half a rotation per second max angular velocity.
-    private static final double kMaxAngularRate = 1.5 * Math.PI;
+    private static final double kMaxAngularRate = 0.2 * Math.PI;
 
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
@@ -35,19 +35,16 @@ public class RobotContainer {
     private final SwerveRequest.FieldCentricFacingAngle m_angleRequest = new SwerveRequest.FieldCentricFacingAngle()
     .withDeadband(kMaxSpeed * 0.05)
     .withRotationalDeadband(kMaxAngularRate * 0.05)
-    .withDriveRequestType(DriveRequestType.Velocity);
+    .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     private final SwerveRequest.FieldCentric m_drive = new SwerveRequest.FieldCentric()
     .withDeadband(kMaxSpeed * 0.05).withRotationalDeadband(kMaxAngularRate * 0.05) // 20% deadband
-    .withDriveRequestType(DriveRequestType.Velocity); // closed loop velocity control
+    .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // closed loop velocity control
 
+
+    // Velocity not tuned ????
 
     /* Setting up bindings for necessary control of the swerve drive platform */
-    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
-    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
@@ -76,9 +73,10 @@ public class RobotContainer {
     private void configureBindings() {
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
-        m_drivetrain.applyRequest(() -> m_drive.withVelocityX(getLeftY() * kMaxSpeed)
-            .withVelocityY(getLeftX() * kMaxSpeed)
-            .withRotationalRate(-m_controller.getRightX() * kMaxAngularRate));
+        m_drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
+        m_drivetrain.applyRequest(() -> m_drive.withVelocityX(-m_controller.getLeftY() * kMaxSpeed)
+            .withVelocityY(-m_controller.getLeftX() * kMaxSpeed)
+            .withRotationalRate(-m_controller.getRightX() * kMaxAngularRate)));
 
 
         // Run SysId routines when holding back/start and X/Y.
