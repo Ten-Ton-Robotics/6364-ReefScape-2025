@@ -54,13 +54,13 @@ public class PhotonVisionHandler {
 
     // Load AprilTag field layout
     try {
-      aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
+      aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField(); //TODO update to 2025 game
     } catch (Exception e) {
       System.err.println("Error loading AprilTag field layout: " + e.getMessage());
       aprilTagFieldLayout = null;
     }
 
-    // //    photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
+    // //photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
     // PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, vision, robotToCam);
 
 
