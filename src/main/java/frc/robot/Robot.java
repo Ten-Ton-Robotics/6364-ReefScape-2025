@@ -20,6 +20,14 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run(); 
+
+    try {
+      m_robotContainer.updatePoseEstimator();
+
+    } catch (Exception e) {
+      System.out.println(e);
+    }
+    
   }
 
   @Override
@@ -41,7 +49,8 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+  }
 
   @Override
   public void autonomousExit() {}

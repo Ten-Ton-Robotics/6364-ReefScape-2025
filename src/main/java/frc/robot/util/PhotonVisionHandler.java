@@ -10,6 +10,7 @@ import org.photonvision.PhotonUtils;
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
+import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -32,11 +33,11 @@ import com.ctre.phoenix6.hardware.Pigeon2;
 
 public class PhotonVisionHandler {
 
-  private PhotonCameraSim cameraSim;
-  private VisionSystemSim visionSim;
+  // private PhotonCameraSim cameraSim;
+  // private VisionSystemSim visionSim;
   private PhotonCamera vision;
   private AprilTagFieldLayout aprilTagFieldLayout;
-  private boolean simulated;
+  // private boolean simulated;
   private PhotonPoseEstimator photonPoseEstimator;
 
   private final Transform3d robotToCam =
@@ -44,12 +45,12 @@ public class PhotonVisionHandler {
           Units.inchesToMeters(13.8)), new Rotation3d(0, Math.toRadians(-15), 0)); // Adjusted
                                                                                    // camera angle
 
-  private DoubleArraySubscriber m_poseSubscriber;
+  // private DoubleArraySubscriber m_poseSubscriber;
   // nt subscriber so we can have coms wit
 
   public PhotonVisionHandler() {
-    vision = new PhotonCamera("photonvision");
-    simulated = Utils.isSimulation();
+    vision = new PhotonCamera("Camera_Module_v1");
+    // simulated = Utils.isSimulation();
 
 
     // Load AprilTag field layout
@@ -68,44 +69,44 @@ public class PhotonVisionHandler {
         PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, robotToCam);
 
 
-    if (simulated) {
-      initializeSimulation();
-    }
+    // if (simulated) {
+    //   initializeSimulation();
+    // }
   }
 
-  private void initializeSimulation() {
-    if (aprilTagFieldLayout == null) {
-      System.out.println("AprilTag field layout is null. Simulation will not include tags.");
-      return;
-    }
+  // private void initializeSimulation() {
+  //   if (aprilTagFieldLayout == null) {
+  //     System.out.println("AprilTag field layout is null. Simulation will not include tags.");
+  //     return;
+  //   }
 
-    visionSim = new VisionSystemSim("main");
-    visionSim.addAprilTags(aprilTagFieldLayout);
+  //   visionSim = new VisionSystemSim("main");
+  //   visionSim.addAprilTags(aprilTagFieldLayout);
 
-    var cameraProps = new SimCameraProperties();
-    cameraProps.setCalibration(1280, 800, Rotation2d.fromDegrees(90));
-    cameraProps.setCalibError(0.35, 0.10);
-    cameraProps.setFPS(120);
-    cameraProps.setAvgLatencyMs(50);
-    cameraProps.setLatencyStdDevMs(15);
-    // cameraProps.setFOV(75); // Set appropriate FOV for your camera
-    cameraProps.setAvgLatencyMs(11.0); // Based on actual PhotonVision latency
-    cameraProps.setLatencyStdDevMs(3.0);
+  //   var cameraProps = new SimCameraProperties();
+  //   cameraProps.setCalibration(1280, 800, Rotation2d.fromDegrees(90));
+  //   cameraProps.setCalibError(0.35, 0.10);
+  //   cameraProps.setFPS(120);
+  //   cameraProps.setAvgLatencyMs(50);
+  //   cameraProps.setLatencyStdDevMs(15);
+  //   // cameraProps.setFOV(75); // Set appropriate FOV for your camera
+  //   cameraProps.setAvgLatencyMs(11.0); // Based on actual PhotonVision latency
+  //   cameraProps.setLatencyStdDevMs(3.0);
 
-    cameraSim = new PhotonCameraSim(vision, cameraProps);
-    visionSim.addCamera(cameraSim, robotToCam);
+  //   cameraSim = new PhotonCameraSim(vision, cameraProps);
+  //   visionSim.addCamera(cameraSim, robotToCam);
 
-    cameraSim.enableDrawWireframe(true);
-    System.out.println("PhotonVision simulation initialized");
-  }
+  //   cameraSim.enableDrawWireframe(true);
+  //   System.out.println("PhotonVision simulation initialized");
+  // }
 
-  public void updateSimulation(Pose2d robotPose) {
-    if (simulated && visionSim != null) {
-      Pose3d pose3d = new Pose3d(robotPose.getX(), robotPose.getY(), 0.0,
-          new Rotation3d(0.0, 0.0, robotPose.getRotation().getRadians()));
-      visionSim.update(robotPose);
-    }
-  }
+  // public void updateSimulation(Pose2d robotPose) {
+  //   if (simulated && visionSim != null) {
+  //     Pose3d pose3d = new Pose3d(robotPose.getX(), robotPose.getY(), 0.0,
+  //         new Rotation3d(0.0, 0.0, robotPose.getRotation().getRadians()));
+  //     visionSim.update(robotPose);
+  //   }
+  // }
 
   // I'm not sure what the latency was for because I didn't document anything and it got depricated in the library - Jadyn
   
@@ -114,62 +115,75 @@ public class PhotonVisionHandler {
   //   return result.getLatencyMillis() / 1000.0;
   // }
 
-  public int getNumberOfTags() {
-    var result = vision.getLatestResult();
-    return result.hasTargets() ? result.getTargets().size() : 0;
-  }
+  // public int getNumberOfTags() {
+  //   var result = vision.getLatestResult();
+  //   return result.hasTargets() ? result.getTargets().size() : 0;
+  // }
 
-  public int getAprilTagID() {
-    var result = vision.getLatestResult();
-    PhotonTrackedTarget target = result.getBestTarget();
-    return (target != null) ? target.getFiducialId() : -1;
-  }
+  // public int getAprilTagID() {
+  //   var result = vision.getLatestResult();
+  //   PhotonTrackedTarget target = result.getBestTarget();
+  //   return (target != null) ? target.getFiducialId() : -1;
+  // }
 
-  public double areaOfAprilTag() {
-    var result = vision.getLatestResult();
-    PhotonTrackedTarget target = result.getBestTarget();
-    return (target != null) ? target.getArea() : 0.0;
-  }
+  // public double areaOfAprilTag() {
+  //   var result = vision.getLatestResult();
+  //   PhotonTrackedTarget target = result.getBestTarget();
+  //   return (target != null) ? target.getArea() : 0.0;
+  // }
 
 
   public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
     boolean run = false;
 
-    if (run == false) {
-      run = true;
-      return photonPoseEstimator.update(vision.getLatestResult());
-    }
+    
 
+    // Get the first result from the unread results
+    if(vision.getAllUnreadResults().size() > 0){
+      PhotonPipelineResult output = vision.getAllUnreadResults().get(0);
 
+      if (!run) { // If run is false
+        run = true;
+        return photonPoseEstimator.update(output); // Update and return result
+      }
+
+    // Set the reference pose and update the estimator
     photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
-    return photonPoseEstimator.update(vision.getLatestResult());
-  }
-
-
-  public double avgTagArea(List<PhotonTrackedTarget> tags) {
-    double temparea = 0;
-
-    for (int i = 0; i < tags.size(); i++) {
-      temparea += tags.get(i).getArea();
-    }
-
-    temparea = temparea / tags.size();
-
-    return temparea;
-  }
-
-  public OptionalDouble getLatestLatencyAdjustedTimeStamp() {
-
-    if (this.m_poseSubscriber == null) {
-
-      return OptionalDouble.empty();
-
-    } else {
-
-      final TimestampedDoubleArray internal2 = m_poseSubscriber.getAtomic();
-      return OptionalDouble.of((internal2.timestamp - internal2.value[6]) * 0.001);
+    return photonPoseEstimator.update(output);
 
     }
-
-  }
+    else
+    {
+      return Optional.empty();
+    }
+    }
+  
 }
+
+
+  // public double avgTagArea(List<PhotonTrackedTarget> tags) {
+  //   double temparea = 0;
+
+  //   for (int i = 0; i < tags.size(); i++) {
+  //     temparea += tags.get(i).getArea();
+  //   }
+
+  //   temparea = temparea / tags.size();
+
+  //   return temparea;
+  // }
+
+  // public OptionalDouble getLatestLatencyAdjustedTimeStamp() {
+
+  //   if (this.m_poseSubscriber == null) {
+
+  //     return OptionalDouble.empty();
+
+  //   } else {
+
+  //     final TimestampedDoubleArray internal2 = m_poseSubscriber.getAtomic();
+  //     return OptionalDouble.of((internal2.timestamp - internal2.value[6]) * 0.001);
+
+  //   }
+
+  // }
