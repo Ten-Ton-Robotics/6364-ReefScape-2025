@@ -6,12 +6,11 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
-import java.io.Console;
-import java.util.List;
+// import java.io.Console;
+// import java.util.List;
 import java.util.Optional;
-
 import org.photonvision.EstimatedRobotPose;
-import org.photonvision.targeting.PhotonTrackedTarget;
+// import org.photonvision.targeting.PhotonTrackedTarget;
 
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
@@ -32,13 +31,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import org.photonvision.EstimatedRobotPose;
-import org.photonvision.PhotonCamera;
-import org.photonvision.PhotonPoseEstimator;
-import org.photonvision.PhotonPoseEstimator.PoseStrategy;
-import org.photonvision.PhotonUtils;
-import org.photonvision.targeting.PhotonTrackedTarget;
+// import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+// import org.photonvision.EstimatedRobotPose;
+// import org.photonvision.PhotonCamera;
+// import org.photonvision.PhotonPoseEstimator;
+// import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+// import org.photonvision.PhotonUtils;
+// import org.photonvision.targeting.PhotonTrackedTarget;
 
 
 import frc.robot.generated.TunerConstants;
@@ -58,11 +57,8 @@ public class RobotContainer {
     private final Field2d m_Visionpose = new Field2d();
 
     public final PhotonVisionHandler visionHandler = new PhotonVisionHandler();
-    AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
+    AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.kDefaultField.loadAprilTagLayoutField();
     // Vision visionInstance;
-
-
-
 
     // Half a rotation per second max angular velocity.
     private static final double kMaxAngularRate = 0.2 * Math.PI;
@@ -133,6 +129,8 @@ public class RobotContainer {
     }
 
 
+
+    // Pose estimator update logic (meant to increase accuracy by filtering out bad or unusable output from the Cameras)
     public void updatePoseEstimator() {
 
     if (aprilTagFieldLayout == null) {
@@ -146,6 +144,8 @@ public class RobotContainer {
     // visionInstance.new MeasurementInfo(visionHandler.getAprilTagID(),
     // visionHandler.getNumberofTags(), visionHandler.areaOfAprilTag());
 
+
+    //Feedback logic for Photonvision Pose estimator (Kinda jank but ok for now)
     if (prevVisionOut.isPresent()) {
       Visionout =
           visionHandler.getEstimatedGlobalPose(prevVisionOut.get().estimatedPose.toPose2d());
@@ -157,6 +157,10 @@ public class RobotContainer {
 
 
     try {
+      
+          // TODO: Redo the Fusion Logic to work with the Photonvision Cams. 
+          // NOTE: (may not even need it, should get a deeper understanding of the photonvision Pose estimator)
+
           // if (Visionout.isPresent()) {
 
           // final Pose2d visPose = Visionout.get().estimatedPose.toPose2d();
@@ -188,11 +192,13 @@ public class RobotContainer {
           // else
           //   return;
     
+          
+          //Set and Put Output from Vision on Smart Dashboard for debugging
           m_Visionpose.setRobotPose(Visionout.get().estimatedPose.toPose2d());
-    
           SmartDashboard.putData("Vision Pose", m_Visionpose);
+
     
-    
+        // Only fuse with WPIlib Kalman filter (Basically our Robotpose) when sim is off to prevent jank
           if (Utils.isSimulation() == false)
     
           {
