@@ -1,35 +1,20 @@
 package frc.robot.util;
-import java.util.List;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Optional;
-import java.util.OptionalDouble;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
-import org.photonvision.PhotonUtils;
-import org.photonvision.simulation.PhotonCameraSim;
-import org.photonvision.simulation.SimCameraProperties;
-import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.targeting.PhotonPipelineResult;
-import org.photonvision.targeting.PhotonTrackedTarget;
-import edu.wpi.first.networktables.DoubleArraySubscriber;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.TimestampedDoubleArray;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.RobotState;
-import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.StatusCode;
-import com.ctre.phoenix6.Utils;
-import com.ctre.phoenix6.configs.Pigeon2Configuration;
-import com.ctre.phoenix6.hardware.Pigeon2;
+
 
 public class PhotonVisionHandler {
 
@@ -54,9 +39,14 @@ public class PhotonVisionHandler {
 
 
     // Load AprilTag field layout
-    try {
-      aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField(); //TODO update to 2025 game
-    } catch (Exception e) {
+    try { 
+      aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+    } 
+    catch (UncheckedIOException e) {
+      System.err.println("Error layout doesn't exist: " + e.getMessage());
+      aprilTagFieldLayout = null;
+    }
+    catch (Exception e) {
       System.err.println("Error loading AprilTag field layout: " + e.getMessage());
       aprilTagFieldLayout = null;
     }
