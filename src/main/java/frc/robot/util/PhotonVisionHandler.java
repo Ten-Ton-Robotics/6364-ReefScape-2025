@@ -1,5 +1,4 @@
 package frc.robot.util;
-import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Optional;
 import org.photonvision.EstimatedRobotPose;
