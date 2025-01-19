@@ -40,16 +40,18 @@ public class PhotonVisionHandler {
   // private boolean simulated;
   private PhotonPoseEstimator photonPoseEstimator;
 
+
+  //Camera offset to center of robot including rotation
   private final Transform3d robotToCam =
       new Transform3d(new Translation3d(Units.inchesToMeters(10.4), Units.inchesToMeters(-6.5),
           Units.inchesToMeters(13.8)), new Rotation3d(0, Math.toRadians(-15), 0)); // Adjusted
                                                                                    // camera angle
 
-  // private DoubleArraySubscriber m_poseSubscriber;
-  // nt subscriber so we can have coms wit
-
   public PhotonVisionHandler() {
+
+    // init camera
     vision = new PhotonCamera("Camera_Module_v1");
+
     // simulated = Utils.isSimulation();
 
 
@@ -61,10 +63,7 @@ public class PhotonVisionHandler {
       aprilTagFieldLayout = null;
     }
 
-    // //    photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
-    // PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, vision, robotToCam);
-
-
+    // Kalman filter to fuse vision measurements
     photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
         PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, robotToCam);
 
@@ -133,6 +132,7 @@ public class PhotonVisionHandler {
   // }
 
 
+  // Method to get the estimated PhotonPose from the PV Kalman filter
   public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
     boolean run = false;
 
@@ -147,13 +147,12 @@ public class PhotonVisionHandler {
         return photonPoseEstimator.update(output); // Update and return result
       }
 
-    // Set the reference pose and update the estimator
-    photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
-    return photonPoseEstimator.update(output);
+      // Set the reference pose and update the estimator
+      photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
+      return photonPoseEstimator.update(output);
 
     }
-    else
-    {
+    else{
       return Optional.empty();
     }
     }
