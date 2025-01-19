@@ -68,7 +68,6 @@ public class PhotonVisionHandler {
     photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
         PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, robotToCam);
 
-
     // if (simulated) {
     //   initializeSimulation();
     // }
