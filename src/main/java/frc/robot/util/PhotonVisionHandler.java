@@ -1,11 +1,14 @@
 package frc.robot.util;
 import java.io.UncheckedIOException;
+import java.util.List;
 import java.util.Optional;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
+import org.photonvision.targeting.PhotonTrackedTarget;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -149,21 +152,21 @@ public class PhotonVisionHandler {
     }
     }
   
+
+
+
+  public double avgTagArea(List<PhotonTrackedTarget> tags) {
+    double temparea = 0;
+
+    for (int i = 0; i < tags.size(); i++) {
+      temparea += tags.get(i).getArea();
+    }
+
+    temparea = temparea / tags.size();
+
+    return temparea;
+  }
 }
-
-
-  // public double avgTagArea(List<PhotonTrackedTarget> tags) {
-  //   double temparea = 0;
-
-  //   for (int i = 0; i < tags.size(); i++) {
-  //     temparea += tags.get(i).getArea();
-  //   }
-
-  //   temparea = temparea / tags.size();
-
-  //   return temparea;
-  // }
-
   // public OptionalDouble getLatestLatencyAdjustedTimeStamp() {
 
   //   if (this.m_poseSubscriber == null) {

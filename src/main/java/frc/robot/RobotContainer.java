@@ -6,11 +6,13 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.List;
 // import java.io.Console;
 // import java.util.List;
 import java.util.Optional;
 import org.photonvision.EstimatedRobotPose;
 // import org.photonvision.targeting.PhotonTrackedTarget;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
@@ -148,13 +150,10 @@ public class RobotContainer {
     //Feedback logic for Photonvision Pose estimator (Kinda jank but ok for now)
     if (prevVisionOut.isPresent()) {
       System.out.println("YES Visionout");
-      Visionout =
-          visionHandler.getEstimatedGlobalPose(prevVisionOut.get().estimatedPose.toPose2d());
+      Visionout = visionHandler.getEstimatedGlobalPose(prevVisionOut.get().estimatedPose.toPose2d());
     } else {
       System.out.println("NO Visionout");
-
-      Visionout = visionHandler
-          .getEstimatedGlobalPose(new Pose2d(new Translation2d(0, 0), new Rotation2d(0)));
+      Visionout = visionHandler.getEstimatedGlobalPose(new Pose2d(new Translation2d(0, 0), new Rotation2d(0)));
     }
 
     prevVisionOut = Visionout;
@@ -165,43 +164,41 @@ public class RobotContainer {
           // TODO: Redo the Fusion Logic to work with the Photonvision Cams. 
           // NOTE: (may not even need it, should get a deeper understanding of the photonvision Pose estimator)
 
-          // if (Visionout.isPresent()) {
+          if (Visionout.isPresent()) {
 
-          // final Pose2d visPose = Visionout.get().estimatedPose.toPose2d();
-          // final double posDiff = m_drivetrain.getPoseDifference(visPose);
+          final Pose2d visPose = Visionout.get().estimatedPose.toPose2d();
+          final double posDiff = m_drivetrain.getPoseDifference(visPose);
     
-          // final List<PhotonTrackedTarget> tags = Visionout.get().targetsUsed;
-    
-    
-          // // return if no tag detected
-          // if (tags.size() < 1) {
-          //   return;
-          // }
-          // // more than 1 tag in view
-          // if (tags.size() > 1 && visionHandler.avgTagArea(tags) > 80) {
-          //   lateralDeviation = 0.5;
-          //   angularDeviation = 6;
-          // }
-          // // 1 target with large area and close to estimated pose
-          // else if (tags.get(0).getArea() > 80 && posDiff < 0.5) {
-          //   lateralDeviation = 1.0;
-          //   angularDeviation = 12;
-          // }
-          // // 1 target farther away and estimated pose is close
-          // else if (tags.get(0).getArea() > 10 && posDiff < 0.3) {
-            lateralDeviation = 2.0;
-            angularDeviation = 30;
-          // }
-          // // conditions don't match to add a vision measurement
-          // else
-          //   return;
-    
-          
+          final List<PhotonTrackedTarget> tags = Visionout.get().targetsUsed;
+
           //Set and Put Output from Vision on Smart Dashboard for debugging
           m_Visionpose.setRobotPose(Visionout.get().estimatedPose.toPose2d());
           SmartDashboard.putData("Vision Pose", m_Visionpose);
-
-    
+          
+          // // return if no tag detected
+          if (tags.size() < 1) {
+            return;
+          }
+          // // more than 1 tag in view
+          if (tags.size() > 1 && visionHandler.avgTagArea(tags) > 80) {
+            lateralDeviation = 0.5;
+            angularDeviation = 6;
+          }
+          // // 1 target with large area and close to estimated pose
+          else if (tags.get(0).getArea() > 80 && posDiff < 0.5) {
+            lateralDeviation = 1.0;
+            angularDeviation = 12;
+          }
+          // 1 target farther away and estimated pose is close
+          else if (tags.get(0).getArea() > 10 && posDiff < 0.3) {
+            lateralDeviation = 2.0;
+            angularDeviation = 30;
+          }
+          // conditions don't match to add a vision measurement
+          else{
+            return;
+          }    
+              
         // Only fuse with WPIlib Kalman filter (Basically our Robotpose) when sim is off to prevent jank
           if (Utils.isSimulation() == false)
     
@@ -212,6 +209,7 @@ public class RobotContainer {
             m_drivetrain.addVisionMeasurement(visPose2d, visionstamp, VecBuilder.fill(lateralDeviation,
                 lateralDeviation, Units.degreesToRadians(angularDeviation)));
           }
+        }
         //}
   
     } catch (Exception e) {

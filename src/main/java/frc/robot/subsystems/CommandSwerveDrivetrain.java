@@ -51,6 +51,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         } catch (NullPointerException e) {
         System.out.println(e);
         return 0.0;
+        // Returning 0.0 may cause accuracy issues but I trust I already thought of this and decided 0.0 was better - Jadyn
         }
     }
 
