@@ -50,7 +50,7 @@ public class PhotonVisionHandler {
   public PhotonVisionHandler() {
 
     // init camera
-    vision = new PhotonCamera("Camera_Module_v1");
+    vision = new PhotonCamera("Cam_1");
 
     // simulated = Utils.isSimulation();
 
