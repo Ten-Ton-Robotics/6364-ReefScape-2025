@@ -152,7 +152,7 @@ public class PhotonVisionHandler {
     }
     }
     
-    public ArrayList<Integer> AprilTagIDGetter() {
+    public ArrayList<Integer> GetAprilTagIds() {
       var results = vision.getAllUnreadResults();
       ArrayList<Integer> ids = new ArrayList<>(); 
 
