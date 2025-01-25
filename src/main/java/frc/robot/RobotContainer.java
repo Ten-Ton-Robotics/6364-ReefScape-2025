@@ -203,7 +203,7 @@ public class RobotContainer {
             return;
           }    
               
-        // Only fuse with WPIlib Kalman filter (Basically our Robotpose) when sim is off to prevent jank
+        // Only fuse with WPIlib Kalman filter (Basically our Robotpose) when the sim is off to prevent janky movement
           if (Utils.isSimulation() == false)
     
           {
