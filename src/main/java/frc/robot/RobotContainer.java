@@ -161,6 +161,10 @@ public class RobotContainer {
 
     try {
       
+//Make Get Methods For Tag Size, # of Tags, 
+//Pos dif function for gives dif of given pos and robot 
+
+
           // TODO: Redo the Fusion Logic to work with the Photonvision Cams. 
           // NOTE: (may not even need it, should get a deeper understanding of the photonvision Pose estimator)
 
