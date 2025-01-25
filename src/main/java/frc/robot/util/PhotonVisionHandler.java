@@ -1,11 +1,15 @@
 package frc.robot.util;
 import java.io.UncheckedIOException;
 import java.util.Optional;
+import java.util.ArrayList; 
+
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
+
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -131,7 +135,6 @@ public class PhotonVisionHandler {
     if(!results.isEmpty()){
       targetVisible = true;
       SmartDashboard.putBoolean("Vision Target", targetVisible);
-
       PhotonPipelineResult output = results.get(results.size() - 1);
 
       if (!run) { // If run is false
@@ -148,7 +151,24 @@ public class PhotonVisionHandler {
       return Optional.empty();
     }
     }
-  
+    
+    public ArrayList<Integer> AprilTagIDGetter() {
+      var results = vision.getAllUnreadResults();
+      ArrayList<Integer> ids = new ArrayList<>(); 
+
+      if(!results.isEmpty())
+      {
+        var result = results.get(results.size() - 1);
+        if(result.hasTargets()){
+          for (var target : result.getTargets())
+          {
+            ids.add(target.getFiducialId());
+            return ids; 
+          }
+        }
+      }  
+      return ids;   
+    }
 }
 
 
@@ -178,3 +198,4 @@ public class PhotonVisionHandler {
   //   }
 
   // }
+
