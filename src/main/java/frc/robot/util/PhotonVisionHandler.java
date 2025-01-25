@@ -13,6 +13,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 
 public class PhotonVisionHandler {
@@ -34,7 +35,7 @@ public class PhotonVisionHandler {
   public PhotonVisionHandler() {
 
     // init camera
-    vision = new PhotonCamera("Cam_1");
+    vision = new PhotonCamera("Arducam");
 
     // simulated = Utils.isSimulation();
 
@@ -123,12 +124,15 @@ public class PhotonVisionHandler {
   // Method to get the estimated PhotonPose from the PV Kalman filter
   public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
     boolean run = false;
-
+    boolean targetVisible = false;
     
-
+    var results = vision.getAllUnreadResults();
     // Get the first result from the unread results
-    if(vision.getAllUnreadResults().size() > 0){
-      PhotonPipelineResult output = vision.getAllUnreadResults().get(0);
+    if(!results.isEmpty()){
+      targetVisible = true;
+      SmartDashboard.putBoolean("Vision Target", targetVisible);
+
+      PhotonPipelineResult output = results.get(results.size() - 1);
 
       if (!run) { // If run is false
         run = true;

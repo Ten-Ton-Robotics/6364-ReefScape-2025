@@ -147,12 +147,16 @@ public class RobotContainer {
 
     //Feedback logic for Photonvision Pose estimator (Kinda jank but ok for now)
     if (prevVisionOut.isPresent()) {
+      System.out.println("YES Visionout");
       Visionout =
           visionHandler.getEstimatedGlobalPose(prevVisionOut.get().estimatedPose.toPose2d());
     } else {
+      System.out.println("NO Visionout");
+
       Visionout = visionHandler
           .getEstimatedGlobalPose(new Pose2d(new Translation2d(0, 0), new Rotation2d(0)));
     }
+
     prevVisionOut = Visionout;
 
 
