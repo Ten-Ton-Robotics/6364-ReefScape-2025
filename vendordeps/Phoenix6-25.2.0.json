@@ -1,7 +1,7 @@
 {
-    "fileName": "Phoenix6-frc2025-latest.json",
+    "fileName": "Phoenix6-25.2.0.json",
     "name": "CTRE-Phoenix (v6)",
-    "version": "25.1.0",
+    "version": "25.2.1",
     "frcYear": "2025",
     "uuid": "e995de00-2c64-4df5-8831-c1441420ff19",
     "mavenUrls": [
