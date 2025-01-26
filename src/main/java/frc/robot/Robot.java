@@ -15,6 +15,8 @@ public class Robot extends TimedRobot {
 
   public Robot() {
     m_robotContainer = new RobotContainer();
+    m_robotContainer.m_drivetrain.getOdometryThread().start();
+
   }
 
   @Override
@@ -22,6 +24,7 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().run(); 
 
     // try {
+
       m_robotContainer.updatePoseEstimator();
 
     // } catch (Exception e) {

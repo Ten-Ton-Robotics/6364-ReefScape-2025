@@ -129,12 +129,20 @@ public class PhotonVisionHandler {
   // Method to get the estimated PhotonPose from the PV Kalman filter
   public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
     boolean run = false;
-    boolean targetVisible = false;
-    
     var results = vision.getAllUnreadResults();
+    
     // Get the first result from the unread results
     if(!results.isEmpty()){
-      targetVisible = true;
+      boolean targetVisible = results.get(results.size() -1).hasTargets();
+
+      // System.out.println(results.get(results.size() -1));
+      // System.out.println(results.size());
+      // targetVisible = true;
+      
+      if(results.get(results.size() -1).hasTargets()){
+        // targetVisible = true;
+
+      
       SmartDashboard.putBoolean("Vision Target", targetVisible);
       PhotonPipelineResult output = results.get(results.size() - 1);
 
@@ -146,6 +154,11 @@ public class PhotonVisionHandler {
       // Set the reference pose and update the estimator
       photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
       return photonPoseEstimator.update(output);
+    }
+    else {
+      SmartDashboard.putBoolean("Vision Target", targetVisible);
+      return Optional.empty();
+    }
 
     }
     else{
@@ -153,9 +166,6 @@ public class PhotonVisionHandler {
     }
     }
   
-
-
-
   public double avgTagArea(List<PhotonTrackedTarget> tags) {
     double temparea = 0;
 

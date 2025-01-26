@@ -33,10 +33,11 @@ public class TunerConstants {
         .withKP(0.1).withKI(0).withKD(0)
         .withKS(0).withKV(0.124);
 
-    // The closed-loop output type to use for the steer motors;
+    // The closed-loop output type to use for the steer motors; 
     // This affects the PID/FF gains for the steer motors
     private static final ClosedLoopOutputType kSteerClosedLoopOutput = ClosedLoopOutputType.Voltage;
     // The closed-loop output type to use for the drive motors;
+
     // This affects the PID/FF gains for the drive motors
     private static final ClosedLoopOutputType kDriveClosedLoopOutput = ClosedLoopOutputType.Voltage;
 
@@ -197,7 +198,7 @@ public class TunerConstants {
      */
     public static CommandSwerveDrivetrain createDrivetrain() {
         return new CommandSwerveDrivetrain(
-            DrivetrainConstants, FrontLeft, FrontRight, BackLeft, BackRight
+            DrivetrainConstants, 100, FrontLeft, FrontRight, BackLeft, BackRight
         );
     }
 
