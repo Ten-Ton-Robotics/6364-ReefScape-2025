@@ -139,6 +139,12 @@ public class RobotContainer {
 
         m_controller.rightBumper().onFalse(m_Intake.stop());
         
+        m_controller.leftTrigger().onTrue(m_Arm.forwards());
+        m_controller.leftTrigger().onFalse(m_Arm.stop()); 
+        
+        m_controller.rightTrigger().onTrue(m_Arm.reverse());
+        m_controller.rightTrigger().onFalse(m_Arm.stop()); 
+        
         m_controller.leftBumper().onTrue(m_drivetrain.runOnce(() -> m_drivetrain.seedFieldCentric()));
 
         m_drivetrain.registerTelemetry(logger::telemeterize);

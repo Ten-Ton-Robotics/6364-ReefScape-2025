@@ -70,7 +70,7 @@ public class Arm extends SubsystemBase {
    * @param speed speed in revolutions per second
    * @return Command
    */
-  
+
   public Command setSpeed(double speed) {
        return this.runOnce(() -> {
          this.setArmSpeed(speed);
@@ -79,11 +79,11 @@ public class Arm extends SubsystemBase {
    
 
 
-    // public Command reverse() {
-    //         return this.runOnce(() -> {
-    //         this.setArmSpeed(-kArmSpeed);
-    //         });
-    // }
+    public Command reverse() {
+            return this.runOnce(() -> {
+            this.setArmSpeed(-kArmSpeed);
+            });
+    }
 
   /**
    * @brief Spin up the flywheel motors
