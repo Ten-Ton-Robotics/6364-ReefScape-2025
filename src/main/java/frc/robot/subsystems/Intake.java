@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intake extends SubsystemBase {
     
-    // Doner Kebea
+    // Doner Kebea (Did you mean Donner kebab?) 
     public static final String kUpperMotorBus = "rio";
     public static final String kLowerMotorBus = "rio";
 
@@ -78,8 +78,8 @@ public class Intake extends SubsystemBase {
         m_upperMotor.setNeutralMode(kUpperNeutralMode);
         m_lowerMotor.setNeutralMode(kLowerNeutralMode);
         // apply configuration
-        m_upperMotor.getConfigurator().apply((upperConfig));
-        m_lowerMotor.getConfigurator().apply((lowerConfig));
+        m_upperMotor.getConfigurator().apply(upperConfig);
+        m_lowerMotor.getConfigurator().apply(lowerConfig);
         // commands
       }
 
@@ -88,7 +88,7 @@ public class Intake extends SubsystemBase {
     m_upperMotor.setControl(m_upperOutput);
     m_upperMotor.setNeutralMode(NeutralModeValue.Brake);
     if (speed == 0.0)
-      m_lowerMotor.setControl(new StaticBrake());
+      m_upperMotor.setControl(new StaticBrake());
   }
 
   /**

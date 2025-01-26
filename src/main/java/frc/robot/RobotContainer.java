@@ -45,13 +45,14 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Arm;
 import frc.robot.util.PhotonVisionHandler;
 // import frc.robot.Vision.MeasurementInfo;
 
 
 public class RobotContainer {
 
-        // 6 meters per second desired top speed.
+    // 6 meters per second desired top speed.
     PowerDistribution m_powerdistro = new PowerDistribution();
 
     private Optional<EstimatedRobotPose> prevVisionOut = Optional.empty();
@@ -60,6 +61,7 @@ public class RobotContainer {
     private final Field2d m_Fieldpose = new Field2d();
 
     private final Intake m_Intake = new Intake();
+    private final Arm m_Arm = new Arm(); 
 
 
     public final PhotonVisionHandler visionHandler = new PhotonVisionHandler();
