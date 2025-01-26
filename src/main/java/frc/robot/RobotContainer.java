@@ -44,7 +44,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.Test;
+import frc.robot.subsystems.Intake;
 import frc.robot.util.PhotonVisionHandler;
 // import frc.robot.Vision.MeasurementInfo;
 
@@ -59,7 +59,7 @@ public class RobotContainer {
     private final Field2d m_Visionpose = new Field2d();
     private final Field2d m_Fieldpose = new Field2d();
 
-    private final Test m_motortest = new Test();
+    private final Intake m_Intake = new Intake();
 
 
     public final PhotonVisionHandler visionHandler = new PhotonVisionHandler();
@@ -132,9 +132,10 @@ public class RobotContainer {
 
         // reset the field-centric heading on left bumper press
 
-        m_controller.rightBumper().onTrue(m_motortest.forwards());
-        m_controller.rightBumper().onFalse(m_motortest.stop());
+        m_controller.rightBumper().onTrue(m_Intake.forwards());
+        m_controller.leftBumper().onFalse(m_Intake.reverse());
 
+        m_controller.rightBumper().onFalse(m_Intake.stop());
         
         m_controller.leftBumper().onTrue(m_drivetrain.runOnce(() -> m_drivetrain.seedFieldCentric()));
 

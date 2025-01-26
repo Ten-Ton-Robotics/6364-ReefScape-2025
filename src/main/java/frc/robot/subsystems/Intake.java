@@ -12,21 +12,26 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Test extends SubsystemBase {
-
+public class Intake extends SubsystemBase {
+    
+    // Doner Kebea
     public static final String kUpperMotorBus = "rio";
     public static final String kLowerMotorBus = "rio";
-    public static final int kUpperMotorId = 0;
-    public static final int kLowerMotorId = 0;
-    public static final double kUpperSpeed = 0;
-    public static final double kLowerSpeed = 0;
+
+    public static final int kUpperMotorId = 1;
+    public static final int kLowerMotorId = 2;
+
+    public static final double kUpperSpeed = 10;
+    public static final double kLowerSpeed = 10;
+
     public static final NeutralModeValue kUpperNeutralMode = NeutralModeValue.Brake;
     public static final NeutralModeValue kLowerNeutralMode = NeutralModeValue.Brake;
+
     public static final InvertedValue kUpperMotorInverted = InvertedValue.CounterClockwise_Positive;
     public static final InvertedValue kLowerMotorInverted = InvertedValue.CounterClockwise_Positive;
     
     // upper motor controller gains
-    public static final double kUpperKP = 1;
+    public static final double kUpperKP = 0.35;
     public static final double kUpperKI = 0;
     public static final double kUpperKD = 0;
     // upper motor controller feedforward gains
@@ -35,7 +40,7 @@ public class Test extends SubsystemBase {
     public static final double kUpperKA = 0;
 
     // lower motor controller gains
-    public static final double kLowerKP = 1;
+    public static final double kLowerKP = 0.35;
     public static final double kLowerKI = 0;
     public static final double kLowerKD = 0;
     // lower motor controller feedforward gains
@@ -44,8 +49,8 @@ public class Test extends SubsystemBase {
     public static final double kLowerKA = 0;
 
     // Drive Ratio
-    public static final double kUpperRatio = 1/9;
-    public static final double kLowerRatio = 1/9;
+    public static final double kUpperRatio = 1;
+    public static final double kLowerRatio = 1;
 
     private final TalonFX m_upperMotor = new TalonFX(kUpperMotorId, kUpperMotorBus);
     private final TalonFX m_lowerMotor = new TalonFX(kLowerMotorId, kLowerMotorBus);
@@ -53,7 +58,7 @@ public class Test extends SubsystemBase {
     private final VelocityVoltage m_upperOutput = new VelocityVoltage(kUpperSpeed);
     private final VelocityVoltage m_lowerOutput = new VelocityVoltage(kLowerSpeed);
 
-    public Test() {
+    public Intake() {
         super();
         // configure motors
         final TalonFXConfiguration upperConfig = new TalonFXConfiguration();
