@@ -44,6 +44,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Test;
 import frc.robot.util.PhotonVisionHandler;
 // import frc.robot.Vision.MeasurementInfo;
 
@@ -57,6 +58,8 @@ public class RobotContainer {
     private Optional<EstimatedRobotPose> Visionout;
     private final Field2d m_Visionpose = new Field2d();
     private final Field2d m_Fieldpose = new Field2d();
+
+    private final Test m_motortest = new Test();
 
 
     public final PhotonVisionHandler visionHandler = new PhotonVisionHandler();
@@ -128,6 +131,11 @@ public class RobotContainer {
         // joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
         // reset the field-centric heading on left bumper press
+
+        m_controller.rightBumper().onTrue(m_motortest.forwards());
+        m_controller.rightBumper().onFalse(m_motortest.stop());
+
+        
         m_controller.leftBumper().onTrue(m_drivetrain.runOnce(() -> m_drivetrain.seedFieldCentric()));
 
         m_drivetrain.registerTelemetry(logger::telemeterize);
@@ -179,9 +187,8 @@ public class RobotContainer {
         final List<PhotonTrackedTarget> tags = Visionout.get().targetsUsed;
 
         System.out.println("posDiff " + posDiff);
-        System.out.println(visionHandler.avgTagArea(tags));
-
-
+        System.out.println("Tag Area" + visionHandler.avgTagArea(tags));
+        
         //Set and Put Output from Vision on Smart Dashboard for debugging
         m_Visionpose.setRobotPose(Visionout.get().estimatedPose.toPose2d());
         SmartDashboard.putData("Vision Pose", m_Visionpose);
