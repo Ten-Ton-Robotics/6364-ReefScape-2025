@@ -60,7 +60,7 @@ public class RobotContainer {
 
 
     public final PhotonVisionHandler visionHandler = new PhotonVisionHandler();
-    AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.kDefaultField.loadAprilTagLayoutField();
+    AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
     // Vision visionInstance;
 
     // Half a rotation per second max angular velocity.
