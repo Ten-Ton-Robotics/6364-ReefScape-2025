@@ -1,4 +1,5 @@
 package frc.robot.subsystems;
+import java.io.Console;
 
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -27,7 +28,7 @@ public class Arm extends SubsystemBase {
     public static final double kArmKD = 3;
 
     //arm controller feedforward gains
-    public static final double kArmKG = 0;
+    public static final double kArmKG = -0.1;
     public static final double kArmKS = 0;
     public static final double kArmKV = 0;
     public static final double kArmKA = 0;
@@ -66,7 +67,7 @@ public class Arm extends SubsystemBase {
         armConfig.CurrentLimits.SupplyCurrentLimit = kCurrentLimit;
         armConfig.CurrentLimits.StatorCurrentLimitEnable = true;
         armConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        
+    
         //Apply Configs 
         m_ArmMotor.getConfigurator().apply(armConfig); 
         m_ArmMotor.setPosition(kMaxPosition);
@@ -126,9 +127,11 @@ public class Arm extends SubsystemBase {
 
   public Command goToAngle(double position) {
     return this.runOnce(() -> {
+      System.out.println("Setting New go to angle!!!!");
       m_ArmOutput.Position = position;
       m_ArmMotor.setControl(m_ArmOutput);
-    });
+    
+    }).withTimeout(1);
   }
 
 
