@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.StaticBrake;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -16,43 +17,59 @@ public class Arm extends SubsystemBase {
 
     public static final String kArmBus = "rio";
     public static final int kArmId = 3;
-    public static final double kArmSpeed = 10;
+    public static final double kArmPose = 0;
     public static final NeutralModeValue kArmNeutralMode = NeutralModeValue.Brake;
     public static final InvertedValue kArmInverted = InvertedValue.CounterClockwise_Positive;
     
     //arm controller gains
-    public static final double kArmKP = 0.35;
+    public static final double kArmKP = 83;
     public static final double kArmKI = 0;
-    public static final double kArmKD = 0;
+    public static final double kArmKD = 3;
+
     //arm controller feedforward gains
+    public static final double kArmKG = 0;
     public static final double kArmKS = 0;
     public static final double kArmKV = 0;
     public static final double kArmKA = 0;
+    
 
+    public static final double kCurrentLimit = 10;
+
+    // Arm Pose
+    public static final double kMaxPosition = 0;
 
     // Drive Ratio
-    public static final double kArmRatio = 1;
+    public static final double kArmRatio = 75;
 
     private final TalonFX m_ArmMotor = new TalonFX(kArmId, kArmBus);
     
-    private final VelocityVoltage m_ArmOutput = new VelocityVoltage(kArmSpeed);
+    private final PositionVoltage m_ArmOutput = new PositionVoltage(kArmPose);
 
     public Arm() {
         super();
         // configure Arm
         final TalonFXConfiguration armConfig = new TalonFXConfiguration(); 
+
         // set contoller gains
         armConfig.Slot0 = new Slot0Configs().withKP(kArmKP).withKI(kArmKI).withKD(kArmKD)
-            .withKS(kArmKS).withKV(kArmKV).withKA(kArmKA);
+            .withKS(kArmKS).withKV(kArmKV).withKA(kArmKA).withKG(kArmKG);
         //invert motor 
         armConfig.MotorOutput.Inverted = kArmInverted; 
+
         //set ratios 
         armConfig.Feedback.SensorToMechanismRatio = kArmRatio; 
         //set neutral modes 
         m_ArmMotor.setNeutralMode(kArmNeutralMode);
+
+        // set current limit
+        armConfig.CurrentLimits.StatorCurrentLimit = kCurrentLimit;
+        armConfig.CurrentLimits.SupplyCurrentLimit = kCurrentLimit;
+        armConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+        armConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        
         //Apply Configs 
         m_ArmMotor.getConfigurator().apply(armConfig); 
-        
+        m_ArmMotor.setPosition(kMaxPosition);
       }
 
     public void setArmSpeed(double speed) {
@@ -79,23 +96,24 @@ public class Arm extends SubsystemBase {
    
 
 
-    public Command reverse() {
-            return this.runOnce(() -> {
-            this.setArmSpeed(-kArmSpeed);
-            });
-    }
+  //   public Command reverse() {
+  //           return this.runOnce(() -> {
+  //           this.setArmSpeed(-kArmSpeed);
+  //           });
+  //   }
 
-  /**
-   * @brief Spin up the flywheel motors
-   * 
-   * @return Command
-   */
-  public Command forwards() {
-    System.out.println("Test Arm forward");
-    return this.runOnce(() -> {
-      this.setArmSpeed(kArmSpeed);
-    });
-  }
+  // /**
+  //  * @brief Spin up the flywheel motors
+  //  * 
+  //  * @return Command
+  //  */
+  // public Command forwards() {
+  //   System.out.println("Test Arm forward");
+  //   return this.runOnce(() -> {
+  //     this.setArmSpeed(kArmSpeed);
+  //   });
+  // }
+  
 
   /**
    * @brief Stop the flywheel motors
@@ -105,6 +123,14 @@ public class Arm extends SubsystemBase {
   public Command stop() {
     return this.setSpeed(0);
   }
+
+  public Command goToAngle(double position) {
+    return this.runOnce(() -> {
+      m_ArmOutput.Position = position;
+      m_ArmMotor.setControl(m_ArmOutput);
+    });
+  }
+
 
 
   /**
@@ -118,7 +144,13 @@ public class Arm extends SubsystemBase {
    */
   @Override
   public void initSendable(SendableBuilder builder) {
-    super.initSendable(builder); // call the superclass method
+    super.initSendable(builder);
+    
+    builder.addDoubleProperty("Position", () -> m_ArmMotor.getPosition().getValueAsDouble(),
+    (double position) -> m_ArmMotor.setPosition(position));
+    builder.addDoubleProperty("Target Position", () -> m_ArmOutput.Position,
+    (double target) -> this.goToAngle(target).schedule());
+// call the superclass method
     // add upper motor target velocity property
     // builder.addDoubleProperty("Upper Target Velocity", () -> m_upperOutput.Velocity,
     //     (double target) -> this.setUpperSpeed(target));

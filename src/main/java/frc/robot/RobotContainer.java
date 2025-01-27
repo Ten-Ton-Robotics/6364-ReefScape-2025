@@ -113,6 +113,7 @@ public class RobotContainer {
     public RobotContainer() {
         configureBindings();
         m_powerdistro.setSwitchableChannel(true);
+        SmartDashboard.putData("Arm", m_Arm);
     }
     
 
@@ -135,15 +136,15 @@ public class RobotContainer {
         // reset the field-centric heading on left bumper press
 
         m_controller.rightBumper().onTrue(m_Intake.forwards());
-        m_controller.leftBumper().onFalse(m_Intake.reverse());
+        m_controller.leftBumper().onTrue(m_Intake.reverse());
 
-        m_controller.rightBumper().onFalse(m_Intake.stop());
-        
-        m_controller.leftTrigger().onTrue(m_Arm.forwards());
-        m_controller.leftTrigger().onFalse(m_Arm.stop()); 
-        
-        m_controller.rightTrigger().onTrue(m_Arm.reverse());
-        m_controller.rightTrigger().onFalse(m_Arm.stop()); 
+        m_controller.rightBumper().onFalse(m_Arm.stop());
+        m_controller.leftBumper().onFalse(m_Arm.stop());
+
+
+        m_controller.leftTrigger().onTrue(m_Arm.goToAngle(-0.38));
+
+        // m_controller.rightTrigger().onTrue(m_Arm.reverse());
         
         m_controller.leftBumper().onTrue(m_drivetrain.runOnce(() -> m_drivetrain.seedFieldCentric()));
 
@@ -165,7 +166,6 @@ public class RobotContainer {
     // final MeasurementInfo internalTag =
     // visionInstance.new MeasurementInfo(visionHandler.getAprilTagID(),
     // visionHandler.getNumberofTags(), visionHandler.areaOfAprilTag());
-
 
     //Feedback logic for Photonvision Pose estimator (Kinda jank but ok for now)
     if (prevVisionOut.isPresent()) {
