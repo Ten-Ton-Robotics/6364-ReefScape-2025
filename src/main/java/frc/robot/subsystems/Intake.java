@@ -8,13 +8,19 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.RobotContainer;
 
 public class Intake extends SubsystemBase {
     
-    // Doner Kebea (Did you mean Donner kebab?) 
+    // (Did you mean Donner kebab?) 
     public static final String kUpperMotorBus = "rio";
     public static final String kLowerMotorBus = "rio";
 
@@ -24,26 +30,35 @@ public class Intake extends SubsystemBase {
     public static final double kUpperSpeed = 10;
     public static final double kLowerSpeed = 10;
 
+
     public static final NeutralModeValue kUpperNeutralMode = NeutralModeValue.Brake;
     public static final NeutralModeValue kLowerNeutralMode = NeutralModeValue.Brake;
 
     public static final InvertedValue kUpperMotorInverted = InvertedValue.CounterClockwise_Positive;
     public static final InvertedValue kLowerMotorInverted = InvertedValue.CounterClockwise_Positive;
     
-    // upper motor controller gains
+    private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
+    private final BooleanPublisher koralDetected = inst.getBooleanTopic("Koral Detected").publish();
+
+    public final DigitalInput m_koral_sensor = new DigitalInput(0);
+
+    private boolean m_isWaiting = false;
+    private Timer m_timer = new Timer();
+
+    // Upper motor controller gains
     public static final double kUpperKP = 0.35;
     public static final double kUpperKI = 0;
     public static final double kUpperKD = 0;
-    // upper motor controller feedforward gains
+    // Upper motor controller feedforward gains
     public static final double kUpperKS = 0;
     public static final double kUpperKV = 0;
     public static final double kUpperKA = 0;
 
-    // lower motor controller gains
+    // Lower motor controller gains
     public static final double kLowerKP = 0.35;
     public static final double kLowerKI = 0;
     public static final double kLowerKD = 0;
-    // lower motor controller feedforward gains
+    // Lower motor controller feedforward k
     public static final double kLowerKS = 0;
     public static final double kLowerKV = 0;
     public static final double kLowerKA = 0;
@@ -58,6 +73,8 @@ public class Intake extends SubsystemBase {
     private final VelocityVoltage m_upperOutput = new VelocityVoltage(kUpperSpeed);
     private final VelocityVoltage m_lowerOutput = new VelocityVoltage(kLowerSpeed);
 
+    private boolean on = false;
+    private boolean sensor_out;
     public Intake() {
         super();
         // configure motors
@@ -90,6 +107,63 @@ public class Intake extends SubsystemBase {
     if (speed == 0.0)
       m_upperMotor.setControl(new StaticBrake());
   }
+
+  public Command KoralCheck(boolean reverse) {
+    return this.run(() -> {
+        if (!sensor_out) {  
+            on = false;
+            stop().schedule();
+        } else {
+            if (reverse) {
+                on = true;
+                reverse().schedule();
+            } else {
+                on = true;
+                forwards().schedule();
+            }
+        }
+    });
+}
+
+// public Command KoralCheck(boolean reverse) {
+//   Command intakeCommand = reverse ? reverse() : forwards();
+  
+//   return intakeCommand.onlyWhile(() -> sensor_out);  // Runs only while the sensor does NOT detect an object
+// }
+
+@Override
+public void periodic() {
+    sensor_out = m_koral_sensor.get();  // Poll the sensor  
+    if (!sensor_out) {
+        if (!m_isWaiting) {
+            // If the Koral is not detected, start waiting
+            m_isWaiting = true;
+            m_timer.reset();  // Reset the timer
+            m_timer.start();  // Start the timer
+        }
+
+        // If waiting, check if the desired time has passed before stopping
+        if (m_isWaiting && m_timer.get() >= 0.85) {  // Wait for 1 second (adjust as needed)
+            m_isWaiting = false;  // Reset the waiting flag
+            m_timer.stop();  // Stop the timer
+            on = false;
+            stop().schedule();  // Stop the motors after the wait time
+            RobotContainer.m_Arm.goToAngle(0.08).schedule();
+        }
+    } else {
+        // Reset waiting state when sensor detects something
+        m_isWaiting = false;
+        m_timer.stop();
+        on = true;
+        forwards().schedule();
+        RobotContainer.m_Arm.goToAngle(0.40).schedule();
+
+    }
+}
+//}
+
+
+
 
   /**
    * @brief set the speed of the lower motor
@@ -161,6 +235,9 @@ public class Intake extends SubsystemBase {
   @Override
   public void initSendable(SendableBuilder builder) {
     super.initSendable(builder); // call the superclass method
+
+    builder.addBooleanProperty("Koral detected", () -> !sensor_out, null);
+    builder.addBooleanProperty("Intake On", () -> on, null);
     // add upper motor target velocity property
     // builder.addDoubleProperty("Upper Target Velocity", () -> m_upperOutput.Velocity,
     //     (double target) -> this.setUpperSpeed(target));

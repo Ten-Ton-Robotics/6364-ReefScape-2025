@@ -25,9 +25,13 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -61,8 +65,7 @@ public class RobotContainer {
     private final Field2d m_Fieldpose = new Field2d();
 
     private final Intake m_Intake = new Intake();
-    private final Arm m_Arm = new Arm(); 
-
+    public static final Arm m_Arm = new Arm(); 
 
     public final PhotonVisionHandler visionHandler = new PhotonVisionHandler();
     AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
@@ -114,6 +117,7 @@ public class RobotContainer {
         configureBindings();
         m_powerdistro.setSwitchableChannel(true);
         SmartDashboard.putData("Arm", m_Arm);
+        SmartDashboard.putData("intake", m_Intake);
     }
     
 
@@ -125,7 +129,6 @@ public class RobotContainer {
             .withVelocityY(-m_controller.getLeftX() * kMaxSpeed)
             .withRotationalRate(-m_controller.getRightX() * kMaxAngularRate)));
 
-
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
         // joystick.back().and(joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
@@ -135,22 +138,20 @@ public class RobotContainer {
 
         // reset the field-centric heading on left bumper press
 
-        m_controller.rightBumper().onTrue(m_Intake.forwards());
+        // m_controller.rightBumper().onTrue(m_Intake.KoralCheck(false));
         m_controller.leftBumper().onTrue(m_Intake.reverse());
 
         m_controller.rightBumper().onFalse(m_Arm.stop());
         m_controller.leftBumper().onFalse(m_Arm.stop());
 
+        // m_controller.leftTrigger().onTrue(m_Arm.goToAngle(-0.38));
+        // m_controller.leftTrigger().onFalse(m_Arm.goToAngle(-0.04));
 
-        m_controller.leftTrigger().onTrue(m_Arm.goToAngle(-0.38));
-
-        // m_controller.rightTrigger().onTrue(m_Arm.reverse());
         
         m_controller.leftBumper().onTrue(m_drivetrain.runOnce(() -> m_drivetrain.seedFieldCentric()));
 
         m_drivetrain.registerTelemetry(logger::telemeterize);
     }
-
 
 
     // Pose estimator update logic (meant to increase accuracy by filtering out bad or unusable output from the Cameras)
@@ -216,7 +217,7 @@ public class RobotContainer {
         }
         // // 1 target with large area and close to estimated pose
         //  && posDiff < 0.5
-        else if (tags.get(0).getArea() > 0.8 && posDiff < 0.5) {
+        else if (tags.get(0).getArea() > 0.8) {
           // System.out.println("Fuse state 2");
 
           lateralDeviation = 1.0;
@@ -224,7 +225,7 @@ public class RobotContainer {
         }
         // 1 target farther away and estimated pose is close
         //  && posDiff < 0.3
-        else if (tags.get(0).getArea() > 0.1 && posDiff < 0.3) {
+        else if (tags.get(0).getArea() > 0.1) {
           // System.out.println("Fuse state 3");
 
           lateralDeviation = 2.0;
@@ -257,7 +258,7 @@ public class RobotContainer {
 
       m_Fieldpose.setRobotPose(m_drivetrain.getState().Pose);
       SmartDashboard.putData("Robot Pose", m_Fieldpose);
-
+      Timer.delay(0.1);
       //}
   
     } catch (Exception e) {
