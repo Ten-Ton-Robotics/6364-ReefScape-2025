@@ -4,12 +4,11 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.*;
-
 import java.util.List;
 // import java.io.Console;
 // import java.util.List;
 import java.util.Optional;
+
 import org.photonvision.EstimatedRobotPose;
 // import org.photonvision.targeting.PhotonTrackedTarget;
 import org.photonvision.targeting.PhotonTrackedTarget;
@@ -44,12 +43,10 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 // import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 // import org.photonvision.PhotonUtils;
 // import org.photonvision.targeting.PhotonTrackedTarget;
-
-
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Arm;
 import frc.robot.util.PhotonVisionHandler;
 // import frc.robot.Vision.MeasurementInfo;
 
@@ -141,8 +138,8 @@ public class RobotContainer {
         // m_controller.rightBumper().onTrue(m_Intake.KoralCheck(false));
         m_controller.leftBumper().onTrue(m_Intake.reverse());
 
-        m_controller.rightBumper().onFalse(m_Arm.stop());
-        m_controller.leftBumper().onFalse(m_Arm.stop());
+        m_controller.rightBumper().onFalse(m_Intake.stop());
+        m_controller.leftBumper().onFalse(m_Intake.stop());
 
         // m_controller.leftTrigger().onTrue(m_Arm.goToAngle(-0.38));
         // m_controller.leftTrigger().onFalse(m_Arm.goToAngle(-0.04));
