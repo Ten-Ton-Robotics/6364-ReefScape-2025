@@ -37,9 +37,6 @@ public class Intake extends SubsystemBase {
     public static final InvertedValue kUpperMotorInverted = InvertedValue.CounterClockwise_Positive;
     public static final InvertedValue kLowerMotorInverted = InvertedValue.CounterClockwise_Positive;
     
-    private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
-    private final BooleanPublisher koralDetected = inst.getBooleanTopic("Koral Detected").publish();
-
     public final DigitalInput m_koral_sensor = new DigitalInput(0);
 
     private boolean m_isWaiting = false;
@@ -161,9 +158,6 @@ public void periodic() {
     }
 }
 //}
-
-
-
 
   /**
    * @brief set the speed of the lower motor
