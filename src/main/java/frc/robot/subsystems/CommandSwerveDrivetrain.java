@@ -59,7 +59,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
     private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
-  
+
+    private static final PathConstraints pathConstraints =
+    new PathConstraints(Drivetrain.kMaxLateralSpeed, Drivetrain.kMaxLateralAcceleration,
+        Drivetrain.kMaxAngularSpeed, Drivetrain.kMaxAngularAcceleration);
+
     public double getPoseDifference(final Pose2d input_pose) {
         return this.getState().Pose.getTranslation().getDistance(input_pose.getTranslation());
     }
@@ -164,18 +168,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     }
 
-    public Command findAndFollowPath(final Pose2d targetPose) {
-    PathConstraints pathConstraints =
-        new PathConstraints(Drivetrain.kMaxLateralSpeed, Drivetrain.kMaxLateralAcceleration,
-            Drivetrain.kMaxAngularSpeed, Drivetrain.kMaxAngularAcceleration);
+public Command findAndFollowPath(final Pose2d targetPose) {
+    if (alliance.get().equals(Alliance.Blue)) {
+        return AutoBuilder.pathfindToPose(targetPose, pathConstraints);
+    } else {
+        return AutoBuilder.pathfindToPoseFlipped(targetPose, pathConstraints);
+    }
+}
 
-    if (alliance.get().equals(Alliance.Blue)){
-      return AutoBuilder.pathfindToPose(targetPose, pathConstraints);
-    }
-    else{
-      return AutoBuilder.pathfindToPoseFlipped(targetPose, pathConstraints);
-    }
-  }
 
   public Command followPath(final PathPlannerPath path, boolean fromfile) {
 
@@ -314,6 +314,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 m_hasAppliedOperatorPerspective = true;
             });
         }
+
+        Timer.delay(0.1);
     }
 
     @Override
