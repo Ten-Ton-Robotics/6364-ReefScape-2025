@@ -4,12 +4,11 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.*;
-
 import java.util.List;
 // import java.io.Console;
 // import java.util.List;
 import java.util.Optional;
+
 import org.photonvision.EstimatedRobotPose;
 // import org.photonvision.targeting.PhotonTrackedTarget;
 import org.photonvision.targeting.PhotonTrackedTarget;
@@ -28,9 +27,13 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -44,10 +47,10 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 // import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 // import org.photonvision.PhotonUtils;
 // import org.photonvision.targeting.PhotonTrackedTarget;
-
-
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Intake;
 import frc.robot.util.PhotonVisionHandler;
 
 // import frc.robot.Vision.MeasurementInfo;
@@ -55,7 +58,7 @@ import frc.robot.util.PhotonVisionHandler;
 
 public class RobotContainer {
 
-        // 6 meters per second desired top speed.
+    // 6 meters per second desired top speed.
     PowerDistribution m_powerdistro = new PowerDistribution();
 
     private Optional<EstimatedRobotPose> prevVisionOut = Optional.empty();
@@ -64,9 +67,11 @@ public class RobotContainer {
     private final Field2d m_Fieldpose = new Field2d();
     private SendableChooser<Command> autoChooser;
 
+    private final Intake m_Intake = new Intake();
+    public static final Arm m_Arm = new Arm(); 
 
     public final PhotonVisionHandler visionHandler = new PhotonVisionHandler();
-    AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.kDefaultField.loadAprilTagLayoutField();
+    AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
     // Vision visionInstance;
 
     // Half a rotation per second max angular velocity.
@@ -123,7 +128,11 @@ public class RobotContainer {
       // Another option that allows you to specify the default auto by its name
       // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
 
-      SmartDashboard.putData("Auto Chooser", autoChooser);
+        SmartDashboard.putData("Auto Chooser", autoChooser);
+          configureBindings();
+        m_powerdistro.setSwitchableChannel(true);
+        SmartDashboard.putData("Arm", m_Arm);
+        SmartDashboard.putData("intake", m_Intake);
     }
     
 
@@ -137,11 +146,21 @@ public class RobotContainer {
 
 
         // reset the field-centric heading on left bumper press
+
+        // m_controller.rightBumper().onTrue(m_Intake.KoralCheck(false));
+        m_controller.leftBumper().onTrue(m_Intake.reverse());
+
+        m_controller.rightBumper().onFalse(m_Intake.stop());
+        m_controller.leftBumper().onFalse(m_Intake.stop());
+
+        // m_controller.leftTrigger().onTrue(m_Arm.goToAngle(-0.38));
+        // m_controller.leftTrigger().onFalse(m_Arm.goToAngle(-0.04));
+
+        
         m_controller.leftBumper().onTrue(m_drivetrain.runOnce(() -> m_drivetrain.seedFieldCentric()));
 
         m_drivetrain.registerTelemetry(logger::telemeterize);
     }
-
 
 
     // Pose estimator update logic (meant to increase accuracy by filtering out bad or unusable output from the Cameras)
@@ -157,7 +176,6 @@ public class RobotContainer {
     // final MeasurementInfo internalTag =
     // visionInstance.new MeasurementInfo(visionHandler.getAprilTagID(),
     // visionHandler.getNumberofTags(), visionHandler.areaOfAprilTag());
-
 
     //Feedback logic for Photonvision Pose estimator (Kinda jank but ok for now)
     if (prevVisionOut.isPresent()) {
@@ -188,9 +206,8 @@ public class RobotContainer {
         final List<PhotonTrackedTarget> tags = Visionout.get().targetsUsed;
 
         System.out.println("posDiff " + posDiff);
-        System.out.println(visionHandler.avgTagArea(tags));
-
-
+        System.out.println("Tag Area" + visionHandler.avgTagArea(tags));
+        
         //Set and Put Output from Vision on Smart Dashboard for debugging
         m_Visionpose.setRobotPose(Visionout.get().estimatedPose.toPose2d());
         SmartDashboard.putData("Vision Pose", m_Visionpose);
@@ -251,7 +268,8 @@ public class RobotContainer {
 
       m_Fieldpose.setRobotPose(m_drivetrain.getState().Pose);
       SmartDashboard.putData("Robot Pose", m_Fieldpose);
-
+      Timer.delay(0.1);
+      //}
   
     } catch (Exception e) {
 
