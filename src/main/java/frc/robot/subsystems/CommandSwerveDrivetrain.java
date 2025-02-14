@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.SignalLogger;
@@ -43,6 +44,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private static final double kSimLoopPeriod = 0.005; // 5 ms
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
+    private Optional<Alliance> alliance;
 
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
     private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.kZero;
@@ -146,7 +148,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                     // ORIGIN WILL ALWAYS BE BLUE - Jadyn
                     // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
       
-                    var alliance = DriverStation.getAlliance();
+                    alliance = DriverStation.getAlliance();
                     if (alliance.isPresent()) {
                       return alliance.get() == DriverStation.Alliance.Red;
                     }
@@ -167,7 +169,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         new PathConstraints(Drivetrain.kMaxLateralSpeed, Drivetrain.kMaxLateralAcceleration,
             Drivetrain.kMaxAngularSpeed, Drivetrain.kMaxAngularAcceleration);
 
-    if (DriverStation.getAlliance().equals(Alliance.Blue)){
+    if (alliance.get().equals(Alliance.Blue)){
       return AutoBuilder.pathfindToPose(targetPose, pathConstraints);
     }
     else{
