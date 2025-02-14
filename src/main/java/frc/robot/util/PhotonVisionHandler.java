@@ -129,7 +129,9 @@ public class PhotonVisionHandler {
   private List<PhotonPipelineResult> getAllCombinedUnreadResults(){
     List<PhotonPipelineResult> temp1 = vision1.getAllUnreadResults();
     
-    lineupCamLatest = temp1.get(0);
+    if(!temp1.isEmpty()){
+      lineupCamLatest = temp1.get(0);
+    }
 
 
     // add more later

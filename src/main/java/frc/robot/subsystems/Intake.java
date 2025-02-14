@@ -28,7 +28,7 @@ public class Intake extends SubsystemBase {
     public static final int kLowerMotorId = 2;
 
     public static final double kUpperSpeed = 20;
-    public static final double kLowerSpeed = 20   ;
+    public static final double kLowerSpeed = 20;
 
 
     public static final NeutralModeValue kUpperNeutralMode = NeutralModeValue.Brake;
@@ -156,6 +156,9 @@ public void periodic() {
         RobotContainer.m_Arm.goToAngle(0.40).schedule();
 
     }
+
+    Timer.delay(0.01);
+
 }
 //}
 

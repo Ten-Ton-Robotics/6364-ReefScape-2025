@@ -35,7 +35,7 @@ public class MoveToPose extends Command {
       .withDriveRequestType(DriveRequestType.Velocity); // field-centric
 
   private final int[] lineupTags = {6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22};
- 
+
   /**
    * @brief motion to move the robot to a specified pose
    * 
