@@ -25,10 +25,12 @@ public class PhotonVisionHandler {
 
   // private PhotonCameraSim cameraSim;
   // private VisionSystemSim visionSim;
-  private PhotonCamera vision;
+  private PhotonCamera vision1;
   private AprilTagFieldLayout aprilTagFieldLayout;
   // private boolean simulated;
   private PhotonPoseEstimator photonPoseEstimator;
+
+  public PhotonPipelineResult lineupCamLatest;
 
 
   //Camera offset to center of robot including rotation
@@ -38,9 +40,8 @@ public class PhotonVisionHandler {
                                                                                    // camera angle
 
   public PhotonVisionHandler() {
-
     // init camera
-    vision = new PhotonCamera("Arducam");
+    vision1 = new PhotonCamera("Arducam");
 
     // simulated = Utils.isSimulation();
 
@@ -125,14 +126,33 @@ public class PhotonVisionHandler {
   //   return (target != null) ? target.getArea() : 0.0;
   // }
 
+  private List<PhotonPipelineResult> getAllCombinedUnreadResults(){
+    List<PhotonPipelineResult> temp1 = vision1.getAllUnreadResults();
+    
+    lineupCamLatest = temp1.get(0);
+
+
+    // add more later
+
+    // TODO: THIS HOW WE GONNA MAKE IT EXTENSIBLE FOR MULTIPLE CAMS
+    // results.add(vision2.getAllUnreadResults()); 
+    // ... same thing for vision3 etc..
+    
+
+    return temp1;
+  }
+
 
   // Method to get the estimated PhotonPose from the PV Kalman filter
   public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
     boolean run = false;
-    var results = vision.getAllUnreadResults();
+    List<PhotonPipelineResult> results = getAllCombinedUnreadResults();
+
+    
     
     // Get the first result from the unread results
     if(!results.isEmpty()){
+
       boolean targetVisible = results.get(results.size() -1).hasTargets();
 
       // System.out.println(results.get(results.size() -1));
@@ -166,20 +186,20 @@ public class PhotonVisionHandler {
     }
     }
   
-  public double avgTagArea(List<PhotonTrackedTarget> tags) {
-    double temparea = 0;
+    public double avgTagArea(List<PhotonTrackedTarget> tags) {
+      double temparea = 0;
 
-    for (int i = 0; i < tags.size(); i++) {
-      temparea += tags.get(i).getArea();
+      for (int i = 0; i < tags.size(); i++) {
+        temparea += tags.get(i).getArea();
+      }
+
+      temparea = temparea / tags.size();
+
+      return temparea;
     }
-
-    temparea = temparea / tags.size();
-
-    return temparea;
-  }
     
     public ArrayList<Integer> GetAprilTagIds() {
-      var results = vision.getAllUnreadResults();
+      var results = vision1.getAllUnreadResults();
       ArrayList<Integer> ids = new ArrayList<>(); 
 
       if(!results.isEmpty())

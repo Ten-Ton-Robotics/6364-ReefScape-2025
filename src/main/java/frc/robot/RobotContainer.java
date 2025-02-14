@@ -49,6 +49,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.util.PhotonVisionHandler;
+
 // import frc.robot.Vision.MeasurementInfo;
 
 
@@ -198,7 +199,8 @@ public class RobotContainer {
         if (tags.size() < 1) {
           System.out.println("No tags to fuse");
           return;
-        } 
+        }
+
         // // more than 1 tag in view
         if (tags.size() > 1 && visionHandler.avgTagArea(tags) > 0.8) {
           // System.out.println("Fuse state 1");
@@ -208,7 +210,7 @@ public class RobotContainer {
         }
         // // 1 target with large area and close to estimated pose
         //  && posDiff < 0.5
-        else if (tags.get(0).getArea() > 0.8 && posDiff < 0.5) {
+        else if (tags.get(0).getArea() > 0.8) {
           // System.out.println("Fuse state 2");
 
           lateralDeviation = 1.0;
@@ -216,7 +218,7 @@ public class RobotContainer {
         }
         // 1 target farther away and estimated pose is close
         //  && posDiff < 0.3
-        else if (tags.get(0).getArea() > 0.1 && posDiff < 0.3) {
+        else if (tags.get(0).getArea() > 0.1) {
           // System.out.println("Fuse state 3");
 
           lateralDeviation = 2.0;
@@ -239,7 +241,7 @@ public class RobotContainer {
           Pose2d visPose2d = Visionout.get().estimatedPose.toPose2d();
           double visionstamp = Visionout.get().timestampSeconds;
 
-          
+
           m_drivetrain.addVisionMeasurement(visPose2d, visionstamp, VecBuilder.fill(lateralDeviation,
               lateralDeviation, Units.degreesToRadians(angularDeviation)));
 
