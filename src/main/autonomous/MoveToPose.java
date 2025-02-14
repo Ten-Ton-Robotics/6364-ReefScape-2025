@@ -1,28 +1,19 @@
 package frc.robot.autonomous;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import org.photonvision.targeting.PhotonTrackedTarget;
-
-import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
-import com.ctre.phoenix6.swerve.SwerveRequest;
-
+import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.Drivetrain;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.util.Constants.Drivetrain;
-import frc.robot.util.PhotonVisionHandler;
 
 /**
  * A command that moves the robot to a specified pose
  */
 public class MoveToPose extends Command {
-  private final PhotonVisionHandler m_photonVisionHandler; // the pose to move to
+  private final Pose2d m_target; // the pose to move to
   private final CommandSwerveDrivetrain m_drivetrain; // the drivetrain to move
 
   private final ProfiledPIDController m_angleController; // profiled PID controller for the angle
@@ -33,8 +24,6 @@ public class MoveToPose extends Command {
 
   private final SwerveRequest.FieldCentric m_drive = new SwerveRequest.FieldCentric()
       .withDriveRequestType(DriveRequestType.Velocity); // field-centric
-
-  private final int[] lineupTags = {6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22};
 
   /**
    * @brief motion to move the robot to a specified pose
@@ -54,10 +43,9 @@ public class MoveToPose extends Command {
    * @param pose       the pose to move to
    * @param drivetrain the drivetrain to move
    */
-  public MoveToPose(PhotonVisionHandler photonVisionHandler, CommandSwerveDrivetrain drivetrain) {
-    m_photonVisionHandler = photonVisionHandler;
+  public MoveToPose(Pose2d target, CommandSwerveDrivetrain drivetrain) {
+    m_target = target;
     m_drivetrain = drivetrain;
-
     // angular PID + Motion Profile
     m_angleController = new ProfiledPIDController(Drivetrain.kAngularPositionP, 0.0,
         Drivetrain.kAngularPositionD, new TrapezoidProfile.Constraints(Drivetrain.kMaxAngularSpeed,
@@ -83,26 +71,11 @@ public class MoveToPose extends Command {
   public void execute() {
     // get the current pose of the robot
     final Pose2d pose = m_drivetrain.getState().Pose;
-
-    List<Integer> matchingTags = new ArrayList<>();
-
-    PhotonTrackedTarget best = null;
-    boolean firstrun = true;
-    List<PhotonTrackedTarget> targets = m_photonVisionHandler.lineupCamLatest.targets;
-
-    //Filter for the best tag to Lineup To
-    for (PhotonTrackedTarget target : targets) {
-      if (lineupSet.contains(target.fiducialId)) {
-        if (best == null || target.area > best.area) {
-            best = target;
-        }
-    }
-    }
-
     // calculate speeds
-    final double xSpeed = m_xController.calculate(0, 0);
-    final double ySpeed = m_yController.calculate(0, 0);
-    final double angleSpeed = m_angleController.calculate(0, 0);
+    final double xSpeed = m_xController.calculate(pose.getTranslation().getX(), m_target.getTranslation().getX());
+    final double ySpeed = m_yController.calculate(pose.getTranslation().getY(), m_target.getTranslation().getY());
+    final double angleSpeed = m_angleController.calculate(pose.getRotation().getRadians(),
+        m_target.getRotation().getRadians());
     // move the robot to the target pose
     m_drivetrain.applyRequest(
         () -> m_drive.withVelocityX(xSpeed).withVelocityY(ySpeed).withRotationalRate(angleSpeed));

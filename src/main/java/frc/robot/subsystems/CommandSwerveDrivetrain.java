@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.SignalLogger;
@@ -43,6 +44,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private static final double kSimLoopPeriod = 0.005; // 5 ms
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
+    private Optional<Alliance> alliance;
 
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
     private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.kZero;
@@ -57,7 +59,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
     private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
-  
+
+    private static final PathConstraints pathConstraints =
+    new PathConstraints(Drivetrain.kMaxLateralSpeed, Drivetrain.kMaxLateralAcceleration,
+        Drivetrain.kMaxAngularSpeed, Drivetrain.kMaxAngularAcceleration);
+
     public double getPoseDifference(final Pose2d input_pose) {
         return this.getState().Pose.getTranslation().getDistance(input_pose.getTranslation());
     }
@@ -146,7 +152,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                     // ORIGIN WILL ALWAYS BE BLUE - Jadyn
                     // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
       
-                    var alliance = DriverStation.getAlliance();
+                    alliance = DriverStation.getAlliance();
                     if (alliance.isPresent()) {
                       return alliance.get() == DriverStation.Alliance.Red;
                     }
@@ -162,18 +168,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     }
 
-    public Command findAndFollowPath(final Pose2d targetPose) {
-    PathConstraints pathConstraints =
-        new PathConstraints(Drivetrain.kMaxLateralSpeed, Drivetrain.kMaxLateralAcceleration,
-            Drivetrain.kMaxAngularSpeed, Drivetrain.kMaxAngularAcceleration);
+public Command findAndFollowPath(final Pose2d targetPose) {
+    if (alliance.get().equals(Alliance.Blue)) {
+        return AutoBuilder.pathfindToPose(targetPose, pathConstraints);
+    } else {
+        return AutoBuilder.pathfindToPoseFlipped(targetPose, pathConstraints);
+    }
+}
 
-    if (DriverStation.getAlliance().equals(Alliance.Blue)){
-      return AutoBuilder.pathfindToPose(targetPose, pathConstraints);
-    }
-    else{
-      return AutoBuilder.pathfindToPoseFlipped(targetPose, pathConstraints);
-    }
-  }
 
   public Command followPath(final PathPlannerPath path, boolean fromfile) {
 
@@ -312,6 +314,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 m_hasAppliedOperatorPerspective = true;
             });
         }
+
+        Timer.delay(0.1);
     }
 
     @Override
