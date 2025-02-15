@@ -44,8 +44,8 @@ public class RobotContainer {
 
     private Optional<EstimatedRobotPose> prevVisionOut = Optional.empty();
     private Optional<EstimatedRobotPose> Visionout;
-    private final Field2d m_Visionpose = new Field2d();
-    private final Field2d m_Fieldpose = new Field2d();
+    // private final Field2d m_Visionpose = new Field2d();
+    // private final Field2d m_Fieldpose = new Field2d();
     private SendableChooser<Command> autoChooser;
 
     private final Intake m_Intake = new Intake();
@@ -112,8 +112,8 @@ public class RobotContainer {
         SmartDashboard.putData("Auto Chooser", autoChooser);
           configureBindings();
         m_powerdistro.setSwitchableChannel(true);
-        SmartDashboard.putData("Arm", m_Arm);
-        SmartDashboard.putData("intake", m_Intake);
+        // SmartDashboard.putData("Arm", m_Arm);
+        // SmartDashboard.putData("intake", m_Intake);
     }
     
 
@@ -129,7 +129,7 @@ public class RobotContainer {
 
         // reset the field-centric heading on left bumper press 
 
-        // m_controller.rightBumper().onTrue(m_Intake.KoralCheck(false));
+        m_controller.rightBumper().onTrue(m_Intake.KoralCheck(false));
         m_controller.leftBumper().onTrue(m_Intake.reverse());
 
         // m_controller.b().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(14.7, 4.045, new Rotation2d(Units.degreesToRadians(180)))));
@@ -192,8 +192,8 @@ public class RobotContainer {
         // System.out.println("Tag Area " + visionHandler.avgTagArea(tags));
         
         //Set and Put Output from Vision on Smart Dashboard for debugging
-        m_Visionpose.setRobotPose(Visionout.get().estimatedPose.toPose2d());
-        SmartDashboard.putData("Vision Pose", m_Visionpose);
+        // m_Visionpose.setRobotPose(Visionout.get().estimatedPose.toPose2d());
+        // SmartDashboard.putData("Vision Pose", m_Visionpose);
         
         // // return if no tag detected
         if (tags.size() < 1) {
@@ -249,8 +249,8 @@ public class RobotContainer {
         }
       }
 
-      m_Fieldpose.setRobotPose(m_drivetrain.getState().Pose);
-      SmartDashboard.putData("Robot Pose", m_Fieldpose);
+      // m_Fieldpose.setRobotPose(m_drivetrain.getState().Pose);
+      // SmartDashboard.putData("Robot Pose", m_Fieldpose);
       Timer.delay(0.035);
       //}
   

@@ -130,31 +130,36 @@ public class Intake extends SubsystemBase {
 
 @Override
 public void periodic() {
-    sensor_out = m_koral_sensor.get();  // Poll the sensor  
+    boolean sensor_out = m_koral_sensor.get(); // Poll the sensor  
+
     if (!sensor_out) {
-        if (!m_isWaiting) {
-            // If the Koral is not detected, start waiting
+        if (!m_isWaiting) { 
+            // Start waiting only if it wasn't waiting before
             m_isWaiting = true;
-            m_timer.reset();  // Reset the timer
-            m_timer.start();  // Start the timer
+            m_timer.reset();
+            m_timer.start();
         }
 
-        // If waiting, check if the desired time has passed before stopping
-        if (m_isWaiting && m_timer.get() >= 0.85) {  // Wait for 1 second (adjust as needed)
-            m_isWaiting = false;  // Reset the waiting flag
-            m_timer.stop();  // Stop the timer
-            on = false;
-            stop().schedule();  // Stop the motors after the wait time
-            RobotContainer.m_Arm.goToAngle(0.08).schedule();
+        // Wait for 0.85 seconds before stopping
+        if (m_isWaiting && m_timer.hasElapsed(0.85)) {
+            m_isWaiting = false;
+            m_timer.stop();
+            if (on) {  // Only stop if the motor was previously on
+                on = false;
+                stop().schedule(); // Stop motors once
+            }
         }
     } else {
-        // Reset waiting state when sensor detects something
-        m_isWaiting = false;
-        m_timer.stop();
-        on = true;
-        forwards().schedule();
-        RobotContainer.m_Arm.goToAngle(0.40).schedule();
+        // If sensor detects an object, reset waiting state
+        if (m_isWaiting) {
+            m_isWaiting = false;
+            m_timer.stop();
+        }
 
+        if (!on) { // Only schedule forwards() if not already moving
+            on = true;
+            forwards().schedule();
+        }
     }
 
     Timer.delay(0.01);
