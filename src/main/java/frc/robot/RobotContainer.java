@@ -5,20 +5,15 @@
 package frc.robot;
 
 import java.util.List;
-// import java.io.Console;
-// import java.util.List;
 import java.util.Optional;
 
 import org.photonvision.EstimatedRobotPose;
-// import org.photonvision.targeting.PhotonTrackedTarget;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.path.PathConstraints;
-import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -27,9 +22,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.BooleanPublisher;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -38,23 +30,12 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-// import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-// import org.photonvision.EstimatedRobotPose;
-// import org.photonvision.PhotonCamera;
-// import org.photonvision.PhotonPoseEstimator;
-// import org.photonvision.PhotonPoseEstimator.PoseStrategy;
-// import org.photonvision.PhotonUtils;
-// import org.photonvision.targeting.PhotonTrackedTarget;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.util.PhotonVisionHandler;
-
-// import frc.robot.Vision.MeasurementInfo;
-
 
 public class RobotContainer {
 
@@ -145,7 +126,8 @@ public class RobotContainer {
             .withRotationalRate(-m_controller.getRightX() * kMaxAngularRate)));
 
 
-        // reset the field-centric heading on left bumper press
+
+        // reset the field-centric heading on left bumper press 
 
         // m_controller.rightBumper().onTrue(m_Intake.KoralCheck(false));
         m_controller.leftBumper().onTrue(m_Intake.reverse());
