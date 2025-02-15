@@ -49,10 +49,12 @@ public class PhotonVisionHandler {
     try { 
       aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
     } 
+    
     catch (UncheckedIOException e) {
       System.err.println("Error layout doesn't exist: " + e.getMessage());
       aprilTagFieldLayout = null;
     }
+
     catch (Exception e) {
       System.err.println("Error loading AprilTag field layout: " + e.getMessage());
       aprilTagFieldLayout = null;
