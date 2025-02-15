@@ -58,8 +58,8 @@ public class RobotContainer {
 
     private Optional<EstimatedRobotPose> prevVisionOut = Optional.empty();
     private Optional<EstimatedRobotPose> Visionout;
-    private final Field2d m_Visionpose = new Field2d();
-    private final Field2d m_Fieldpose = new Field2d();
+    // private final Field2d m_Visionpose = new Field2d();
+    // private final Field2d m_Fieldpose = new Field2d();
 
     private final Intake m_Intake = new Intake();
     public static final Arm m_Arm = new Arm(); 
@@ -113,8 +113,8 @@ public class RobotContainer {
     public RobotContainer() {
         configureBindings();
         m_powerdistro.setSwitchableChannel(true);
-        SmartDashboard.putData("Arm", m_Arm);
-        SmartDashboard.putData("intake", m_Intake);
+        // SmartDashboard.putData("Arm", m_Arm);
+        // SmartDashboard.putData("intake", m_Intake);
     }
     
 
@@ -135,11 +135,11 @@ public class RobotContainer {
 
         // reset the field-centric heading on left bumper press
 
-        // m_controller.rightBumper().onTrue(m_Intake.KoralCheck(false));
+        m_controller.rightBumper().onTrue(m_Intake.KoralCheck(false));
         m_controller.leftBumper().onTrue(m_Intake.reverse());
 
-        m_controller.rightBumper().onFalse(m_Intake.stop());
-        m_controller.leftBumper().onFalse(m_Intake.stop());
+        // m_controller.rightBumper().onFalse(m_Intake.stop());
+        // m_controller.leftBumper().onFalse(m_Intake.stop());
 
         // m_controller.leftTrigger().onTrue(m_Arm.goToAngle(-0.38));
         // m_controller.leftTrigger().onFalse(m_Arm.goToAngle(-0.04));
@@ -197,8 +197,8 @@ public class RobotContainer {
         System.out.println("Tag Area" + visionHandler.avgTagArea(tags));
         
         //Set and Put Output from Vision on Smart Dashboard for debugging
-        m_Visionpose.setRobotPose(Visionout.get().estimatedPose.toPose2d());
-        SmartDashboard.putData("Vision Pose", m_Visionpose);
+        // m_Visionpose.setRobotPose(Visionout.get().estimatedPose.toPose2d());
+        // SmartDashboard.putData("Vision Pose", m_Visionpose);
         
         // // return if no tag detected
         if (tags.size() < 1) {
@@ -253,8 +253,8 @@ public class RobotContainer {
         }
       }
 
-      m_Fieldpose.setRobotPose(m_drivetrain.getState().Pose);
-      SmartDashboard.putData("Robot Pose", m_Fieldpose);
+      // m_Fieldpose.setRobotPose(m_drivetrain.getState().Pose);
+      // SmartDashboard.putData("Robot Pose", m_Fieldpose);
       Timer.delay(0.1);
       //}
   
