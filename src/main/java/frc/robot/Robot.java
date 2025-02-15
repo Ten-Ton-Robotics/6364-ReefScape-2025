@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -11,6 +14,9 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
+  private final ExecutorService threadPool = Executors.newSingleThreadExecutor(); // Create a thread pool with one thread
+  private boolean isPoseEstimatorRunning = false;
+
 
   private final RobotContainer m_robotContainer;
 
@@ -24,19 +30,21 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     CommandScheduler.getInstance().run(); 
 
-    // try {
-
-      m_robotContainer.updatePoseEstimator();
-      Timer.delay(0.025);
-
-
-         
-
-    // } catch (Exception e) {
-    //   System.out.println(e);
+    //   // Check if the pose estimator is already running
+    //   if (!isPoseEstimatorRunning) {
+    //     isPoseEstimatorRunning = true; // Mark it as running
+    //     threadPool.submit(() -> {
+    //         try {
+    //             // Run your pose estimator update logic
+    //             m_robotContainer.updatePoseEstimator();
+    //         } catch (Exception e) {
+    //             System.out.println("Error in updatePoseEstimator: " + e.getMessage());
+    //         } finally {
+    //             isPoseEstimatorRunning = false; // Mark it as done
+    //         }
+    //     });
     // }
-    
-  }
+}
 
   @Override
   public void disabledInit() {}

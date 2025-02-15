@@ -150,8 +150,8 @@ public class RobotContainer {
         // m_controller.rightBumper().onTrue(m_Intake.KoralCheck(false));
         m_controller.leftBumper().onTrue(m_Intake.reverse());
 
-        m_controller.b().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(14.7, 4.045, new Rotation2d(Units.degreesToRadians(180)))));
-        m_controller.y().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(15, 5.063, new Rotation2d(Units.degreesToRadians(180)))));
+        // m_controller.b().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(14.7, 4.045, new Rotation2d(Units.degreesToRadians(180)))));
+        // m_controller.y().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(15, 5.063, new Rotation2d(Units.degreesToRadians(180)))));
 
         m_controller.rightBumper().onFalse(m_Intake.stop());
         m_controller.leftBumper().onFalse(m_Intake.stop());
@@ -269,7 +269,7 @@ public class RobotContainer {
 
       m_Fieldpose.setRobotPose(m_drivetrain.getState().Pose);
       SmartDashboard.putData("Robot Pose", m_Fieldpose);
-      Timer.delay(0.01);
+      Timer.delay(0.035);
       //}
   
     }
