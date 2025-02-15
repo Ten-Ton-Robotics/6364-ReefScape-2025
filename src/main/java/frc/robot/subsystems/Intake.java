@@ -71,7 +71,7 @@ public class Intake extends SubsystemBase {
     private final VelocityVoltage m_lowerOutput = new VelocityVoltage(kLowerSpeed);
 
     private boolean on = false;
-    private boolean sensor_out;
+    public boolean sensor_out;
     public Intake() {
         super();
         // configure motors
@@ -105,62 +105,40 @@ public class Intake extends SubsystemBase {
       m_upperMotor.setControl(new StaticBrake());
   }
 
-  public Command KoralCheck(boolean reverse) {
-    return this.run(() -> {
-        if (!sensor_out) {  
-            on = false;
-            stop().schedule();
-        } else {
-            if (reverse) {
-                on = true;
-                reverse().schedule();
-            } else {
-                on = true;
-                forwards().schedule();
-            }
-        }
-    });
-}
-
-// public Command KoralCheck(boolean reverse) {
-//   Command intakeCommand = reverse ? reverse() : forwards();
-  
-//   return intakeCommand.onlyWhile(() -> sensor_out);  // Runs only while the sensor does NOT detect an object
-// }
 
 @Override
 public void periodic() {
-    boolean sensor_out = m_koral_sensor.get(); // Poll the sensor  
+    sensor_out = !m_koral_sensor.get(); // Poll the sensor  
 
-    if (!sensor_out) {
-        if (!m_isWaiting) { 
-            // Start waiting only if it wasn't waiting before
-            m_isWaiting = true;
-            m_timer.reset();
-            m_timer.start();
-        }
+    // if (!sensor_out) {
+    //     if (!m_isWaiting) { 
+    //         // Start waiting only if it wasn't waiting before
+    //         m_isWaiting = true;
+    //         m_timer.reset();
+    //         m_timer.start();
+    //     }
 
-        // Wait for 0.85 seconds before stopping
-        if (m_isWaiting && m_timer.hasElapsed(0.85)) {
-            m_isWaiting = false;
-            m_timer.stop();
-            if (on) {  // Only stop if the motor was previously on
-                on = false;
-                stop().schedule(); // Stop motors once
-            }
-        }
-    } else {
-        // If sensor detects an object, reset waiting state
-        if (m_isWaiting) {
-            m_isWaiting = false;
-            m_timer.stop();
-        }
+    //     // Wait for 0.85 seconds before stopping
+    //     if (m_isWaiting && m_timer.hasElapsed(0.85)) {
+    //         m_isWaiting = false;
+    //         m_timer.stop();
+    //         if (on) {  // Only stop if the motor was previously on
+    //             on = false;
+    //             stop().schedule(); // Stop motors once
+    //         }
+    //     }
+    // } else {
+    //     // If sensor detects an object, reset waiting state
+    //     if (m_isWaiting) {
+    //         m_isWaiting = false;
+    //         m_timer.stop();
+    //     }
 
-        if (!on) { // Only schedule forwards() if not already moving
-            on = true;
-            forwards().schedule();
-        }
-    }
+    //     if (!on) { // Only schedule forwards() if not already moving
+    //         on = true;
+    //         forwards().schedule();
+    //     }
+    // }
 }
 //}
 
