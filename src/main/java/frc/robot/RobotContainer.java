@@ -16,6 +16,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -32,6 +33,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -58,6 +60,8 @@ public class RobotContainer {
 
     private Optional<EstimatedRobotPose> prevVisionOut = Optional.empty();
     private Optional<EstimatedRobotPose> Visionout;
+    private final SendableChooser<Command> autoChooser;
+
     // private final Field2d m_Visionpose = new Field2d();
     // private final Field2d m_Fieldpose = new Field2d();
 
@@ -113,6 +117,15 @@ public class RobotContainer {
     public RobotContainer() {
         configureBindings();
         m_powerdistro.setSwitchableChannel(true);
+
+                // Build an auto chooser. This will use Commands.none() as the default option.
+        autoChooser = AutoBuilder.buildAutoChooser();
+
+        // Another option that allows you to specify the default auto by its name
+        // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
+
+        SmartDashboard.putData("Auto Chooser", autoChooser);
+
         // SmartDashboard.putData("Arm", m_Arm);
         // SmartDashboard.putData("intake", m_Intake);
     }
@@ -270,6 +283,6 @@ public class RobotContainer {
 
 
     public Command getAutonomousCommand() {
-        return Commands.print("No autonomous command configured");
+      return autoChooser.getSelected();
     }
 }
