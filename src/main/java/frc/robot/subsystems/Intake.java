@@ -14,8 +14,12 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.RobotContainer;
 
 public class Intake extends SubsystemBase {
@@ -29,7 +33,6 @@ public class Intake extends SubsystemBase {
 
     public static final double kUpperSpeed = 20;
     public static final double kLowerSpeed = 20   ;
-
 
     public static final NeutralModeValue kUpperNeutralMode = NeutralModeValue.Brake;
     public static final NeutralModeValue kLowerNeutralMode = NeutralModeValue.Brake;
@@ -46,6 +49,7 @@ public class Intake extends SubsystemBase {
     public static final double kUpperKP = 0.35;
     public static final double kUpperKI = 0;
     public static final double kUpperKD = 0;
+
     // Upper motor controller feedforward gains
     public static final double kUpperKS = 0;
     public static final double kUpperKV = 0;
@@ -55,6 +59,7 @@ public class Intake extends SubsystemBase {
     public static final double kLowerKP = 0.35;
     public static final double kLowerKI = 0;
     public static final double kLowerKD = 0;
+
     // Lower motor controller feedforward k
     public static final double kLowerKS = 0;
     public static final double kLowerKV = 0;
@@ -67,11 +72,13 @@ public class Intake extends SubsystemBase {
     private final TalonFX m_upperMotor = new TalonFX(kUpperMotorId, kUpperMotorBus);
     private final TalonFX m_lowerMotor = new TalonFX(kLowerMotorId, kLowerMotorBus);
     
+    // Motor Outputs
     private final VelocityVoltage m_upperOutput = new VelocityVoltage(kUpperSpeed);
     private final VelocityVoltage m_lowerOutput = new VelocityVoltage(kLowerSpeed);
 
     private boolean on = false;
     public boolean sensor_out;
+    
     public Intake() {
         super();
         // configure motors
@@ -106,41 +113,33 @@ public class Intake extends SubsystemBase {
   }
 
 
+public Command koralControlCommand(double waitseconds) {
+    return new SequentialCommandGroup(
+        new InstantCommand(() -> {
+            m_isWaiting = true;
+            m_timer.reset();
+            m_timer.start();
+        }),
+
+        new WaitUntilCommand(() -> m_timer.hasElapsed(waitseconds)), // Non-blocking wait
+
+        new InstantCommand(() -> {
+            if (on) {
+                on = false;
+                stop().schedule();
+                RobotContainer.m_Arm.goToAngle(-0.38);
+            }
+            m_isWaiting = false;
+            m_timer.stop();
+        })
+    );
+}
+
+
 @Override
 public void periodic() {
     sensor_out = !m_koral_sensor.get(); // Poll the sensor  
-
-    // if (!sensor_out) {
-    //     if (!m_isWaiting) { 
-    //         // Start waiting only if it wasn't waiting before
-    //         m_isWaiting = true;
-    //         m_timer.reset();
-    //         m_timer.start();
-    //     }
-
-    //     // Wait for 0.85 seconds before stopping
-    //     if (m_isWaiting && m_timer.hasElapsed(0.85)) {
-    //         m_isWaiting = false;
-    //         m_timer.stop();
-    //         if (on) {  // Only stop if the motor was previously on
-    //             on = false;
-    //             stop().schedule(); // Stop motors once
-    //         }
-    //     }
-    // } else {
-    //     // If sensor detects an object, reset waiting state
-    //     if (m_isWaiting) {
-    //         m_isWaiting = false;
-    //         m_timer.stop();
-    //     }
-
-    //     if (!on) { // Only schedule forwards() if not already moving
-    //         on = true;
-    //         forwards().schedule();
-    //     }
-    // }
 }
-//}
 
   /**
    * @brief set the speed of the lower motor
@@ -148,6 +147,7 @@ public void periodic() {
    * @param speed speed in revolutions per second
    * @return Command
    */
+
   public void setLowerSpeed(double speed) {
     m_lowerOutput.Velocity = speed;
     m_lowerMotor.setControl(m_lowerOutput);
@@ -168,10 +168,8 @@ public void periodic() {
          this.setLowerSpeed(speed);
        });
      }
-   
 
-
-    public Command reverse() {
+  public Command reverse() {
             return this.runOnce(() -> {
             this.setUpperSpeed(-kUpperSpeed);
             this.setLowerSpeed(-kLowerSpeed);

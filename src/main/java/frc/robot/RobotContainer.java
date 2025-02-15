@@ -140,35 +140,21 @@ public class RobotContainer {
             .withVelocityY(-m_controller.getLeftX() * kMaxSpeed)
             .withRotationalRate(-m_controller.getRightX() * kMaxAngularRate)));
 
-
         // reset the field-centric heading on left bumper press
-
-        m_controller.leftBumper().onTrue(m_Intake.reverse());
-
         m_controller.b().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(14.7, 4.045, new Rotation2d(Units.degreesToRadians(180)))));
         m_controller.y().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(15, 5.063, new Rotation2d(Units.degreesToRadians(180)))));
-
-        // Setting up Trigger for Autonmatic Intake Control
 
         // Inside configureBindings()
         Trigger objectDetected = new Trigger(() -> m_Intake.sensor_out);
 
-
         // Intake should run forwards while an object is detected
-        objectDetected.onTrue(m_Intake.forwards()).onFalse(m_Intake.stop()); 
-
+        objectDetected.onTrue(m_Intake.koralControlCommand(0.85));
+        objectDetected.onFalse(m_Intake.forwards().alongWith(m_Arm.goToAngle(-0.04)));
+        
         // Manual override using controller buttons
-        m_controller.a().onTrue(m_Intake.forwards());
-        m_controller.b().onTrue(m_Intake.reverse());
-        m_controller.y().onTrue(m_Intake.stop());
-
-
-        // m_controller.rightBumper().onFalse(m_Intake.stop());
-        // m_controller.leftBumper().onFalse(m_Intake.stop());
-
-        // m_controller.leftTrigger().onTrue(m_Arm.goToAngle(-0.38));
-        // m_controller.leftTrigger().onFalse(m_Arm.goToAngle(-0.04));
-
+        // m_controller.rightBumper().onTrue(m_Intake.forwards());
+        m_controller.leftBumper().onTrue(m_Intake.reverse());
+        // m_controller.x().onTrue(m_Intake.stop());
         
         m_controller.leftBumper().onTrue(m_drivetrain.runOnce(() -> m_drivetrain.seedFieldCentric()));
 
