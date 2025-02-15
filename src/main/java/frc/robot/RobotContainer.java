@@ -95,7 +95,7 @@ public class RobotContainer {
 
     public static final CommandXboxController m_controller = new CommandXboxController(0);
 
-    public final CommandSwerveDrivetrain m_drivetrain = TunerConstants.createDrivetrain();
+    public final static CommandSwerveDrivetrain m_drivetrain = TunerConstants.createDrivetrain();
 
     private double getLeftY() {
         if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red)
@@ -137,6 +137,10 @@ public class RobotContainer {
 
         m_controller.rightBumper().onTrue(m_Intake.KoralCheck(false));
         m_controller.leftBumper().onTrue(m_Intake.reverse());
+
+        m_controller.b().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(14.7, 4.045, new Rotation2d(Units.degreesToRadians(180)))));
+        m_controller.y().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(15, 5.063, new Rotation2d(Units.degreesToRadians(180)))));
+
 
         // m_controller.rightBumper().onFalse(m_Intake.stop());
         // m_controller.leftBumper().onFalse(m_Intake.stop());
@@ -193,8 +197,8 @@ public class RobotContainer {
 
         final List<PhotonTrackedTarget> tags = Visionout.get().targetsUsed;
 
-        System.out.println("posDiff " + posDiff);
-        System.out.println("Tag Area" + visionHandler.avgTagArea(tags));
+        // System.out.println("posDiff " + posDiff);
+        // System.out.println("Tag Area" + visionHandler.avgTagArea(tags));
         
         //Set and Put Output from Vision on Smart Dashboard for debugging
         // m_Visionpose.setRobotPose(Visionout.get().estimatedPose.toPose2d());
@@ -202,7 +206,7 @@ public class RobotContainer {
         
         // // return if no tag detected
         if (tags.size() < 1) {
-          System.out.println("No tags to fuse");
+          // System.out.println("No tags to fuse");
           return;
         } 
         // // more than 1 tag in view
@@ -230,7 +234,7 @@ public class RobotContainer {
         }
         // conditions don't match to add a vision measurement
         else{
-          System.out.println("Unable to fuse (Conditions not Met)");
+          // System.out.println("Unable to fuse (Conditions not Met)");
 
           return;
         }    
@@ -240,12 +244,11 @@ public class RobotContainer {
   
         {
 
-          System.out.println("Fusion Successful");
+          // System.out.println("Fusion Successful");
   
           Pose2d visPose2d = Visionout.get().estimatedPose.toPose2d();
           double visionstamp = Visionout.get().timestampSeconds;
 
-          
           m_drivetrain.addVisionMeasurement(visPose2d, visionstamp, VecBuilder.fill(lateralDeviation,
               lateralDeviation, Units.degreesToRadians(angularDeviation)));
 
@@ -255,7 +258,7 @@ public class RobotContainer {
 
       // m_Fieldpose.setRobotPose(m_drivetrain.getState().Pose);
       // SmartDashboard.putData("Robot Pose", m_Fieldpose);
-      Timer.delay(0.1);
+      // Timer.delay(0.2);
       //}
   
     } catch (Exception e) {
