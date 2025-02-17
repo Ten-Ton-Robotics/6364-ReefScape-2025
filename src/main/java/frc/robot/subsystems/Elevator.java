@@ -11,6 +11,8 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -33,8 +35,7 @@ public class Elevator extends SubsystemBase {
     public static final InvertedValue kElevatorMotor1Inverted = InvertedValue.CounterClockwise_Positive;
     public static final InvertedValue kElevatorMotor2Inverted = InvertedValue.CounterClockwise_Positive;
 
-
-    private final PIDController elevatorPID = new PIDController(kElevatorKP, kElevatorKI, kElevatorKD);
+    private final ProfiledPIDController elevatorPID = new ProfiledPIDController(kElevatorKP, kElevatorKI, kElevatorKD, new TrapezoidProfile.Constraints(5, 10));
 
     // Elevator controller gains
     public static final double kElevatorKP = 50;
