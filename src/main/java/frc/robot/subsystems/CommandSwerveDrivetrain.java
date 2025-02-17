@@ -318,8 +318,6 @@ public Command findAndFollowPath(final Pose2d targetPose) {
             });
         }
 
-        Timer.delay(0.02);
-
     }
 
     @Override

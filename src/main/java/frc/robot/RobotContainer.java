@@ -63,8 +63,8 @@ public class RobotContainer {
     private Optional<EstimatedRobotPose> Visionout;
     private final SendableChooser<Command> autoChooser;
 
-    // private final Field2d m_Visionpose = new Field2d();
-    // private final Field2d m_Fieldpose = new Field2d();
+    private final Field2d m_Visionpose = new Field2d();
+    private final Field2d m_Fieldpose = new Field2d();
 
     private final Intake m_Intake = new Intake();
     public static final Arm m_Arm = new Arm(); 
@@ -127,8 +127,8 @@ public class RobotContainer {
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
-        // SmartDashboard.putData("Arm", m_Arm);
-        // SmartDashboard.putData("intake", m_Intake);
+        SmartDashboard.putData("Arm", m_Arm);
+        SmartDashboard.putData("intake", m_Intake);
     }
     
 
@@ -148,12 +148,14 @@ public class RobotContainer {
         Trigger objectDetected = new Trigger(() -> m_Intake.sensor_out);
 
         // Intake should run forwards while an object is detected
-        objectDetected.onTrue(m_Intake.koralControlCommand(0.85));
+        objectDetected.onTrue(m_Intake.koralControlCommand(0.85).alongWith(m_Arm.goToAngle(-0.38)));
         objectDetected.onFalse(m_Intake.forwards().alongWith(m_Arm.goToAngle(-0.04)));
-        
+
         // Manual override using controller buttons
         // m_controller.rightBumper().onTrue(m_Intake.forwards());
         m_controller.leftBumper().onTrue(m_Intake.reverse());
+        m_controller.leftBumper().onFalse(m_Intake.forwards());
+      
         // m_controller.x().onTrue(m_Intake.stop());
         
         m_controller.leftBumper().onTrue(m_drivetrain.runOnce(() -> m_drivetrain.seedFieldCentric()));
@@ -208,8 +210,8 @@ public class RobotContainer {
         // System.out.println("Tag Area" + visionHandler.avgTagArea(tags));
         
         //Set and Put Output from Vision on Smart Dashboard for debugging
-        // m_Visionpose.setRobotPose(Visionout.get().estimatedPose.toPose2d());
-        // SmartDashboard.putData("Vision Pose", m_Visionpose);
+        m_Visionpose.setRobotPose(Visionout.get().estimatedPose.toPose2d());
+        SmartDashboard.putData("Vision Pose", m_Visionpose);
         
         // // return if no tag detected
         if (tags.size() < 1) {
@@ -263,9 +265,8 @@ public class RobotContainer {
         }
       }
 
-      // m_Fieldpose.setRobotPose(m_drivetrain.getState().Pose);
-      // SmartDashboard.putData("Robot Pose", m_Fieldpose);
-      // Timer.delay(0.2);
+      m_Fieldpose.setRobotPose(m_drivetrain.getState().Pose);
+      SmartDashboard.putData("Robot Pose", m_Fieldpose);
       //}
   
     } catch (Exception e) {

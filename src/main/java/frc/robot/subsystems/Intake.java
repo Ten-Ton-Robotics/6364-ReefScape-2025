@@ -127,7 +127,7 @@ public Command koralControlCommand(double waitseconds) {
             if (on) {
                 on = false;
                 stop().schedule();
-                RobotContainer.m_Arm.goToAngle(-0.38);
+                // RobotContainer.m_Arm.goToAngle(-0.38);
             }
             m_isWaiting = false;
             m_timer.stop();
@@ -211,7 +211,7 @@ public void periodic() {
   public void initSendable(SendableBuilder builder) {
     super.initSendable(builder); // call the superclass method
 
-    builder.addBooleanProperty("Koral detected", () -> !sensor_out, null);
+    builder.addBooleanProperty("Koral detected", () -> sensor_out, null);
     builder.addBooleanProperty("Intake On", () -> on, null);
     // add upper motor target velocity property
     // builder.addDoubleProperty("Upper Target Velocity", () -> m_upperOutput.Velocity,
