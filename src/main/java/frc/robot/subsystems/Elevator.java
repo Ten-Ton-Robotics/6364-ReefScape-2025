@@ -10,11 +10,19 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import au.grapplerobotics.LaserCan;
+import au.grapplerobotics.ConfigurationFailedException;
+
+
 public class Elevator extends SubsystemBase {
+
+    private LaserCan m_lc;
+    private LaserCan.Measurement laserHeight;
 
     public static final String kElevatorBus = "rio";
     public static final int kElevatorMotor1Id = 0; // not set, change to actual id
@@ -22,8 +30,12 @@ public class Elevator extends SubsystemBase {
 
     public static final double kElevatorPose = 0;
     public static final NeutralModeValue kElevatorNeutralMode = NeutralModeValue.Brake;
-    public static final InvertedValue kElevatorInverted = InvertedValue.CounterClockwise_Positive;
-    
+    public static final InvertedValue kElevatorMotor1Inverted = InvertedValue.CounterClockwise_Positive;
+    public static final InvertedValue kElevatorMotor2Inverted = InvertedValue.CounterClockwise_Positive;
+
+
+    private final PIDController elevatorPID = new PIDController(kElevatorKP, kElevatorKI, kElevatorKD);
+
     // Elevator controller gains
     public static final double kElevatorKP = 50;
     public static final double kElevatorKI = 0;
@@ -58,9 +70,6 @@ public class Elevator extends SubsystemBase {
         elevatorConfig.Slot0 = new Slot0Configs().withKP(kElevatorKP).withKI(kElevatorKI).withKD(kElevatorKD)
             .withKS(kElevatorKS).withKV(kElevatorKV).withKA(kElevatorKA).withKG(kElevatorKG);
         
-        // Invert motor 
-        elevatorConfig.MotorOutput.Inverted = kElevatorInverted; 
-
         // Set ratios 
         elevatorConfig.Feedback.SensorToMechanismRatio = kElevatorRatio; 
         
@@ -73,10 +82,16 @@ public class Elevator extends SubsystemBase {
         elevatorConfig.CurrentLimits.SupplyCurrentLimit = kCurrentLimit;
         elevatorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
         elevatorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+
+        // Invert motor 1
+        elevatorConfig.MotorOutput.Inverted = kElevatorMotor1Inverted; 
     
         // Apply Configs 
         m_ElevatorMotor1.getConfigurator().apply(elevatorConfig); 
         m_ElevatorMotor1.setPosition(kMaxPosition);
+
+        // Invert motor 2
+        elevatorConfig.MotorOutput.Inverted = kElevatorMotor2Inverted; 
 
         m_ElevatorMotor2.getConfigurator().apply(elevatorConfig); 
         m_ElevatorMotor2.setPosition(kMaxPosition);
@@ -118,12 +133,25 @@ public class Elevator extends SubsystemBase {
         return this.setSpeed(0);
     }
 
-    public Command goToHeight(double position) {
-        return this.runOnce(() -> {
-            m_ElevatorOutput.Position = position;
-            m_ElevatorMotor1.setControl(m_ElevatorOutput);
-            m_ElevatorMotor2.setControl(m_ElevatorOutput);
+    public Command goToHeight(double targetPosition) {
+        return this.run(() -> {
+            if (laserHeight != null) {
+                double currentHeight = laserHeight.distance_mm; // Get measured height
+                double pidOutput = elevatorPID.calculate(currentHeight, targetPosition); // PID calculation
+                m_ElevatorMotor1.setControl(new VelocityVoltage(pidOutput)); // Apply PID output
+                m_ElevatorMotor2.setControl(new VelocityVoltage(pidOutput));
+            }
         });
+    }
+    
+    @Override
+    public void periodic() {
+        // TODO Auto-generated method stub
+        super.periodic();
+        if (m_lc != null) { // Ensure the laser sensor is initialized
+            laserHeight = m_lc.getMeasurement();
+        }
+    
     }
 
     /**
