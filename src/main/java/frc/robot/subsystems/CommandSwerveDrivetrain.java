@@ -24,6 +24,8 @@ import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import com.pathplanner.lib.config.RobotConfig;
@@ -175,6 +177,29 @@ public Command findAndFollowPath(final Pose2d targetPose) {
         return AutoBuilder.pathfindToPoseFlipped(targetPose, pathConstraints);
     }
 } 
+
+
+public Command AutoAlign(final Pose2d targetPose){
+    return new SequentialCommandGroup({
+        // Path Gen and Follower
+        new InstantCommand(() -> {
+            if (DriverStation.getAlliance().equals(Alliance.Blue)) {
+                System.out.println("DEBUG: RUNNING PATHFINDER");
+                AutoBuilder.pathfindToPose(targetPose, pathConstraints);
+            } else {
+                AutoBuilder.pathfindToPoseFlipped(targetPose, pathConstraints);
+                System.out.println("DEBUG: RUNNING PATHFINDER");
+            }
+        }),
+
+        new InstantCommand(() -> {
+
+
+
+        })
+        // End of Sequential CommandGroup
+    });
+}
 
 
 
