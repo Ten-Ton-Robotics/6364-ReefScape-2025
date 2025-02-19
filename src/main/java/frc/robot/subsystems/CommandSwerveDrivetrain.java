@@ -35,6 +35,7 @@ import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.config.PIDConstants;
 
+import frc.robot.autonomous.MoveToPose;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.util.Constants.Drivetrain;
 
@@ -47,6 +48,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
     private Optional<Alliance> alliance;
+    // public final MoveToPose moveToPose;
 
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
     private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.kZero;
@@ -143,8 +145,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                   this::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
                   (speeds, feedforwards) -> driveRobotRelative(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
                     new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
-                            new PIDConstants(0.5, 0.0, 0.0), // Translation PID constants
-                            new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+                            new PIDConstants(Drivetrain.kLateralPositionP, 0.0, Drivetrain.kLateralPositionD), // Translation PID constants
+                            new PIDConstants(Drivetrain.kAngularPositionP, 0.0, Drivetrain.kAngularPositionD) // Rotation PID constants
                   ),
                   config, // The robot configuration
                   () -> {
@@ -180,25 +182,24 @@ public Command findAndFollowPath(final Pose2d targetPose) {
 
 
 public Command AutoAlign(final Pose2d targetPose){
-    return new SequentialCommandGroup({
+    return new SequentialCommandGroup(
         // Path Gen and Follower
         new InstantCommand(() -> {
             if (DriverStation.getAlliance().equals(Alliance.Blue)) {
-                System.out.println("DEBUG: RUNNING PATHFINDER");
+                System.out.println("DEBUG: RUNNING PATHFINDER BLUE");
                 AutoBuilder.pathfindToPose(targetPose, pathConstraints);
             } else {
                 AutoBuilder.pathfindToPoseFlipped(targetPose, pathConstraints);
-                System.out.println("DEBUG: RUNNING PATHFINDER");
+                System.out.println("DEBUG: RUNNING PATHFINDER RED");
             }
         }),
 
         new InstantCommand(() -> {
-
-
-
+            new MoveToPose(targetPose, this);
         })
+        
         // End of Sequential CommandGroup
-    });
+    );
 }
 
 

@@ -1,13 +1,13 @@
-public package frc.robot.autonomous;
+package frc.robot.autonomous;
 
-import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.util.Constants.Drivetrain;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 
 /**
  * A command that moves the robot to a specified pose
@@ -103,7 +103,4 @@ public class MoveToPose extends Command {
       m_drivetrain
           .applyRequest(() -> m_drive.withVelocityX(0).withVelocityY(0).withRotationalRate(0));
   }
-}
- MoveToPose {
-    
-}
+};
