@@ -181,7 +181,7 @@ public Command findAndFollowPath(final Pose2d targetPose) {
 } 
 
 
-public Command AutoAlign(final Pose2d targetPose){
+public Command AutoAlign(final Pose2d targetPose, final double finaltimeout){
     return new SequentialCommandGroup(
         // Path Gen and Follower
         new InstantCommand(() -> {
@@ -195,14 +195,15 @@ public Command AutoAlign(final Pose2d targetPose){
         }),
 
         new InstantCommand(() -> {
-            new MoveToPose(targetPose, this);
+            new MoveToPose(targetPose, this).withTimeout(finaltimeout);
+            System.out.println("DEBUG: RUNNING MOVE TO POSE");
         })
         
         // End of Sequential CommandGroup
     );
 }
 
-
+    
 
 
 
