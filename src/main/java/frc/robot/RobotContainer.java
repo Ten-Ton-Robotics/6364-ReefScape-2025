@@ -124,7 +124,7 @@ public class RobotContainer {
         // Another option that allows you to specify the default auto by its name
         // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
 
-        SmartDashboard.putData("Auto Chooser", autoChooser);
+        SmartDashboard.putData("bruh/Auto Chooser", autoChooser);
 
         // SmartDashboard.putData("Arm", m_Arm);
         // SmartDashboard.putData("intake", m_Intake);
