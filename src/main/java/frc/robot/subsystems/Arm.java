@@ -131,7 +131,7 @@ public class Arm extends SubsystemBase {
       m_ArmOutput.Position = position;
       m_ArmMotor.setControl(m_ArmOutput);
     
-    }).withTimeout(1);
+    });
   }
 
 

@@ -26,9 +26,9 @@ public class Elevator extends SubsystemBase {
     private LaserCan m_lc;
     private LaserCan.Measurement laserHeight;
 
-    public static final String kElevatorBus = "rio";
-    public static final int kElevatorMotor1Id = 0; // not set, change to actual id
-    public static final int kElevatorMotor2Id = 0; // not set, change to actual id
+    public static final String kElevatorBus = "drivecan";
+    public static final int kElevatorMotor1Id = 5; // not set, change to actual id
+    public static final int kElevatorMotor2Id = 17; // not set, change to actual id
 
     public static final double kElevatorPose = 0;
     public static final NeutralModeValue kElevatorNeutralMode = NeutralModeValue.Brake;

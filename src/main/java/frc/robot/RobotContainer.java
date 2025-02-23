@@ -68,15 +68,17 @@ public class RobotContainer {
 
     private final Intake m_Intake = new Intake();
     public static final Arm m_Arm = new Arm(); 
+    public static final DigitalInput m_koral_sensor = new DigitalInput(0);
+    Trigger objectDetected = new Trigger(m_koral_sensor::get);
+
 
     public final PhotonVisionHandler visionHandler = new PhotonVisionHandler();
     AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
     // Vision visionInstance;
 
     // Half a rotation per second max angular velocity.
-    private static final double kMaxAngularRate = 0.2 * Math.PI;
-    private static final double kMaxSpeed = 0.2;
-
+    private static final double kMaxAngularRate = 0.5 * Math.PI;
+    private static final double kMaxSpeed = 0.5;
 
     // private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     // private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
@@ -145,16 +147,16 @@ public class RobotContainer {
         m_controller.y().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(15, 5.063, new Rotation2d(Units.degreesToRadians(180)))));
 
         // Inside configureBindings()
-        Trigger objectDetected = new Trigger(() -> m_Intake.sensor_out);
-
         // Intake should run forwards while an object is detected
-        objectDetected.onTrue(m_Intake.koralControlCommand(0.85).alongWith(m_Arm.goToAngle(-0.38)));
-        objectDetected.onFalse(m_Intake.forwards().alongWith(m_Arm.goToAngle(-0.04)));
+        objectDetected.onFalse(m_Intake.koralControlCommand(0.85).alongWith(m_Arm.goToAngle(0))); //-0.38
+        objectDetected.whileTrue(m_Intake.forwards().alongWith(m_Arm.goToAngle(0.37)));
 
-        // Manual override using controller buttons
-        // m_controller.rightBumper().onTrue(m_Intake.forwards());
+        // Manual override using controller buttons 
+        // m_controller.rightBumper().onTrue(m_Intake.forwards());z
         m_controller.leftBumper().onTrue(m_Intake.reverse());
         m_controller.leftBumper().onFalse(m_Intake.forwards());
+
+        m_controller.a().onTrue(m_Intake.forwards().alongWith(m_Arm.goToAngle(0.30)));
       
         // m_controller.x().onTrue(m_Intake.stop());
         

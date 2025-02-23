@@ -40,7 +40,7 @@ public class Intake extends SubsystemBase {
     public static final InvertedValue kUpperMotorInverted = InvertedValue.CounterClockwise_Positive;
     public static final InvertedValue kLowerMotorInverted = InvertedValue.CounterClockwise_Positive;
     
-    public final DigitalInput m_koral_sensor = new DigitalInput(0);
+    // public final DigitalInput m_koral_sensor = new DigitalInput(0);
 
     private boolean m_isWaiting = false;
     private Timer m_timer = new Timer();
@@ -115,30 +115,33 @@ public class Intake extends SubsystemBase {
 
 public Command koralControlCommand(double waitseconds) {
     return new SequentialCommandGroup(
-        new InstantCommand(() -> {
-            m_isWaiting = true;
-            m_timer.reset();
-            m_timer.start();
-        }),
+        // new InstantCommand(() -> {
+        //     m_isWaiting = true;
+        //     m_timer.reset();
+        //     m_timer.start();
+        // }),
 
-        new WaitUntilCommand(() -> m_timer.hasElapsed(waitseconds)), // Non-blocking wait
+        new WaitCommand(waitseconds),
+        this.stop()
 
-        new InstantCommand(() -> {
-            if (on) {
-                on = false;
-                stop().schedule();
-                // RobotContainer.m_Arm.goToAngle(-0.38);
-            }
-            m_isWaiting = false;
-            m_timer.stop();
-        })
+        // new WaitUntilCommand(() -> m_timer.hasElapsed(waitseconds)), // Non-blocking wait
+
+    //     new InstantCommand(() -> {
+    //         if (on) {
+    //             on = false;
+    //             stop().schedule();
+    //             // RobotContainer.m_Arm.goToAngle(-0.38);
+    //         }
+    //         m_isWaiting = false;
+    //         // m_timer.stop();
+    //     })
     );
 }
 
 
 @Override
 public void periodic() {
-    sensor_out = !m_koral_sensor.get(); // Poll the sensor  
+    // sensor_out = !m_koral_sensor.get(); // Poll the sensor  
 }
 
   /**
@@ -211,7 +214,7 @@ public void periodic() {
   public void initSendable(SendableBuilder builder) {
     super.initSendable(builder); // call the superclass method
 
-    builder.addBooleanProperty("Koral detected", () -> sensor_out, null);
+    builder.addBooleanProperty("Koral detected", () -> !RobotContainer.m_koral_sensor.get(), null);
     builder.addBooleanProperty("Intake On", () -> on, null);
     // add upper motor target velocity property
     // builder.addDoubleProperty("Upper Target Velocity", () -> m_upperOutput.Velocity,
