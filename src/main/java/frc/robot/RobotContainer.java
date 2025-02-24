@@ -50,10 +50,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-<<<<<<< Updated upstream
-=======
 import frc.robot.subsystems.Elevator;
->>>>>>> Stashed changes
 import frc.robot.subsystems.Intake;
 import frc.robot.util.PhotonVisionHandler;
 // import frc.robot.Vision.MeasurementInfo;
@@ -70,27 +67,16 @@ public class RobotContainer {
     private Optional<EstimatedRobotPose> prevVisionOut = Optional.empty();
     private Optional<EstimatedRobotPose> Visionout;
     private final SendableChooser<Command> autoChooser;
-<<<<<<< Updated upstream
-=======
     private final SendableChooser<RobotState> armstates = new SendableChooser<>();
->>>>>>> Stashed changes
 
     private final Field2d m_Visionpose = new Field2d();
     private final Field2d m_Fieldpose = new Field2d();
 
-<<<<<<< Updated upstream
-    private final Intake m_Intake = new Intake();
-    public static final Arm m_Arm = new Arm(); 
-    public static final DigitalInput m_koral_sensor = new DigitalInput(0);
-    Trigger objectDetected = new Trigger(m_koral_sensor::get);
-
-=======
     public final Intake m_Intake = new Intake();
     public static final Arm m_Arm = new Arm(); 
     public final Elevator m_Elevator = new Elevator();
     public static final DigitalInput m_koral_sensor = new DigitalInput(0);
     Trigger objectDetected = new Trigger(m_koral_sensor::get);
->>>>>>> Stashed changes
 
     // Trigger robotMoving = new Trigger(() -> {
 
@@ -186,11 +172,6 @@ public class RobotContainer {
         // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
-<<<<<<< Updated upstream
-
-        SmartDashboard.putData("Arm", m_Arm);
-        SmartDashboard.putData("intake", m_Intake);
-=======
         SmartDashboard.putData("Koral Trigger", m_koral_sensor);
         SmartDashboard.putData("Elevator", m_Elevator);
 
@@ -202,7 +183,6 @@ public class RobotContainer {
         armstates.addOption("Low", RobotState.LOW);
         armstates.addOption("Bottom", RobotState.BOTTOM);
 
->>>>>>> Stashed changes
     }
     
 
@@ -215,26 +195,6 @@ public class RobotContainer {
             .withRotationalRate(-m_controller.getRightX() * kMaxAngularRate)));
 
         // reset the field-centric heading on left bumper press
-<<<<<<< Updated upstream
-        m_controller.b().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(14.7, 4.045, new Rotation2d(Units.degreesToRadians(180)))));
-        m_controller.y().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(15, 5.063, new Rotation2d(Units.degreesToRadians(180)))));
-
-        // Inside configureBindings()
-        // Intake should run forwards while an object is detected
-        objectDetected.onFalse(m_Intake.koralControlCommand(0.85).alongWith(m_Arm.goToAngle(0))); //-0.38
-        objectDetected.whileTrue(m_Intake.forwards().alongWith(m_Arm.goToAngle(0.37)));
-
-        // Manual override using controller buttons 
-        // m_controller.rightBumper().onTrue(m_Intake.forwards());z
-        m_controller.leftBumper().onTrue(m_Intake.reverse());
-        m_controller.leftBumper().onFalse(m_Intake.forwards());
-
-        m_controller.a().onTrue(m_Intake.forwards().alongWith(m_Arm.goToAngle(0.30)));
-      
-        // m_controller.x().onTrue(m_Intake.stop());
-        
-        m_controller.leftBumper().onTrue(m_drivetrain.runOnce(() -> m_drivetrain.seedFieldCentric()));
-=======
         // m_controller.b().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(14.7, 4.045, new Rotation2d(Units.degreesToRadians(180)))));
         // m_controller.y().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(15, 5.063, new Rotation2d(Units.degreesToRadians(180)))));
 
@@ -274,7 +234,6 @@ public class RobotContainer {
         // m_controller.x().onTrue(m_Intake.stop());
         
         m_controller.y().onTrue(m_drivetrain.runOnce(() -> m_drivetrain.seedFieldCentric()));
->>>>>>> Stashed changes
 
         m_drivetrain.registerTelemetry(logger::telemeterize);
     }
