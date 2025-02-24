@@ -31,8 +31,8 @@ public class Intake extends SubsystemBase {
     public static final int kUpperMotorId = 1;
     public static final int kLowerMotorId = 2;
 
-    public static final double kUpperSpeed = 100;
-    public static final double kLowerSpeed = 100;
+    public static final double kUpperSpeed = 50;
+    public static final double kLowerSpeed = 50;
 
     public static final NeutralModeValue kUpperNeutralMode = NeutralModeValue.Brake;
     public static final NeutralModeValue kLowerNeutralMode = NeutralModeValue.Brake;
@@ -115,26 +115,10 @@ public class Intake extends SubsystemBase {
 
 public Command koralControlCommand(double waitseconds) {
     return new SequentialCommandGroup(
-        // new InstantCommand(() -> {
-        //     m_isWaiting = true;
-        //     m_timer.reset();
-        //     m_timer.start();
-        // }),
 
         new WaitCommand(waitseconds),
         this.stop()
 
-        // new WaitUntilCommand(() -> m_timer.hasElapsed(waitseconds)), // Non-blocking wait
-
-    //     new InstantCommand(() -> {
-    //         if (on) {
-    //             on = false;
-    //             stop().schedule();
-    //             // RobotContainer.m_Arm.goToAngle(-0.38);
-    //         }
-    //         m_isWaiting = false;
-    //         // m_timer.stop();
-    //     })
     );
 }
 
@@ -184,10 +168,15 @@ public void periodic() {
    * 
    * @return Command
    */
-  public Command forwards() {
+  public Command forwards(boolean load) {
     return this.runOnce(() -> {
-      this.setUpperSpeed(kUpperSpeed);
-      this.setLowerSpeed(kLowerSpeed);
+      if(load){
+        this.setUpperSpeed(kUpperSpeed);
+        this.setLowerSpeed(kLowerSpeed);
+      }else{
+      this.setUpperSpeed(100);
+      this.setLowerSpeed(100);
+      }
     });
   }
 

@@ -5,6 +5,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.StaticBrake;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -24,24 +25,27 @@ public class ElevatorEncoder extends SubsystemBase {
     public static final InvertedValue kElevatorMotor2Inverted = InvertedValue.Clockwise_Positive;
 
     // Elevator controller gains
-    public static final double kElevatorKP = 50;
+    public static final double kElevatorKP = 2;
     public static final double kElevatorKI = 0;
     public static final double kElevatorKD = 0;
+    public static final double kElevatorKG = 0.35;
 
-    public static final double kCurrentLimit = 10;
-    public static final double kMaxPosition = 1000; // Change as per actual max height
-    public static final double kElevatorRatio = 1.0; // Set to actual gearing ratio
+    public static final double kCurrentLimit = 30;
+    public static final double kMaxPosition = 4.5; // (ACTUAL MAX HEIGHT)
+    public static final double kElevatorRatio = 5.0; // (ACTUAL GEAR RATIO!)
 
     private final TalonFX m_ElevatorMotor1 = new TalonFX(kElevatorMotor1Id, kElevatorBus);
     private final TalonFX m_ElevatorMotor2 = new TalonFX(kElevatorMotor2Id, kElevatorBus);
     private final PositionVoltage m_PositionControl = new PositionVoltage(kElevatorPose);
 
     public ElevatorEncoder() {
+
         super();
         final TalonFXConfiguration elevatorConfig = new TalonFXConfiguration();
 
         // Set controller gains
-        elevatorConfig.Slot0 = new Slot0Configs().withKP(kElevatorKP).withKI(kElevatorKI).withKD(kElevatorKD);
+        elevatorConfig.Slot0 = new Slot0Configs().withKP(kElevatorKP).withKI(kElevatorKI).withKD(kElevatorKD).withKG(kElevatorKG).withGravityType(GravityTypeValue.Elevator_Static);
+
         
         // Set gearing ratio
         elevatorConfig.Feedback.SensorToMechanismRatio = kElevatorRatio;

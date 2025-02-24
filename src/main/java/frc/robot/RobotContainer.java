@@ -163,6 +163,7 @@ public class RobotContainer {
 
     public RobotContainer() {
         configureBindings();
+
       
         m_powerdistro.setSwitchableChannel(true);
 
@@ -183,7 +184,6 @@ public class RobotContainer {
         armstates.addOption("Mid", RobotState.MID);
         armstates.addOption("Low", RobotState.LOW);
         armstates.addOption("Bottom", RobotState.BOTTOM);
-
     }
     
 
@@ -213,13 +213,15 @@ public class RobotContainer {
         // m_controller.rightTrigger().onTrue(m_Arm.goToAngle(0.29));
 //.andThen(m_Intake.reverse())
 
-        m_controller.a().onTrue(m_Elevator.goToHeight(10));
-        m_controller.leftTrigger()
-        .onTrue(m_Arm.goToAngle(0.26).andThen(m_Intake.forwards().withTimeout(1)))
-        .onFalse(m_Arm.goToAngle(0.26).andThen(m_Intake.forwards()));
+        m_controller.a().onTrue(m_Elevator.goToHeight(1).andThen(m_Elevator.stop()));
 
-        objectDetected.onFalse(m_Intake.koralControlCommand(0.035)); //-0.38
-        objectDetected.onTrue(m_Intake.forwards());
+        m_controller.leftTrigger()
+        .onTrue(m_Arm.goToAngle(0.26).andThen(m_Intake.forwards(false).withTimeout(1)))
+        .onFalse(m_Arm.goToAngle(0.26).andThen(m_Intake.forwards(true)));
+
+        objectDetected.onFalse(m_Intake.koralControlCommand(0.075)); //-0.38
+        objectDetected.onTrue(m_Intake.forwards(true));
+        
         
         // objectDetected.and().whileTrue(m_Arm.goToAngle(0));
         // objectDetected

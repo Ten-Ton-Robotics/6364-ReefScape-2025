@@ -161,8 +161,6 @@ public class Elevator extends SubsystemBase {
         super.periodic();
         if (m_lc != null) { // Ensure the laser sensor is initialized
             laserHeight = m_lc.getMeasurement();
-            
-
         }
     
     }
@@ -186,7 +184,7 @@ public class Elevator extends SubsystemBase {
         builder.addDoubleProperty("Target Position", () -> m_ElevatorOutput.Position,
         (double target) -> this.goToHeight(target).schedule());
         
-        // builder.addIntegerProperty("LaserCan Height", () -> laserHeight.distance_mm,
+        // builder.addDo("LaserCan Height", () -> laserHeight.distance_mm,
         // (long distance) -> lasterdisint = distance);
 
     
