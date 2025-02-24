@@ -213,7 +213,7 @@ public class RobotContainer {
         // m_controller.rightTrigger().onTrue(m_Arm.goToAngle(0.29));
 //.andThen(m_Intake.reverse())
 
-        m_controller.a().onTrue(m_Elevator.goToHeight(1).andThen(m_Elevator.stop()));
+        m_controller.a().onTrue(m_Elevator.goToHeight(1).withTimeout(3).andThen(m_Elevator.stop()));
 
         m_controller.leftTrigger()
         .onTrue(m_Arm.goToAngle(0.26).andThen(m_Intake.forwards(false).withTimeout(1)))
@@ -222,7 +222,7 @@ public class RobotContainer {
         objectDetected.onFalse(m_Intake.koralControlCommand(0.075)); //-0.38
         objectDetected.onTrue(m_Intake.forwards(true));
         
-        
+
         // objectDetected.and().whileTrue(m_Arm.goToAngle(0));
         // objectDetected
         //   .onFalse(testing(false))
