@@ -51,6 +51,7 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.ElevatorEncoder;
 import frc.robot.subsystems.Intake;
 import frc.robot.util.PhotonVisionHandler;
 // import frc.robot.Vision.MeasurementInfo;
@@ -74,7 +75,7 @@ public class RobotContainer {
 
     public final Intake m_Intake = new Intake();
     public static final Arm m_Arm = new Arm(); 
-    public final Elevator m_Elevator = new Elevator();
+    public final ElevatorEncoder m_Elevator = new ElevatorEncoder();
     public static final DigitalInput m_koral_sensor = new DigitalInput(0);
     Trigger objectDetected = new Trigger(m_koral_sensor::get);
 
@@ -101,8 +102,8 @@ public class RobotContainer {
     // Vision visionInstance;
 
     // Half a rotation per second max angular velocity.
-    private static final double kMaxAngularRate = 0.5 * Math.PI;
-    private static final double kMaxSpeed = 0.5;
+    private static final double kMaxAngularRate = 0.75 * Math.PI;
+    private static final double kMaxSpeed = 0.75;
 
     // private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     // private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
@@ -212,12 +213,12 @@ public class RobotContainer {
         // m_controller.rightTrigger().onTrue(m_Arm.goToAngle(0.29));
 //.andThen(m_Intake.reverse())
 
-        m_controller.a().onTrue(m_Elevator.goToHeight(0));
+        m_controller.a().onTrue(m_Elevator.goToHeight(10));
         m_controller.leftTrigger()
-        .onTrue(m_Arm.goToAngle(0))
+        .onTrue(m_Arm.goToAngle(0.26).andThen(m_Intake.forwards().withTimeout(1)))
         .onFalse(m_Arm.goToAngle(0.26).andThen(m_Intake.forwards()));
 
-        objectDetected.onFalse(m_Intake.koralControlCommand(0.25)); //-0.38
+        objectDetected.onFalse(m_Intake.koralControlCommand(0.035)); //-0.38
         objectDetected.onTrue(m_Intake.forwards());
         
         // objectDetected.and().whileTrue(m_Arm.goToAngle(0));
@@ -228,7 +229,7 @@ public class RobotContainer {
 
         // Manual override using controller buttons 
         // m_controller.rightBumper().onTrue(m_Intake.forwards());
-        m_controller.leftBumper().onTrue(m_Intake.reverse());
+        // m_controller.leftBumper().onTrue(m_Intake.reverse());
         // m_controller.leftBumper().onFalse(m_Intake.forwards());
       
         // m_controller.x().onTrue(m_Intake.stop());

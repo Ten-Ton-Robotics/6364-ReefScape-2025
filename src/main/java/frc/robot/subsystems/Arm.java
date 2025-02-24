@@ -26,7 +26,7 @@ public class Arm extends SubsystemBase {
     //arm controller gains
     public static final double kArmKP = 70; //70
     public static final double kArmKI = 0;
-    public static final double kArmKD = 4.5; //4
+    public static final double kArmKD = 5; //4
 
     //arm controller feedforward gains
     public static final double kArmKG = 0.23;
@@ -35,7 +35,7 @@ public class Arm extends SubsystemBase {
     public static final double kArmKA = 0;
     
 
-    public static final double kCurrentLimit = 10;
+    public static final double kCurrentLimit = 8;
 
     // Arm Pose
     public static final double kMaxPosition = 0.26220703125;
