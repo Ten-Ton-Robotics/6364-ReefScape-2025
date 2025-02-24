@@ -65,6 +65,11 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+
+    if (m_robotContainer.m_koral_sensor.get()) {
+      m_robotContainer.m_Intake.forwards().alongWith(m_robotContainer.m_Arm.goToAngle(0.26)).schedule();
+    }
+
   }
 
   @Override

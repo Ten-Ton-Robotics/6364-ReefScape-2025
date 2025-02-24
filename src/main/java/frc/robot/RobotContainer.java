@@ -37,6 +37,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 // import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -49,29 +50,66 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+<<<<<<< Updated upstream
+=======
+import frc.robot.subsystems.Elevator;
+>>>>>>> Stashed changes
 import frc.robot.subsystems.Intake;
 import frc.robot.util.PhotonVisionHandler;
 // import frc.robot.Vision.MeasurementInfo;
+import frc.robot.util.koralSensorWrapper;
 
 
 public class RobotContainer {
 
     // 6 meters per second desired top speed.
     PowerDistribution m_powerdistro = new PowerDistribution();
+    private boolean toggleState = false; // Track state
+
 
     private Optional<EstimatedRobotPose> prevVisionOut = Optional.empty();
     private Optional<EstimatedRobotPose> Visionout;
     private final SendableChooser<Command> autoChooser;
+<<<<<<< Updated upstream
+=======
+    private final SendableChooser<RobotState> armstates = new SendableChooser<>();
+>>>>>>> Stashed changes
 
     private final Field2d m_Visionpose = new Field2d();
     private final Field2d m_Fieldpose = new Field2d();
 
+<<<<<<< Updated upstream
     private final Intake m_Intake = new Intake();
     public static final Arm m_Arm = new Arm(); 
     public static final DigitalInput m_koral_sensor = new DigitalInput(0);
     Trigger objectDetected = new Trigger(m_koral_sensor::get);
 
+=======
+    public final Intake m_Intake = new Intake();
+    public static final Arm m_Arm = new Arm(); 
+    public final Elevator m_Elevator = new Elevator();
+    public static final DigitalInput m_koral_sensor = new DigitalInput(0);
+    Trigger objectDetected = new Trigger(m_koral_sensor::get);
+>>>>>>> Stashed changes
 
+    // Trigger robotMoving = new Trigger(() -> {
+
+    //   if(Math.abs(m_controller.getLeftY()) > 0 || Math.abs(m_controller.getLeftY()) > 0 || Math.abs(m_controller.getRightX()) > 0 || Math.abs(m_controller.getRightY()) > 0){
+    //     return true;
+    //   } else{
+    //     return false;
+    //   }
+      
+    // });
+
+    public enum RobotState {
+      TOP,
+      MID,
+      LOW,
+      BOTTOM;
+  }
+  
+    
     public final PhotonVisionHandler visionHandler = new PhotonVisionHandler();
     AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
     // Vision visionInstance;
@@ -116,9 +154,29 @@ public class RobotContainer {
         return -m_controller.getLeftX();
     }
 
+    // private Command testing(boolean tof){
+    //   return new InstantCommand( () ->{
+
+    //     if(tof){
+    //       System.out.println("TRUE");
+    //       System.out.println("TRUE");
+    //       System.out.println("TRUE");
+    //       System.out.println("TRUE");
+
+    //     } else{
+    //       System.out.println("FALSE");
+    //       System.out.println("FALSE");
+    //       System.out.println("FALSE");
+    //       System.out.println("FALSE");
+    //     }
+
+    //   });
+    // }
+
 
     public RobotContainer() {
         configureBindings();
+      
         m_powerdistro.setSwitchableChannel(true);
 
                 // Build an auto chooser. This will use Commands.none() as the default option.
@@ -128,9 +186,23 @@ public class RobotContainer {
         // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
+<<<<<<< Updated upstream
 
         SmartDashboard.putData("Arm", m_Arm);
         SmartDashboard.putData("intake", m_Intake);
+=======
+        SmartDashboard.putData("Koral Trigger", m_koral_sensor);
+        SmartDashboard.putData("Elevator", m_Elevator);
+
+        SmartDashboard.putData("Arm", m_Arm);
+        SmartDashboard.putData("intake", m_Intake);
+
+        armstates.setDefaultOption("Top", RobotState.TOP);
+        armstates.addOption("Mid", RobotState.MID);
+        armstates.addOption("Low", RobotState.LOW);
+        armstates.addOption("Bottom", RobotState.BOTTOM);
+
+>>>>>>> Stashed changes
     }
     
 
@@ -143,6 +215,7 @@ public class RobotContainer {
             .withRotationalRate(-m_controller.getRightX() * kMaxAngularRate)));
 
         // reset the field-centric heading on left bumper press
+<<<<<<< Updated upstream
         m_controller.b().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(14.7, 4.045, new Rotation2d(Units.degreesToRadians(180)))));
         m_controller.y().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(15, 5.063, new Rotation2d(Units.degreesToRadians(180)))));
 
@@ -161,6 +234,47 @@ public class RobotContainer {
         // m_controller.x().onTrue(m_Intake.stop());
         
         m_controller.leftBumper().onTrue(m_drivetrain.runOnce(() -> m_drivetrain.seedFieldCentric()));
+=======
+        // m_controller.b().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(14.7, 4.045, new Rotation2d(Units.degreesToRadians(180)))));
+        // m_controller.y().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(15, 5.063, new Rotation2d(Units.degreesToRadians(180)))));
+
+        // Inside configureBindings()
+        // Intake should run forwards while an object is detected
+
+        // m_controller.a().toggleOnTrue(new InstantCommand(() -> {
+        //   toggleState = !toggleState; // Flip the toggle
+        //   m_Arm.goToAngle(toggleState ? 0.29 : 0.0).schedule(); // Choose angle
+        // }));
+
+
+        // robotMoving.onTrue(m_Arm.goToAngle(0.28));
+
+        // m_controller.rightTrigger().onTrue(m_Arm.goToAngle(0.29));
+//.andThen(m_Intake.reverse())
+
+        m_controller.a().onTrue(m_Elevator.goToHeight(0));
+        m_controller.leftTrigger()
+        .onTrue(m_Arm.goToAngle(0))
+        .onFalse(m_Arm.goToAngle(0.26).andThen(m_Intake.forwards()));
+
+        objectDetected.onFalse(m_Intake.koralControlCommand(0.25)); //-0.38
+        objectDetected.onTrue(m_Intake.forwards());
+        
+        // objectDetected.and().whileTrue(m_Arm.goToAngle(0));
+        // objectDetected
+        //   .onFalse(testing(false))
+        //   .onTrue(testing(true))
+        // ;
+
+        // Manual override using controller buttons 
+        // m_controller.rightBumper().onTrue(m_Intake.forwards());
+        m_controller.leftBumper().onTrue(m_Intake.reverse());
+        // m_controller.leftBumper().onFalse(m_Intake.forwards());
+      
+        // m_controller.x().onTrue(m_Intake.stop());
+        
+        m_controller.y().onTrue(m_drivetrain.runOnce(() -> m_drivetrain.seedFieldCentric()));
+>>>>>>> Stashed changes
 
         m_drivetrain.registerTelemetry(logger::telemeterize);
     }

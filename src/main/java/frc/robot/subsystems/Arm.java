@@ -7,6 +7,10 @@ import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.StaticBrake;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+<<<<<<< Updated upstream
+=======
+import com.ctre.phoenix6.signals.GravityTypeValue;
+>>>>>>> Stashed changes
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -20,6 +24,7 @@ public class Arm extends SubsystemBase {
     public static final int kArmId = 3;
     public static final double kArmPose = 0;
     public static final NeutralModeValue kArmNeutralMode = NeutralModeValue.Brake;
+<<<<<<< Updated upstream
     public static final InvertedValue kArmInverted = InvertedValue.CounterClockwise_Positive;
     
     //arm controller gains
@@ -29,6 +34,17 @@ public class Arm extends SubsystemBase {
 
     //arm controller feedforward gains
     public static final double kArmKG = -0.1;
+=======
+    public static final InvertedValue kArmInverted = InvertedValue.Clockwise_Positive;
+    
+    //arm controller gains
+    public static final double kArmKP = 70; //70
+    public static final double kArmKI = 0;
+    public static final double kArmKD = 4.5; //4
+
+    //arm controller feedforward gains
+    public static final double kArmKG = 0.23;
+>>>>>>> Stashed changes
     public static final double kArmKS = 0;
     public static final double kArmKV = 0;
     public static final double kArmKA = 0;
@@ -37,7 +53,11 @@ public class Arm extends SubsystemBase {
     public static final double kCurrentLimit = 10;
 
     // Arm Pose
+<<<<<<< Updated upstream
     public static final double kMaxPosition = 0;
+=======
+    public static final double kMaxPosition = 0.26220703125;
+>>>>>>> Stashed changes
 
     // Drive Ratio
     public static final double kArmRatio = 75;
@@ -53,12 +73,20 @@ public class Arm extends SubsystemBase {
 
         // set contoller gains
         armConfig.Slot0 = new Slot0Configs().withKP(kArmKP).withKI(kArmKI).withKD(kArmKD)
+<<<<<<< Updated upstream
             .withKS(kArmKS).withKV(kArmKV).withKA(kArmKA).withKG(kArmKG);
+=======
+            .withKS(kArmKS).withKV(kArmKV).withKA(kArmKA).withKG(kArmKG).withGravityType(GravityTypeValue.Arm_Cosine);
+>>>>>>> Stashed changes
         //invert motor 
         armConfig.MotorOutput.Inverted = kArmInverted; 
 
         //set ratios 
         armConfig.Feedback.SensorToMechanismRatio = kArmRatio; 
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
         //set neutral modes 
         m_ArmMotor.setNeutralMode(kArmNeutralMode);
 

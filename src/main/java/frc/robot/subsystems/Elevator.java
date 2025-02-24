@@ -27,6 +27,7 @@ public class Elevator extends SubsystemBase {
     private LaserCan.Measurement laserHeight;
 
     public static final String kElevatorBus = "drivecan";
+<<<<<<< Updated upstream
     public static final int kElevatorMotor1Id = 5; // not set, change to actual id
     public static final int kElevatorMotor2Id = 17; // not set, change to actual id
 
@@ -36,6 +37,17 @@ public class Elevator extends SubsystemBase {
     public static final InvertedValue kElevatorMotor2Inverted = InvertedValue.CounterClockwise_Positive;
 
     private final ProfiledPIDController elevatorPID = new ProfiledPIDController(kElevatorKP, kElevatorKI, kElevatorKD, new TrapezoidProfile.Constraints(5, 10));
+=======
+    public static final int kElevatorMotor1Id = 5; // not set, change to actual id //reverse
+    public static final int kElevatorMotor2Id = 18; // not set, change to actual id
+
+    public static final double kElevatorPose = 0;
+    public static final NeutralModeValue kElevatorNeutralMode = NeutralModeValue.Brake;
+    public static final InvertedValue kElevatorMotor1Inverted = InvertedValue.Clockwise_Positive;
+    public static final InvertedValue kElevatorMotor2Inverted = InvertedValue.Clockwise_Positive;
+
+    private final PIDController elevatorPID = new PIDController(kElevatorKP, kElevatorKI, kElevatorKD);
+>>>>>>> Stashed changes
 
     // Elevator controller gains
     public static final double kElevatorKP = 50;
@@ -47,6 +59,11 @@ public class Elevator extends SubsystemBase {
     public static final double kElevatorKS = 0;
     public static final double kElevatorKV = 0;
     public static final double kElevatorKA = 0;
+<<<<<<< Updated upstream
+=======
+
+    private int lasterdisint;
+>>>>>>> Stashed changes
     
     public static final double kCurrentLimit = 10;
 
@@ -59,14 +76,30 @@ public class Elevator extends SubsystemBase {
     private final TalonFX m_ElevatorMotor1 = new TalonFX(kElevatorMotor1Id, kElevatorBus);
     private final TalonFX m_ElevatorMotor2 = new TalonFX(kElevatorMotor2Id, kElevatorBus);
 
+<<<<<<< Updated upstream
     
     private final PositionVoltage m_ElevatorOutput = new PositionVoltage(kElevatorPose);
 
     public Elevator() {
+=======
+    private VelocityVoltage m_VelocityVoltage;
+
+    private final PositionVoltage m_ElevatorOutput = new PositionVoltage(kElevatorPose);
+
+
+
+    public Elevator() {
+
+>>>>>>> Stashed changes
         super();
         // Configure Elevator
         final TalonFXConfiguration elevatorConfig = new TalonFXConfiguration(); 
 
+<<<<<<< Updated upstream
+=======
+        m_VelocityVoltage = new VelocityVoltage(0);
+
+>>>>>>> Stashed changes
         // Set controller gains
         elevatorConfig.Slot0 = new Slot0Configs().withKP(kElevatorKP).withKI(kElevatorKI).withKD(kElevatorKD)
             .withKS(kElevatorKS).withKV(kElevatorKV).withKA(kElevatorKA).withKG(kElevatorKG);
@@ -100,9 +133,15 @@ public class Elevator extends SubsystemBase {
       }
 
     public void setElevatorSpeed(double speed) {
+<<<<<<< Updated upstream
         m_ElevatorOutput.Velocity = speed;
         m_ElevatorMotor1.setControl(m_ElevatorOutput);
         m_ElevatorMotor2.setControl(m_ElevatorOutput);
+=======
+        m_VelocityVoltage.Velocity = speed;
+        m_ElevatorMotor1.setControl(m_VelocityVoltage); // Apply PID output
+        m_ElevatorMotor2.setControl(m_VelocityVoltage);
+>>>>>>> Stashed changes
 
         m_ElevatorMotor1.setNeutralMode(NeutralModeValue.Brake);
         m_ElevatorMotor2.setNeutralMode(NeutralModeValue.Brake);
@@ -139,8 +178,15 @@ public class Elevator extends SubsystemBase {
             if (laserHeight != null) {
                 double currentHeight = laserHeight.distance_mm; // Get measured height
                 double pidOutput = elevatorPID.calculate(currentHeight, targetPosition); // PID calculation
+<<<<<<< Updated upstream
                 m_ElevatorMotor1.setControl(new VelocityVoltage(pidOutput)); // Apply PID output
                 m_ElevatorMotor2.setControl(new VelocityVoltage(pidOutput));
+=======
+
+                m_VelocityVoltage.Velocity = pidOutput;
+                m_ElevatorMotor1.setControl(m_VelocityVoltage); // Apply PID output
+                m_ElevatorMotor2.setControl(m_VelocityVoltage);
+>>>>>>> Stashed changes
             }
         });
     }
@@ -151,9 +197,18 @@ public class Elevator extends SubsystemBase {
         super.periodic();
         if (m_lc != null) { // Ensure the laser sensor is initialized
             laserHeight = m_lc.getMeasurement();
+<<<<<<< Updated upstream
         }
     
     }
+=======
+            
+
+        }
+    
+    }
+    
+>>>>>>> Stashed changes
 
     /**
      * @brief Send telemetry data to Shuffleboard
@@ -166,9 +221,23 @@ public class Elevator extends SubsystemBase {
         
         builder.addDoubleProperty("Motor 1 Position", () -> m_ElevatorMotor1.getPosition().getValueAsDouble(),
         (double position) -> m_ElevatorMotor1.setPosition(position));
+<<<<<<< Updated upstream
         builder.addDoubleProperty("Motor 2 Position", () -> m_ElevatorMotor2.getPosition().getValueAsDouble(),
         (double position) -> m_ElevatorMotor2.setPosition(position));
         builder.addDoubleProperty("Target Position", () -> m_ElevatorOutput.Position,
         (double target) -> this.goToHeight(target).schedule());
+=======
+
+        builder.addDoubleProperty("Motor 2 Position", () -> m_ElevatorMotor2.getPosition().getValueAsDouble(),
+        (double position) -> m_ElevatorMotor2.setPosition(position));
+
+        builder.addDoubleProperty("Target Position", () -> m_ElevatorOutput.Position,
+        (double target) -> this.goToHeight(target).schedule());
+        
+        // builder.addIntegerProperty("LaserCan Height", () -> laserHeight.distance_mm,
+        // (long distance) -> lasterdisint = distance);
+
+    
+>>>>>>> Stashed changes
     }
 }
