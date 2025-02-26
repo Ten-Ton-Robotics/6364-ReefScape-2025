@@ -35,8 +35,8 @@ public class ElevatorMM extends SubsystemBase {
     public static final double kElevatorKG = 0; // output to overcome gravity (output)
     public static final double kCruiseVelocity = 80; // target cruise velocity (rps)
     public static final double kAcceleration = 160; // Target acceleration of rps/s (So if target v is 80 and target accel is 160)
-    public static final double kJerk = 1600; // 
-    public static final double kCurrentLimit = 55;
+    public static final double kJerk = 1600; // Target jerk rps/s^2
+    public static final double kCurrentLimit = 55; //
     public static final double kElevatorRatio = 5.0;
 
     private final TalonFX m_ElevatorLeader = new TalonFX(kElevatorMotor1Id, kElevatorBus);
@@ -90,6 +90,7 @@ public class ElevatorMM extends SubsystemBase {
     public void setElevatorHeight(double position) {
         m_MotionMagicControl.Position = position;
         m_ElevatorLeader.setControl(m_MotionMagicControl);
+        
     }
 
     public Command goToHeight(double targetPosition) {
@@ -111,5 +112,16 @@ public class ElevatorMM extends SubsystemBase {
         
         builder.addDoubleProperty("Leader Motor Position", () -> m_ElevatorLeader.getPosition().getValueAsDouble(),
             (double position) -> setElevatorHeight(position));
+
+        builder.addDoubleProperty("Leader Motor Voltage", () -> m_ElevatorLeader.getMotorVoltage().getValueAsDouble(), null);
+        builder.addDoubleProperty("Follower Motor Voltage", () -> m_ElevatorFollower.getMotorVoltage().getValueAsDouble(), null);
+
+        builder.addDoubleProperty("Leader Motor Amperage", () -> m_ElevatorLeader.getStatorCurrent().getValueAsDouble(), null);
+        builder.addDoubleProperty("Follower Motor Amperage", () -> m_ElevatorFollower.getStatorCurrent().getValueAsDouble(), null);
+
+        builder.addDoubleProperty("Motion Magic Running Leader", () ->  m_ElevatorLeader.getMotionMagicIsRunning().getValueAsDouble(), null);
+        builder.addDoubleProperty("Motion Magic Running Follower", () ->  m_ElevatorFollower.getMotionMagicIsRunning().getValueAsDouble(), null);
+
+
     }
 }
