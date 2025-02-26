@@ -52,7 +52,8 @@ public class ElevatorEncoder extends SubsystemBase {
 
         // Set controller gains
         elevatorConfig.Slot0 = new Slot0Configs().withKP(kElevatorKP).withKI(kElevatorKI).withKD(kElevatorKD).withKG(kElevatorKG).withGravityType(GravityTypeValue.Elevator_Static);
-        //For descending 
+
+        // For descending 
         elevatorConfig.Slot1 = new Slot1Configs().withKP(kElevatorDownKP).withKI(kElevatorDownKI).withKD(kElevatorDownKD).withKG(kElevatorDownKG).withGravityType(GravityTypeValue.Elevator_Static);
 
         // Set gearing ratio
