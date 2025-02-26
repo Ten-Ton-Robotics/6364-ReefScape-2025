@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.StaticBrake;
@@ -24,13 +25,19 @@ public class ElevatorEncoder extends SubsystemBase {
     public static final InvertedValue kElevatorMotor1Inverted = InvertedValue.Clockwise_Positive;
     public static final InvertedValue kElevatorMotor2Inverted = InvertedValue.Clockwise_Positive;
 
-    // Elevator controller gains
-    public static final double kElevatorKP = 2;
+    // Elevator controller gains for Going Up
+    public static final double kElevatorKP = 14;
     public static final double kElevatorKI = 0;
     public static final double kElevatorKD = 0;
-    public static final double kElevatorKG = 0.35;
+    public static final double kElevatorKG = 0.4;
 
-    public static final double kCurrentLimit = 30;
+    // Elevator controller gains for Going Up
+    public static final double kElevatorDownKP = 2;
+    public static final double kElevatorDownKI = 0;
+    public static final double kElevatorDownKD = 1;
+    public static final double kElevatorDownKG = 0.4;
+
+    public static final double kCurrentLimit = 55;
     public static final double kMaxPosition = 4.5; // (ACTUAL MAX HEIGHT)
     public static final double kElevatorRatio = 5.0; // (ACTUAL GEAR RATIO!)
 
@@ -45,8 +52,9 @@ public class ElevatorEncoder extends SubsystemBase {
 
         // Set controller gains
         elevatorConfig.Slot0 = new Slot0Configs().withKP(kElevatorKP).withKI(kElevatorKI).withKD(kElevatorKD).withKG(kElevatorKG).withGravityType(GravityTypeValue.Elevator_Static);
+        //For descending 
+        elevatorConfig.Slot1 = new Slot1Configs().withKP(kElevatorDownKP).withKI(kElevatorDownKI).withKD(kElevatorDownKD).withKG(kElevatorDownKG).withGravityType(GravityTypeValue.Elevator_Static);
 
-        
         // Set gearing ratio
         elevatorConfig.Feedback.SensorToMechanismRatio = kElevatorRatio;
         
@@ -72,13 +80,29 @@ public class ElevatorEncoder extends SubsystemBase {
 
     public void setElevatorHeight(double position) {
         m_PositionControl.Position = position;
+        m_PositionControl.Slot = 0;
+        m_ElevatorMotor1.setControl(m_PositionControl);
+        m_ElevatorMotor2.setControl(m_PositionControl);
+    }
+
+    public void decend(double position) {
+        m_PositionControl.Position = position;
+        m_PositionControl.Slot = 1;
         m_ElevatorMotor1.setControl(m_PositionControl);
         m_ElevatorMotor2.setControl(m_PositionControl);
     }
 
     public Command goToHeight(double targetPosition) {
         return this.runOnce(() -> {
+            System.out.println("going to height: " + targetPosition);
             setElevatorHeight(targetPosition);
+        });
+    }
+
+    public Command goBackDown(double targetPosition) {
+        return this.runOnce(() -> {
+            System.out.println("going to down to: " + targetPosition);
+            decend(targetPosition);
         });
     }
 

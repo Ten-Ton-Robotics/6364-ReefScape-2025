@@ -213,7 +213,8 @@ public class RobotContainer {
         // m_controller.rightTrigger().onTrue(m_Arm.goToAngle(0.29));
 //.andThen(m_Intake.reverse())
 
-        m_controller.a().onTrue(m_Elevator.goToHeight(1).withTimeout(3).andThen(m_Elevator.stop()));
+        m_controller.a().onTrue(m_Elevator.goToHeight(1));
+        m_controller.b().onTrue(m_Elevator.goBackDown(0.1)); 
 
         m_controller.leftTrigger()
         .onTrue(m_Arm.goToAngle(0.26).andThen(m_Intake.forwards(false).withTimeout(1)))
