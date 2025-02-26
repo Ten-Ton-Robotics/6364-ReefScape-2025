@@ -52,6 +52,7 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.ElevatorEncoder;
+import frc.robot.subsystems.ElevatorMM;
 import frc.robot.subsystems.Intake;
 import frc.robot.util.PhotonVisionHandler;
 // import frc.robot.Vision.MeasurementInfo;
@@ -75,7 +76,7 @@ public class RobotContainer {
 
     public final Intake m_Intake = new Intake();
     public static final Arm m_Arm = new Arm(); 
-    public final ElevatorEncoder m_Elevator = new ElevatorEncoder();
+    public final ElevatorMM m_Elevator = new ElevatorMM();
     public static final DigitalInput m_koral_sensor = new DigitalInput(0);
     Trigger objectDetected = new Trigger(m_koral_sensor::get);
 
@@ -214,7 +215,8 @@ public class RobotContainer {
 //.andThen(m_Intake.reverse())
 
         m_controller.a().onTrue(m_Elevator.goToHeight(1));
-        m_controller.b().onTrue(m_Elevator.goBackDown(0.1)); 
+        m_controller.b().onTrue(m_Elevator.goToHeight(0));
+        // m_controller.b().onTrue(m_Elevator.goBackDown(0.1)); 
 
         m_controller.leftTrigger()
         .onTrue(m_Arm.goToAngle(0.26).andThen(m_Intake.forwards(false).withTimeout(1)))

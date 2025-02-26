@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.StaticBrake;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.StrictFollower;
@@ -102,7 +103,7 @@ public class ElevatorMM extends SubsystemBase {
 
     public Command stop() {
         return this.runOnce(() -> {
-            m_ElevatorLeader.setControl(m_request.withOutput(0));
+            m_ElevatorLeader.setControl(new StaticBrake());
         });
     }
 
@@ -121,7 +122,5 @@ public class ElevatorMM extends SubsystemBase {
 
         builder.addDoubleProperty("Motion Magic Running Leader", () ->  m_ElevatorLeader.getMotionMagicIsRunning().getValueAsDouble(), null);
         builder.addDoubleProperty("Motion Magic Running Follower", () ->  m_ElevatorFollower.getMotionMagicIsRunning().getValueAsDouble(), null);
-
-
     }
 }

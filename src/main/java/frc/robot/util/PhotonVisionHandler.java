@@ -42,6 +42,8 @@ public class PhotonVisionHandler {
     // init camera
     vision = new PhotonCamera("Arducam");
 
+    // vision2 = new PhotonCamera(null);
+
     // simulated = Utils.isSimulation();
 
 
@@ -132,6 +134,11 @@ public class PhotonVisionHandler {
   public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
     boolean run = false;
     var results = vision.getAllUnreadResults();
+    
+    /// 2ND CAM CODE
+    // var results2 = vision2.getAllUnreadResults();
+
+    // results = (results + results2);
     
     // Get the first result from the unread results
     if(!results.isEmpty()){
