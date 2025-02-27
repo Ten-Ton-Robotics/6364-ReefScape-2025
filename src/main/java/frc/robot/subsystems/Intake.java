@@ -170,12 +170,15 @@ public void periodic() {
    */
   public Command forwards(boolean load) {
     return this.runOnce(() -> {
+      
       if(load){
         this.setUpperSpeed(kUpperSpeed);
         this.setLowerSpeed(kLowerSpeed);
+
       }else{
-      this.setUpperSpeed(100);
-      this.setLowerSpeed(100);
+        this.setUpperSpeed(100);
+        this.setLowerSpeed(100);
+
       }
     });
   }

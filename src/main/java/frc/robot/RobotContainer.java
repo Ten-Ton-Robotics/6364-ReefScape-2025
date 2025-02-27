@@ -38,6 +38,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -82,15 +83,15 @@ public class RobotContainer {
     public static final DigitalInput m_koral_sensor = new DigitalInput(0);
     Trigger objectDetected = new Trigger(m_koral_sensor::get);
 
-    // Trigger robotMoving = new Trigger(() -> {
+    Trigger robotMoving = new Trigger(() -> {
 
-    //   if(Math.abs(m_controller.getLeftY()) > 0 || Math.abs(m_controller.getLeftY()) > 0 || Math.abs(m_controller.getRightX()) > 0 || Math.abs(m_controller.getRightY()) > 0){
-    //     return true;
-    //   } else{
-    //     return false;
-    //   }
+      if(Math.abs(m_controller.getLeftY()) > 0 || Math.abs(m_controller.getLeftY()) > 0 || Math.abs(m_controller.getRightX()) > 0 || Math.abs(m_controller.getRightY()) > 0){
+        return true;
+      } else{
+        return false;
+      }
       
-    // });
+    });
 
     public enum RobotState {
       TOP,
@@ -113,12 +114,12 @@ public class RobotContainer {
 
 
     private final SwerveRequest.FieldCentricFacingAngle m_angleRequest = new SwerveRequest.FieldCentricFacingAngle()
-    .withDeadband(kMaxSpeed * 0.05)
-    .withRotationalDeadband(kMaxAngularRate * 0.05)
+    .withDeadband(kMaxSpeed * 0.1)
+    .withRotationalDeadband(kMaxAngularRate * 0.1)
     .withDriveRequestType(DriveRequestType.Velocity);
 
     private final SwerveRequest.FieldCentric m_drive = new SwerveRequest.FieldCentric()
-    .withDeadband(kMaxSpeed * 0.05).withRotationalDeadband(kMaxAngularRate * 0.05) // 20% deadband
+    .withDeadband(kMaxSpeed * 0.1).withRotationalDeadband(kMaxAngularRate * 0.1) // 20% deadband
     .withDriveRequestType(DriveRequestType.Velocity); // closed loop velocity control
 
 
@@ -127,6 +128,7 @@ public class RobotContainer {
     /* Setting up bindings for necessary control of the swerve drive platform */
 
     private final Telemetry logger = new Telemetry(kMaxSpeed);
+    private double loadangle = 0.26;
 
     public static final CommandXboxController m_controller = new CommandXboxController(0);
 
@@ -190,7 +192,53 @@ public class RobotContainer {
     }
 
     private Command l1Command(){
-      return new SequentialCommandGroup(null)
+      return new SequentialCommandGroup(
+        m_Elevator.goToHeight(0.75),
+        m_Arm.goToAngle(0.26 * 0.70).withTimeout(1.0),
+        new WaitCommand(1),
+        new InstantCommand(() -> loadangle = 0.26 * 0.65)
+      );
+    }
+
+    private Command l2Command(){
+      return new SequentialCommandGroup(
+        m_Elevator.goToHeight(1.17),
+        new WaitCommand(0.5),
+        m_Arm.goToAngle(0.26 * 0.65).withTimeout(1.0),
+        new WaitCommand(1),
+        new InstantCommand(() -> loadangle = 0.26 * 0.65)
+      );
+    }
+
+    private Command l3Command(){
+      return new SequentialCommandGroup(
+        m_Elevator.goToHeight(2.62),
+        new WaitCommand(0.5),
+        m_Arm.goToAngle(0.26 * 0.65).withTimeout(1.0),
+        new WaitCommand(1),
+        new InstantCommand(() -> loadangle = 0.26 * 0.65)
+      );
+    }
+
+    private Command l2andahalfCommand(){
+      return new SequentialCommandGroup(
+        m_Elevator.goToHeight(2.40),
+        new WaitCommand(0.5),
+        m_Arm.goToAngle(0.26 * 0.65).withTimeout(1.0),
+        new WaitCommand(1),
+        new InstantCommand(() -> loadangle = 0.26 * 0.65)
+      );
+    }
+
+
+
+
+    private Command resetElevatorCmd(){
+      return new ParallelCommandGroup(
+        m_Elevator.stop(),
+        m_Intake.forwards(true),
+        m_Arm.goToAngle(0.26)
+      );
     }
     
 
@@ -200,7 +248,8 @@ public class RobotContainer {
         m_drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
         m_drivetrain.applyRequest(() -> m_drive.withVelocityX(-m_controller.getLeftY() * kMaxSpeed)
             .withVelocityY(-m_controller.getLeftX() * kMaxSpeed)
-            .withRotationalRate(-m_controller.getRightX() * kMaxAngularRate)));
+            .withRotationalRate(-m_controller.getRightX() * kMaxAngularRate))
+          );
 
         // reset the field-centric heading on left bumper press
         // m_controller.b().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(14.7, 4.045, new Rotation2d(Units.degreesToRadians(180)))));
@@ -222,18 +271,20 @@ public class RobotContainer {
 
 
         // L1
-        m_controller.a()
-        .onTrue(m_Elevator.goToHeight(0.25).andThen(new WaitCommand(0.1)).andThen(m_Arm.goToAngle(0.26)).andThen(m_Intake.forwards(false).withTimeout(1)))
-        .onFalse(m_Arm.goToAngle(0.26).andThen(m_Intake.forwards(true)));
+        m_controller.a().onTrue(l1Command());
+
+        m_controller.b().onTrue(l2Command());
+
+        m_controller.y().onTrue(l3Command());
         
 
         // m_controller.a().onTrue(m_Elevator.goToHeight(2));
         // m_controller.y().onTrue(m_Elevator.goToHeight(1));
-        m_controller.b().onTrue(m_Elevator.stop()); 
+        m_controller.rightTrigger().onTrue(m_Elevator.stop().alongWith(m_Arm.goToAngle(0.26)));
 
         m_controller.leftTrigger()
-        .onTrue(m_Arm.goToAngle(0.26).andThen(m_Intake.forwards(false).withTimeout(1)))
-        .onFalse(m_Arm.goToAngle(0.26).andThen(m_Intake.forwards(true)));
+        .onTrue(m_Arm.goToAngle(loadangle).andThen(m_Intake.forwards(false).withTimeout(1)))
+        .onFalse(resetElevatorCmd());
 
         objectDetected.onFalse(m_Intake.koralControlCommand(0.075)); //-0.38
         objectDetected.onTrue(m_Intake.forwards(true));
@@ -252,7 +303,7 @@ public class RobotContainer {
       
         // m_controller.x().onTrue(m_Intake.stop());
         
-        m_controller.y().onTrue(m_drivetrain.runOnce(() -> m_drivetrain.seedFieldCentric()));
+        m_controller.povUp().onTrue(m_drivetrain.runOnce(() -> m_drivetrain.seedFieldCentric()));
 
         m_drivetrain.registerTelemetry(logger::telemeterize);
     }
@@ -350,6 +401,8 @@ public class RobotContainer {
           // System.out.println("Fusion Successful");
   
           Pose2d visPose2d = Visionout.get().estimatedPose.toPose2d();
+
+          // Pose2d testpose = new Pose2d(visPose2d.getTranslation(), m_drivetrain.getRotation3d().toRotation2d());
           double visionstamp = Visionout.get().timestampSeconds;
 
           m_drivetrain.addVisionMeasurement(visPose2d, visionstamp, VecBuilder.fill(lateralDeviation,

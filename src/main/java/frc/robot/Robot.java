@@ -25,7 +25,7 @@ public class Robot extends TimedRobot {
 
     // try {
 
-      m_robotContainer.updatePoseEstimator();
+      // m_robotContainer.updatePoseEstimator();
 
          
 
@@ -65,6 +65,8 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+
+    m_robotContainer.m_Arm.goToAngle(0.26).schedule();
 
     if (m_robotContainer.m_koral_sensor.get()) {
       m_robotContainer.m_Intake.forwards(true).alongWith(m_robotContainer.m_Arm.goToAngle(0.26)).schedule();
