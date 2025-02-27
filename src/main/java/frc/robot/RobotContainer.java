@@ -107,8 +107,8 @@ public class RobotContainer {
     // Vision visionInstance;
 
     // Half a rotation per second max angular velocity.
-    private static final double kMaxAngularRate = 1.25 * Math.PI;
-    private static final double kMaxSpeed = 1.25;
+    private static final double kMaxAngularRate = 3.00 * Math.PI;
+    private static final double kMaxSpeed = 3.00;
 
     // private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     // private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
@@ -225,7 +225,7 @@ public class RobotContainer {
       return new SequentialCommandGroup(
         m_Elevator.goToHeight(2.40),
         new WaitCommand(0.5),
-        m_Arm.goToAngle(0.26 * 0.65).withTimeout(1.0),
+        m_Arm.goToAngle(0.26 * 0.50).withTimeout(1.0),
         new WaitCommand(0.5),
         new InstantCommand(() -> loadangle = 0.26 * 0.65),
         new WaitCommand(0.5),
@@ -272,7 +272,7 @@ public class RobotContainer {
         m_Elevator.goToHeight(0.05),
         new WaitCommand(1),
         m_Arm.goToAngle(0),
-        new WaitCommand(1),
+        new WaitCommand(0.25),
         m_Intake.forwardsame()
       );
     }
@@ -464,10 +464,10 @@ public class RobotContainer {
   
           Pose2d visPose2d = Visionout.get().estimatedPose.toPose2d();
 
-          // Pose2d testpose = new Pose2d(visPose2d.getTranslation(), m_drivetrain.getRotation3d().toRotation2d());
+          Pose2d testpose = new Pose2d(visPose2d.getTranslation(), m_drivetrain.getRotation3d().toRotation2d());
           double visionstamp = Visionout.get().timestampSeconds;
 
-          m_drivetrain.addVisionMeasurement(visPose2d, visionstamp, VecBuilder.fill(lateralDeviation,
+          m_drivetrain.addVisionMeasurement(testpose, visionstamp, VecBuilder.fill(lateralDeviation,
               lateralDeviation, Units.degreesToRadians(angularDeviation)));
 
 
