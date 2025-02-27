@@ -38,6 +38,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 // import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -186,6 +188,10 @@ public class RobotContainer {
         armstates.addOption("Low", RobotState.LOW);
         armstates.addOption("Bottom", RobotState.BOTTOM);
     }
+
+    private Command l1Command(){
+      return new SequentialCommandGroup(null)
+    }
     
 
     private void configureBindings() {
@@ -206,7 +212,7 @@ public class RobotContainer {
         // m_controller.a().toggleOnTrue(new InstantCommand(() -> {
         //   toggleState = !toggleState; // Flip the toggle
         //   m_Arm.goToAngle(toggleState ? 0.29 : 0.0).schedule(); // Choose angle
-        // }));
+        // }))
 
 
         // robotMoving.onTrue(m_Arm.goToAngle(0.28));
@@ -214,9 +220,16 @@ public class RobotContainer {
         // m_controller.rightTrigger().onTrue(m_Arm.goToAngle(0.29));
 //.andThen(m_Intake.reverse())
 
-        m_controller.a().onTrue(m_Elevator.goToHeight(1));
-        m_controller.b().onTrue(m_Elevator.goToHeight(0));
-        // m_controller.b().onTrue(m_Elevator.goBackDown(0.1)); 
+
+        // L1
+        m_controller.a()
+        .onTrue(m_Elevator.goToHeight(0.25).andThen(new WaitCommand(0.1)).andThen(m_Arm.goToAngle(0.26)).andThen(m_Intake.forwards(false).withTimeout(1)))
+        .onFalse(m_Arm.goToAngle(0.26).andThen(m_Intake.forwards(true)));
+        
+
+        // m_controller.a().onTrue(m_Elevator.goToHeight(2));
+        // m_controller.y().onTrue(m_Elevator.goToHeight(1));
+        m_controller.b().onTrue(m_Elevator.stop()); 
 
         m_controller.leftTrigger()
         .onTrue(m_Arm.goToAngle(0.26).andThen(m_Intake.forwards(false).withTimeout(1)))

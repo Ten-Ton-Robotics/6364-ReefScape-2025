@@ -40,7 +40,7 @@ public class PhotonVisionHandler {
   public PhotonVisionHandler() {
 
     // init camera
-    vision = new PhotonCamera("Arducam");
+    vision = new PhotonCamera("Front");
 
     // vision2 = new PhotonCamera(null);
 

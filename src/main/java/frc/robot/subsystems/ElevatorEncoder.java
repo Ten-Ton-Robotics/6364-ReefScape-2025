@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.StaticBrake;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -74,26 +75,24 @@ public class ElevatorEncoder extends SubsystemBase {
         m_ElevatorMotor1.getConfigurator().apply(elevatorConfig);
         m_ElevatorMotor1.setPosition(kElevatorPose);
 
-        elevatorConfig.MotorOutput.Inverted = kElevatorMotor2Inverted;
-        m_ElevatorMotor2.getConfigurator().apply(elevatorConfig);
-        m_ElevatorMotor2.setPosition(kElevatorPose);
+        m_ElevatorMotor2.setControl(new Follower(m_ElevatorMotor1.getDeviceID(), false));
+
+
     }
 
     public void setElevatorHeight(double position) {
         m_PositionControl.Position = position;
         m_PositionControl.Slot = 0;
         m_ElevatorMotor1.setControl(m_PositionControl);
-        m_ElevatorMotor2.setControl(m_PositionControl);
     }
 
     public void decend(double position) {
         m_PositionControl.Position = position;
         m_PositionControl.Slot = 1;
         m_ElevatorMotor1.setControl(m_PositionControl);
-        m_ElevatorMotor2.setControl(m_PositionControl);
     }
 
-    public Command goToHeight(double targetPosition) {
+    public Command goToHeight(double targetPosition) {  
         return this.runOnce(() -> {
             System.out.println("going to height: " + targetPosition);
             setElevatorHeight(targetPosition);
@@ -118,11 +117,14 @@ public class ElevatorEncoder extends SubsystemBase {
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
         
-        builder.addDoubleProperty("Motor 1 Position", () -> m_ElevatorMotor1.getPosition().getValueAsDouble(),
+        builder.addDoubleProperty("Leader Motor Position", () -> m_ElevatorMotor1.getPosition().getValueAsDouble(),
             (double position) -> setElevatorHeight(position));
 
-        builder.addDoubleProperty("Motor 2 Position", () -> m_ElevatorMotor2.getPosition().getValueAsDouble(),
-            (double position) -> setElevatorHeight(position));
+        builder.addDoubleProperty("Leader Motor Voltage", () -> m_ElevatorMotor1.getMotorVoltage().getValueAsDouble(), null);
+        builder.addDoubleProperty("Follower Motor Voltage", () -> m_ElevatorMotor2.getMotorVoltage().getValueAsDouble(), null);
+
+        builder.addDoubleProperty("Leader Motor Amperage", () -> m_ElevatorMotor1.getStatorCurrent().getValueAsDouble(), null);
+        builder.addDoubleProperty("Follower Motor Amperage", () -> m_ElevatorMotor2.getStatorCurrent().getValueAsDouble(), null);
 
         builder.addDoubleProperty("Target Position", () -> m_PositionControl.Position,
             (double target) -> this.goToHeight(target).schedule());
