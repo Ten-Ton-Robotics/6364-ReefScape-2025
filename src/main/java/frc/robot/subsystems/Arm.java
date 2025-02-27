@@ -35,7 +35,7 @@ public class Arm extends SubsystemBase {
     public static final double kArmKA = 0;
     
 
-    public static final double kCurrentLimit = 8;
+    public static final double kCurrentLimit = 12;
 
     // Arm Pose
     public static final double kMaxPosition = 0.26220703125;

@@ -34,9 +34,9 @@ public class ElevatorMM extends SubsystemBase {
     public static final double kElevatorKI = 0; // output per unit of integrated error in position (output/(rotation*s))
     public static final double kElevatorKD = 0.30; // output per unit of error in velocity (output/rps)
     public static final double kElevatorKG = 0.48; // output to overcome gravity (output)
-    public static final double kCruiseVelocity = 50; // target cruise velocity (rps)
-    public static final double kAcceleration = 100; // Target acceleration of rps/s (So if target v is 80 and target accel is 160)
-    public static final double kJerk = 1600; // Target jerk rps/s^2
+    public static final double kCruiseVelocity = 8; // target cruise velocity (rps)
+    public static final double kAcceleration = 32; // Target acceleration of rps/s (So if target v is 80 and target accel is 160)
+    public static final double kJerk = 60; // Target jerk rps/s^2
     public static final double kCurrentLimit = 55; // 
     public static final double kElevatorRatio = 5.0;
     private final TalonFX m_ElevatorLeader = new TalonFX(kElevatorMotor1Id, kElevatorBus);

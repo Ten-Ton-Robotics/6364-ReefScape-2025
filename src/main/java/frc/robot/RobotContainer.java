@@ -17,6 +17,7 @@ import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -106,8 +107,8 @@ public class RobotContainer {
     // Vision visionInstance;
 
     // Half a rotation per second max angular velocity.
-    private static final double kMaxAngularRate = 0.75 * Math.PI;
-    private static final double kMaxSpeed = 0.75;
+    private static final double kMaxAngularRate = 1.25 * Math.PI;
+    private static final double kMaxSpeed = 1.25;
 
     // private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     // private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
@@ -196,7 +197,7 @@ public class RobotContainer {
         m_Elevator.goToHeight(0.75),
         m_Arm.goToAngle(0.26 * 0.70).withTimeout(1.0),
         new WaitCommand(1),
-        new InstantCommand(() -> loadangle = 0.26 * 0.65)
+        new InstantCommand(() -> loadangle = 0.26 * 0.70)
       );
     }
 
@@ -220,24 +221,66 @@ public class RobotContainer {
       );
     }
 
-    private Command l2andahalfCommand(){
+    private Command algaeclearTop(){
       return new SequentialCommandGroup(
         m_Elevator.goToHeight(2.40),
         new WaitCommand(0.5),
         m_Arm.goToAngle(0.26 * 0.65).withTimeout(1.0),
-        new WaitCommand(1),
-        new InstantCommand(() -> loadangle = 0.26 * 0.65)
+        new WaitCommand(0.5),
+        new InstantCommand(() -> loadangle = 0.26 * 0.65),
+        new WaitCommand(0.5),
+        m_Intake.stop()
       );
     }
 
+    private Command algaeclearBottom(){
+      return new SequentialCommandGroup(
+        m_Elevator.goToHeight(0.90),
+        new WaitCommand(0.5),
+        m_Arm.goToAngle(0.26 * 0.55).withTimeout(1.0),
+        new WaitCommand(0.5),
+        new InstantCommand(() -> loadangle = 0.26 * 0.60),
+        new WaitCommand(0.5),
+        m_Intake.stop()
 
+      );
+    }
 
+    private Command l4Command(){
+      return new SequentialCommandGroup(
+        m_Arm.goToAngle(0.26 * 0.67).withTimeout(1.5),
+        m_Elevator.goToHeight(4.94),
+        new WaitCommand(1),
+        new InstantCommand(() -> loadangle = 0.26 * 0.67),
+        // new WaitCommand(1),
+        // m_Intake.reverse(5),
+        // new WaitCommand(0.01),
+        m_Intake.stop()
+      );
+    }
 
     private Command resetElevatorCmd(){
       return new ParallelCommandGroup(
-        m_Elevator.stop(),
+        m_Elevator.goToHeight(0.05),
         m_Intake.forwards(true),
         m_Arm.goToAngle(0.26)
+      );
+    }
+
+    private Command algaeOutCmd(){
+      return new SequentialCommandGroup(
+        m_Elevator.goToHeight(0.05),
+        new WaitCommand(1),
+        m_Arm.goToAngle(0),
+        new WaitCommand(1),
+        m_Intake.forwardsame()
+      );
+    }
+
+    private Command outTakeCmd(){
+      return new SequentialCommandGroup(
+        m_Arm.goToAngle(loadangle),
+        m_Intake.forwards(false).withTimeout(1)
       );
     }
     
@@ -250,6 +293,14 @@ public class RobotContainer {
             .withVelocityY(-m_controller.getLeftX() * kMaxSpeed)
             .withRotationalRate(-m_controller.getRightX() * kMaxAngularRate))
           );
+
+        NamedCommands.registerCommand("L1", l1Command());
+        NamedCommands.registerCommand("L2", l2Command());
+        NamedCommands.registerCommand("L3", l3Command());
+        NamedCommands.registerCommand("L4", l4Command());
+        NamedCommands.registerCommand("Score Koral", outTakeCmd());
+        NamedCommands.registerCommand("Reset Elevator", resetElevatorCmd());
+      
 
         // reset the field-centric heading on left bumper press
         // m_controller.b().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(14.7, 4.045, new Rotation2d(Units.degreesToRadians(180)))));
@@ -276,15 +327,26 @@ public class RobotContainer {
         m_controller.b().onTrue(l2Command());
 
         m_controller.y().onTrue(l3Command());
+
+        m_controller.x().onTrue(l4Command());
+
+        m_controller.rightBumper().onTrue(algaeclearTop());
+
+        m_controller.leftBumper().onTrue(algaeclearBottom());
+        
         
 
         // m_controller.a().onTrue(m_Elevator.goToHeight(2));
         // m_controller.y().onTrue(m_Elevator.goToHeight(1));
-        m_controller.rightTrigger().onTrue(m_Elevator.stop().alongWith(m_Arm.goToAngle(0.26)));
+        m_controller.rightTrigger().onTrue(m_Elevator.goToHeight(0.05).alongWith(m_Arm.goToAngle(0.26)).alongWith(m_Intake.forwards(true)));
 
         m_controller.leftTrigger()
         .onTrue(m_Arm.goToAngle(loadangle).andThen(m_Intake.forwards(false).withTimeout(1)))
         .onFalse(resetElevatorCmd());
+
+        // m_controller.povDown().onTrue(m_Intake.forwards(true));
+
+        m_controller.povLeft().onTrue(algaeOutCmd());
 
         objectDetected.onFalse(m_Intake.koralControlCommand(0.075)); //-0.38
         objectDetected.onTrue(m_Intake.forwards(true));

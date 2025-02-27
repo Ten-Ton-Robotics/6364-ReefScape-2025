@@ -23,15 +23,7 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     CommandScheduler.getInstance().run(); 
 
-    // try {
-
-      // m_robotContainer.updatePoseEstimator();
-
-         
-
-    // } catch (Exception e) {
-    //   System.out.println(e);
-    // }
+    //m_robotContainer.updatePoseEstimator();
     
   }
 

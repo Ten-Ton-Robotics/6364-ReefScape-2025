@@ -155,13 +155,24 @@ public void periodic() {
          this.setLowerSpeed(speed);
        });
      }
-
-  public Command reverse() {
+  
+  public Command reverse(double speed) {
             return this.runOnce(() -> {
-            this.setUpperSpeed(-kUpperSpeed);
-            this.setLowerSpeed(-kLowerSpeed);
+            this.setUpperSpeed(-speed);
+            this.setLowerSpeed(-speed);
             });
     }
+
+
+  public Command forwardsame(){
+    return this.runOnce(() -> {
+      
+        this.setUpperSpeed(-50);
+        this.setLowerSpeed(50);
+
+      
+    });
+  }
 
   /**
    * @brief Spin up the flywheel motors
