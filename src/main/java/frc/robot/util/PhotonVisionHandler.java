@@ -30,13 +30,12 @@ public class PhotonVisionHandler {
   // private boolean simulated;
   private PhotonPoseEstimator photonPoseEstimator;
 
+  private Transform3d robotToCam;
+
 
   //Camera offset to center of robot including rotation
 
   
-  private final Transform3d robotToCam1 =
-      new Transform3d(new Translation3d(Units.inchesToMeters(-0.625), Units.inchesToMeters(0),
-          Units.inchesToMeters(35.10)), new Rotation3d(0, Math.toRadians(15), 0)); // Adjusted
 
 
   // private final Transform3d robotToCam2 =
@@ -45,12 +44,13 @@ public class PhotonVisionHandler {
     
                                                                                    // camera angle
 
-  public PhotonVisionHandler() {
+  public PhotonVisionHandler(String name, Transform3d robotToCaminst) {
 
     // init camera
-    vision = new PhotonCamera("Back");
+    vision = new PhotonCamera(name);
 
-    // vision2 = new PhotonCamera(null);
+    robotToCam = robotToCaminst;
+    
 
     // simulated = Utils.isSimulation();
 
@@ -72,7 +72,7 @@ public class PhotonVisionHandler {
 
     // Kalman filter to fuse vision measurements
     photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
-        PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, robotToCam1);
+        PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, robotToCam);
 
     // if (simulated) {
     //   initializeSimulation();
