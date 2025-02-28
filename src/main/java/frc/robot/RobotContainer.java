@@ -289,8 +289,8 @@ public class RobotContainer {
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
         m_drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
-        m_drivetrain.applyRequest(() -> m_drive.withVelocityX(-m_controller.getLeftY() * kMaxSpeed)
-            .withVelocityY(-m_controller.getLeftX() * kMaxSpeed)
+        m_drivetrain.applyRequest(() -> m_drive.withVelocityX(m_controller.getLeftY() * kMaxSpeed)
+            .withVelocityY(m_controller.getLeftX() * kMaxSpeed)
             .withRotationalRate(-m_controller.getRightX() * kMaxAngularRate))
           );
 
@@ -464,10 +464,10 @@ public class RobotContainer {
   
           Pose2d visPose2d = Visionout.get().estimatedPose.toPose2d();
 
-          Pose2d testpose = new Pose2d(visPose2d.getTranslation(), m_drivetrain.getRotation3d().toRotation2d());
+          // Pose2d testpose = new Pose2d(visPose2d.getTranslation(), m_drivetrain.getRotation3d().toRotation2d());
           double visionstamp = Visionout.get().timestampSeconds;
 
-          m_drivetrain.addVisionMeasurement(testpose, visionstamp, VecBuilder.fill(lateralDeviation,
+          m_drivetrain.addVisionMeasurement(visPose2d, visionstamp, VecBuilder.fill(lateralDeviation,
               lateralDeviation, Units.degreesToRadians(angularDeviation)));
 
 

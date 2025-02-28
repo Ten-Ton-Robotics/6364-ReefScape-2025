@@ -21,9 +21,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
-    CommandScheduler.getInstance().run(); 
-
-    // m_robotContainer.updatePoseEstimator();
+    CommandScheduler.getInstance().run();
     
   }
 
@@ -47,6 +45,9 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousPeriodic() {
+
+    m_robotContainer.updatePoseEstimator();
+
   }
 
   @Override
@@ -64,10 +65,16 @@ public class Robot extends TimedRobot {
       m_robotContainer.m_Intake.forwards(true).alongWith(m_robotContainer.m_Arm.goToAngle(0.26)).schedule();
     }
 
+    // m_robotContainer.m_drivetrain.runOnce(() -> m_robotContainer.m_drivetrain.seedFieldCentric());
+
   }
 
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+
+    m_robotContainer.updatePoseEstimator();
+
+  }
 
   @Override
   public void teleopExit() {}
