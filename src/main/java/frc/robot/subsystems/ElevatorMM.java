@@ -93,6 +93,12 @@ public class ElevatorMM extends SubsystemBase {
         
     }
 
+    /**
+     * @brief Moves elevator up 
+     * 
+     * @param target position elvator position 
+     * @return command 
+     */
     public Command goToHeight(double targetPosition) {
         return this.runOnce(() -> {
             System.out.println("Going to height: " + targetPosition);
@@ -100,6 +106,11 @@ public class ElevatorMM extends SubsystemBase {
         });
     }
 
+    /**
+     * @brief Stops Elevator Motors 
+     * 
+     * @return command 
+     */
     public Command stop() {
         return this.runOnce(() -> {
             m_ElevatorLeader.setControl(new StaticBrake());

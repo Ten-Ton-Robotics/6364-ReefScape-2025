@@ -79,7 +79,7 @@ public class ElevatorEncoder extends SubsystemBase {
 
 
     }
-
+    
     public void setElevatorHeight(double position) {
         m_PositionControl.Position = position;
         m_PositionControl.Slot = 0;

@@ -72,7 +72,7 @@ public class Arm extends SubsystemBase {
         m_ArmMotor.getConfigurator().apply(armConfig); 
         m_ArmMotor.setPosition(kMaxPosition);
       }
-
+    
     public void setArmSpeed(double speed) {
     m_ArmOutput.Velocity = speed;
     m_ArmMotor.setControl(m_ArmOutput);
@@ -83,7 +83,7 @@ public class Arm extends SubsystemBase {
 
 
   /**
-   * @brief set the speed of the flywheel
+   * @brief set the speed of the arm motor
    * 
    * @param speed speed in revolutions per second
    * @return Command
@@ -125,6 +125,12 @@ public class Arm extends SubsystemBase {
     return this.setSpeed(0);
   }
 
+/**
+ *   @brief 
+ * 
+ *   @param Set the speed of the Arm in rotations per
+ *   @return command
+  */
   public Command goToAngle(double position) {
     return this.runOnce(() -> {
       System.out.println("Setting New go to angle!!!!");
