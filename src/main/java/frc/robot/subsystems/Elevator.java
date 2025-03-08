@@ -1,5 +1,5 @@
 package frc.robot.subsystems;
-import java.io.Console;
+// import java.io.Console;
 
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -11,14 +11,14 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
+// import edu.wpi.first.math.controller.ProfiledPIDController;
+// import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import au.grapplerobotics.LaserCan;
-import au.grapplerobotics.ConfigurationFailedException;
+// import au.grapplerobotics.ConfigurationFailedException;
 
 
 public class Elevator extends SubsystemBase {

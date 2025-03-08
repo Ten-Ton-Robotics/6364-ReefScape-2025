@@ -6,7 +6,7 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.StaticBrake;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.StrictFollower;
+// import com.ctre.phoenix6.controls.StrictFollower;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;

@@ -8,18 +8,18 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.networktables.BooleanPublisher;
-import edu.wpi.first.networktables.NetworkTableInstance;
+// import edu.wpi.first.networktables.BooleanPublisher;
+// import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.DigitalInput;
+// import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
+// import edu.wpi.first.wpilibj2.command.InstantCommand;
+// import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+// import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.RobotContainer;
 
 public class Intake extends SubsystemBase {
@@ -42,8 +42,8 @@ public class Intake extends SubsystemBase {
     
     // public final DigitalInput m_koral_sensor = new DigitalInput(0);
 
-    private boolean m_isWaiting = false;
-    private Timer m_timer = new Timer();
+    // private boolean m_isWaiting = false;
+    // private Timer m_timer = new Timer();
 
     // Upper motor controller gains
     public static final double kUpperKP = 0.35;
@@ -144,7 +144,7 @@ public void periodic() {
   }
 
   /**
-   * @brief set the speed of the flywheel
+   * @brief set the speed of the intake motors
    * 
    * @param speed speed in revolutions per second
    * @return Command
@@ -156,6 +156,12 @@ public void periodic() {
        });
      }
   
+     /**
+   * @brief reverse the speed of the intake motors
+   * 
+   * @param speed speed in revolutions per second
+   * @return Command
+   */
   public Command reverse(double speed) {
             return this.runOnce(() -> {
             this.setUpperSpeed(-speed);
@@ -163,7 +169,12 @@ public void periodic() {
             });
     }
 
-
+/**
+   * Spin up the innake motors in the same direction 
+   * 
+   * 
+   * @return Command
+   */
   public Command forwardsame(){
     return this.runOnce(() -> {
       
@@ -175,7 +186,7 @@ public void periodic() {
   }
 
   /**
-   * @brief Spin up the flywheel motors
+   * @brief Spin up the intake motors in opposite directions 
    * 
    * @return Command
    */

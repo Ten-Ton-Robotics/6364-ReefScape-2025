@@ -29,18 +29,18 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.BooleanPublisher;
-import edu.wpi.first.networktables.NetworkTableInstance;
+// import edu.wpi.first.networktables.BooleanPublisher;
+// import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.Timer;
+// import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
+// import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -57,13 +57,13 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.ElevatorEncoder;
+// import frc.robot.subsystems.Elevator;
+// import frc.robot.subsystems.ElevatorEncoder;
 import frc.robot.subsystems.ElevatorMM;
 import frc.robot.subsystems.Intake;
 import frc.robot.util.PhotonVisionHandler;
 // import frc.robot.Vision.MeasurementInfo;
-import frc.robot.util.koralSensorWrapper;
+// import frc.robot.util.koralSensorWrapper;
 
 
 public class RobotContainer {
@@ -128,8 +128,8 @@ public class RobotContainer {
     // Vision visionInstance;
 
     // Half a rotation per second max angular velocity.
-    private static final double kMaxAngularRate = 3.00 * Math.PI;
-    private static final double kMaxSpeed = 3.00;
+    private static final double kMaxAngularRate = 1.00 * Math.PI;
+    private static final double kMaxSpeed = 1.00;
 
     // private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     // private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
@@ -298,6 +298,17 @@ public class RobotContainer {
       );
     }
 
+    //For scoring Algue Under 
+    private Command algueScoreCmd(){
+      return new SequentialCommandGroup(
+        m_Elevator.goToHeight(0.05), //TODO get from Shuffle board
+        new WaitCommand(1),
+        m_Arm.goToAngle(0), 
+        new WaitCommand(0.25),
+        m_Intake.forwardsame()
+      );
+    }
+
     private Command outTakeCmd(){
       return new SequentialCommandGroup(
         m_Arm.goToAngle(loadangle),
@@ -355,7 +366,10 @@ public class RobotContainer {
 
         m_controller.leftBumper().onTrue(algaeclearBottom());
         
+        m_controller.povRight().onTrue(algueScoreCmd()); 
         
+        m_controller.povLeft().onTrue(algaeOutCmd());
+
 
         // m_controller.a().onTrue(m_Elevator.goToHeight(2));
         // m_controller.y().onTrue(m_Elevator.goToHeight(1));
@@ -366,8 +380,6 @@ public class RobotContainer {
         .onFalse(resetElevatorCmd());
 
         // m_controller.povDown().onTrue(m_Intake.forwards(true));
-
-        m_controller.povLeft().onTrue(algaeOutCmd());
 
         objectDetected.onFalse(m_Intake.koralControlCommand(0.075)); //-0.38
         objectDetected.onTrue(m_Intake.forwards(true));
