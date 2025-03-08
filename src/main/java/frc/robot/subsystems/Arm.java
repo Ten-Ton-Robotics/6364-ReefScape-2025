@@ -159,6 +159,7 @@ public class Arm extends SubsystemBase {
     (double position) -> m_ArmMotor.setPosition(position));
     builder.addDoubleProperty("Target Position", () -> m_ArmOutput.Position,
     (double target) -> this.goToAngle(target).schedule());
+    
 // call the superclass method
     // add upper motor target velocity property
     // builder.addDoubleProperty("Upper Target Velocity", () -> m_upperOutput.Velocity,

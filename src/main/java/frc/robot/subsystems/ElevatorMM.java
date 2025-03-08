@@ -90,7 +90,8 @@ public class ElevatorMM extends SubsystemBase {
     public void setElevatorHeight(double position) {
         m_MotionMagicControl.Position = position;
         m_ElevatorLeader.setControl(m_MotionMagicControl);
-        
+        System.out.println("Leader Current" + m_ElevatorLeader.getSupplyCurrent());
+        System.out.println("Follower Current" + m_ElevatorFollower.getSupplyCurrent());
     }
 
     /**

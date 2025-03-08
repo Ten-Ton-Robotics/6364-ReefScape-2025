@@ -180,8 +180,14 @@ public void periodic() {
       
         this.setUpperSpeed(-50);
         this.setLowerSpeed(50);
+    });
+  }
 
+  public Command reversesame(){
+    return this.runOnce(() -> {
       
+        this.setUpperSpeed(50);
+        this.setLowerSpeed(-50);
     });
   }
 

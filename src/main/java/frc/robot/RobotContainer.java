@@ -298,14 +298,13 @@ public class RobotContainer {
       );
     }
 
-    //For scoring Algue Under 
+    //For scoring Algue Under Author Aaron 
     private Command algueScoreCmd(){
       return new SequentialCommandGroup(
-        m_Elevator.goToHeight(0.05), //TODO get from Shuffle board
-        new WaitCommand(1),
-        m_Arm.goToAngle(0), 
-        new WaitCommand(0.25),
-        m_Intake.forwardsame()
+        m_Intake.forwardsame(),
+        m_Elevator.goToHeight(1.1), //TODO get from Shuffle board
+        m_Arm.goToAngle(-0.05)
+        // m_Arm.goToAngle(0), 
       );
     }
 
@@ -368,7 +367,10 @@ public class RobotContainer {
         
         m_controller.povRight().onTrue(algueScoreCmd()); 
         
-        m_controller.povLeft().onTrue(algaeOutCmd());
+        // m_controller.povLeft().onTrue(algaeOutCmd());
+        m_controller.povLeft().onTrue(m_Intake.reversesame());
+
+        m_controller.povDown().onTrue(m_Intake.stop());
 
 
         // m_controller.a().onTrue(m_Elevator.goToHeight(2));
