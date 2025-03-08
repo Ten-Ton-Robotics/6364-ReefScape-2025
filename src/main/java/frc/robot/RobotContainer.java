@@ -22,6 +22,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.estimator.PoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -64,6 +65,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.util.PhotonVisionHandler;
 // import frc.robot.Vision.MeasurementInfo;
 // import frc.robot.util.koralSensorWrapper;
+import frc.robot.util.PoseEstimatorInst;
 
 
 public class RobotContainer {
@@ -72,6 +74,8 @@ public class RobotContainer {
     PowerDistribution m_powerdistro = new PowerDistribution();
     private boolean toggleState = false; // Track state
 
+    private PoseEstimatorInst frontPoseEstimator;
+    private PoseEstimatorInst backPoseEstimator;
 
     private Optional<EstimatedRobotPose> prevVisionOutFront = Optional.empty();
     private Optional<EstimatedRobotPose> prevVisionOutBack = Optional.empty();
@@ -103,7 +107,7 @@ public class RobotContainer {
       
     });
 
-    public enum RobotState {
+    public enum RobotState {  
       TOP,
       MID,
       LOW,
@@ -190,6 +194,10 @@ public class RobotContainer {
 
     public RobotContainer() {
         configureBindings();
+
+        frontPoseEstimator = new PoseEstimatorInst(visionHandlerFront, m_drivetrain, m_VisionposeFront);
+        backPoseEstimator = new PoseEstimatorInst(visionHandlerBack, m_drivetrain, m_VisionposeBack);
+  
 
       
         m_powerdistro.setSwitchableChannel(true);
@@ -408,211 +416,9 @@ public class RobotContainer {
 
     // Pose estimator update logic (meant to increase accuracy by filtering out bad or unusable output from the Cameras)
     public void updatePoseEstimator() {
-
-    if (aprilTagFieldLayout == null) {
-      System.err.println("AprilTagFieldLayout is null. Skipping pose estimation update.");
-      return;
-    }
-
-    double lateralDeviation; // standard deviation of the x and y measurements
-    double angularDeviation; // standard deviation of the angle measurement
-    // final MeasurementInfo internalTag =
-    // visionInstance.new MeasurementInfo(visionHandler.getAprilTagID(),
-    // visionHandler.getNumberofTags(), visionHandler.areaOfAprilTag());
-
-    //Feedback logic for Photonvision Pose estimator (Kinda jank but ok for now)
-    if (prevVisionOutFront.isPresent()) {
-      // System.out.println("YES Visionout");
-      VisionoutFront = visionHandlerFront.getEstimatedGlobalPose(prevVisionOutFront.get().estimatedPose.toPose2d());
-    } else {
-      // System.out.println("NO Visionout");
-      VisionoutFront = visionHandlerFront.getEstimatedGlobalPose(new Pose2d(new Translation2d(0, 0), new Rotation2d(0)));
-    }
-
-    if (prevVisionOutBack.isPresent()) {
-      // System.out.println("YES Visionout");
-      VisionoutBack = visionHandlerBack.getEstimatedGlobalPose(prevVisionOutBack.get().estimatedPose.toPose2d());
-    } else {
-      // System.out.println("NO Visionout");
-      VisionoutBack = visionHandlerBack.getEstimatedGlobalPose(new Pose2d(new Translation2d(0, 0), new Rotation2d(0)));
-    }
-
-
-    prevVisionOutBack = VisionoutBack;
-    prevVisionOutFront = VisionoutFront;
-
-    try {
-      
-//Make Get Methods For Tag Size, # of Tags, 
-//Pos dif function for gives dif of given pos and robot 
-
-
-        // TODO: Redo the Fusion Logic to work with the Photonvision Cams. 
-        // NOTE: (may not even need it, should get a deeper understanding of the photonvision Pose estimator)
-
-        if (VisionoutBack.isPresent()) {
-
-        final Pose2d visPose = VisionoutBack.get().estimatedPose.toPose2d();
-        final double posDiff = m_drivetrain.getPoseDifference(visPose);
-
-        final List<PhotonTrackedTarget> tags = VisionoutBack.get().targetsUsed;
-
-        // System.out.println("posDiff " + posDiff);
-        // System.out.println("Tag Area" + visionHandler.avgTagArea(tags));
-        
-        //Set and Put Output from Vision on Smart Dashboard for debugging
-        m_VisionposeBack.setRobotPose(VisionoutBack.get().estimatedPose.toPose2d());
-        SmartDashboard.putData("Vision Pose Back", m_VisionposeBack);
-        
-        // // return if no tag detected
-        if (tags.size() < 1) {
-          // System.out.println("No tags to fuse");
-          return;
-        } 
-        // // more than 1 tag in view
-        if (tags.size() > 1 && visionHandlerBack.avgTagArea(tags) > 0.8) {
-          // System.out.println("Fuse state 1");
-
-          lateralDeviation = 0.5;
-          angularDeviation = 6;
-        }
-        // // 1 target with large area and close to estimated pose
-        //  && posDiff < 0.5
-        else if (tags.get(0).getArea() > 0.8) {
-          // System.out.println("Fuse state 2");
-
-          lateralDeviation = 1.0;
-          angularDeviation = 12;
-        }
-        // 1 target farther away and estimated pose is close
-        //  && posDiff < 0.3
-        else if (tags.get(0).getArea() > 0.1) {
-          // System.out.println("Fuse state 3");
-
-          lateralDeviation = 2.0;
-          angularDeviation = 30;
-        }
-        // conditions don't match to add a vision measurement
-        else{
-          // System.out.println("Unable to fuse (Conditions not Met)");
-
-          return;
-        }    
-            
-      // Only fuse with WPIlib Kalman filter (Basically our Robotpose) when the sim is off to prevent janky movement
-        if (!Utils.isSimulation())
-  
-        {
-
-          // System.out.println("Fusion Successful");
-  
-          Pose2d visPose2d = VisionoutBack.get().estimatedPose.toPose2d();
-
-          // Pose2d testpose = new Pose2d(visPose2d.getTranslation(), m_drivetrain.getRotation3d().toRotation2d());
-          double visionstamp = VisionoutBack.get().timestampSeconds;
-
-          m_drivetrain.addVisionMeasurement(visPose2d, visionstamp, VecBuilder.fill(lateralDeviation,
-              lateralDeviation, Units.degreesToRadians(angularDeviation)));
-
-
-        }
-      }
-
-      m_Fieldpose.setRobotPose(m_drivetrain.getState().Pose);
-      SmartDashboard.putData("Robot Pose", m_Fieldpose);
-      //}
-  
-    } catch (Exception e) {
-
-      System.out.println(e);
-      // TODO: handle exception
-    }
-
-  try {
+      frontPoseEstimator.updatePose();
+      backPoseEstimator.updatePose();
     
-    //Make Get Methods For Tag Size, # of Tags, 
-    //Pos dif function for gives dif of given pos and robot 
-    
-    
-    // TODO: Redo the Fusion Logic to work with the Photonvision Cams. 
-    // NOTE: (may not even need it, should get a deeper understanding of the photonvision Pose estimator)
-
-    if (VisionoutFront.isPresent()) {
-
-    final Pose2d visPoseFront = VisionoutFront.get().estimatedPose.toPose2d();
-
-    double lateralDeviationFront;
-    double angularDeviationFront;
-    // final double posDiff = m_drivetrain.getPoseDifference(visPose);
-
-    final List<PhotonTrackedTarget> tags = VisionoutFront.get().targetsUsed;
-
-    // System.out.println("posDiff " + posDiff);
-    // System.out.println("Tag Area" + visionHandler.avgTagArea(tags));
-    
-    //Set and Put Output from Vision on Smart Dashboard for debugging
-    m_VisionposeFront.setRobotPose(VisionoutFront.get().estimatedPose.toPose2d());
-    SmartDashboard.putData("Vision Pose Front", m_VisionposeFront);
-    
-    // // return if no tag detected
-    if (tags.size() < 1) {
-      // System.out.println("No tags to fuse");
-      return;
-    } 
-    // // more than 1 tag in view
-    if (tags.size() > 1 && visionHandlerFront.avgTagArea(tags) > 0.8) {
-      // System.out.println("Fuse state 1");
-
-      lateralDeviationFront = 0.5;
-      angularDeviationFront = 6;
-    }
-    // // 1 target with large area and close to estimated pose
-    //  && posDiff < 0.5
-    else if (tags.get(0).getArea() > 0.8) {
-      // System.out.println("Fuse state 2");
-
-      lateralDeviationFront = 1.0;
-      angularDeviationFront = 12;
-    }
-    // 1 target farther away and estimated pose is close
-    //  && posDiff < 0.3
-    else if (tags.get(0).getArea() > 0.1) {
-      // System.out.println("Fuse state 3");
-
-      lateralDeviationFront = 2.0;
-      angularDeviationFront = 30;
-    }
-    // conditions don't match to add a vision measurement
-    else{
-      // System.out.println("Unable to fuse (Conditions not Met)");
-
-      return;
-    }    
-        
-  // Only fuse with WPIlib Kalman filter (Basically our Robotpose) when the sim is off to prevent janky movement
-    if (!Utils.isSimulation())
-
-    {
-
-      // System.out.println("Fusion Successful");
-
-      Pose2d visPose2dFront = VisionoutFront.get().estimatedPose.toPose2d();
-
-      // Pose2d testpose = new Pose2d(visPose2d.getTranslation(), m_drivetrain.getRotation3d().toRotation2d());
-      double visionstampFront = VisionoutFront.get().timestampSeconds;
-
-      m_drivetrain.addVisionMeasurement(visPose2dFront, visionstampFront, VecBuilder.fill(lateralDeviationFront,
-      lateralDeviationFront, Units.degreesToRadians(angularDeviationFront)));
-    }
-  }
-
-      
-  } catch (Exception e) {
-
-      System.out.println(e);
-      // TODO: handle exception
-    }
-      
  }
 
 
