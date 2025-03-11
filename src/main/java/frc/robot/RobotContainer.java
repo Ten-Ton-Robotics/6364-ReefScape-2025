@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import java.text.NumberFormat.Style;
 import java.util.List;
 // import java.io.Console;
 // import java.util.List;
@@ -201,7 +202,8 @@ public class RobotContainer {
 
       
         m_powerdistro.setSwitchableChannel(true);
-
+        System.out.print(m_powerdistro.getStickyFaults()); 
+        
                 // Build an auto chooser. This will use Commands.none() as the default option.
         autoChooser = AutoBuilder.buildAutoChooser();
 
@@ -306,11 +308,11 @@ public class RobotContainer {
       );
     }
 
-    //For scoring Algue Under Author Aaron 
+    //For scoring Algue Under 
     private Command algueScoreCmd(){
       return new SequentialCommandGroup(
         m_Intake.forwardsame(),
-        m_Elevator.goToHeight(1.1), //TODO get from Shuffle board
+        m_Elevator.goToHeight(1.1),
         m_Arm.goToAngle(-0.05)
         // m_Arm.goToAngle(0), 
       );
@@ -375,7 +377,7 @@ public class RobotContainer {
         
         m_controller.povRight().onTrue(algueScoreCmd()); 
         
-        // m_controller.povLeft().onTrue(algaeOutCmd());
+        // m_controller.povLeft().onTrue(algaeOutCmd());  
         m_controller.povLeft().onTrue(m_Intake.reversesame());
 
         m_controller.povDown().onTrue(m_Intake.stop());
