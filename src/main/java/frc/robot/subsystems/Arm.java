@@ -2,6 +2,8 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.StaticBrake;
 // import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -12,6 +14,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Arm extends SubsystemBase {
@@ -23,16 +26,21 @@ public class Arm extends SubsystemBase {
     public static final InvertedValue kArmInverted = InvertedValue.Clockwise_Positive;
     
     //arm controller gains
-    public static final double kArmKP = 70; //70
+    public static final double kArmKP = 550; //90
     public static final double kArmKI = 0;
-    public static final double kArmKD = 5; //4
+    public static final double kArmKD = 25.5; //8
 
     //arm controller feedforward gains
-    public static final double kArmKG = 0.23;
+    public static final double kArmKG = 4;
     public static final double kArmKS = 0;
     public static final double kArmKV = 0;
     public static final double kArmKA = 0;
-    
+
+    // Motion Magic Consts
+    public static final double kCruiseVelocity = 0.6; // 0.5s
+    public static final double kAcceleration = 1.2;
+    public static final double kJerk = 1.8;
+
 
     public static final double kCurrentLimit = 12;
 
@@ -44,9 +52,10 @@ public class Arm extends SubsystemBase {
 
     private final TalonFX m_ArmMotor = new TalonFX(kArmId, kArmBus);
     
-    private final PositionVoltage m_ArmOutput = new PositionVoltage(kArmPose);
+    private final MotionMagicTorqueCurrentFOC m_ArmOutput = new MotionMagicTorqueCurrentFOC(kArmPose);
 
     public Arm() {
+      
         super();
         // configure Arm
         final TalonFXConfiguration armConfig = new TalonFXConfiguration(); 
@@ -67,19 +76,24 @@ public class Arm extends SubsystemBase {
         armConfig.CurrentLimits.SupplyCurrentLimit = kCurrentLimit;
         armConfig.CurrentLimits.StatorCurrentLimitEnable = true;
         armConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    
+
+        // Configure Motion Magic settings
+        armConfig.MotionMagic.MotionMagicCruiseVelocity = kCruiseVelocity;
+        armConfig.MotionMagic.MotionMagicAcceleration = kAcceleration;
+        armConfig.MotionMagic.MotionMagicJerk = kJerk;
+
         //Apply Configs 
         m_ArmMotor.getConfigurator().apply(armConfig); 
         m_ArmMotor.setPosition(kMaxPosition);
       }
     
-    public void setArmSpeed(double speed) {
-    m_ArmOutput.Velocity = speed;
-    m_ArmMotor.setControl(m_ArmOutput);
-    m_ArmMotor.setNeutralMode(NeutralModeValue.Brake);
-    if (speed == 0.0)
-      m_ArmMotor.setControl(new StaticBrake());
-  }
+  //   public void setArmSpeed(double speed) {
+  //   m_ArmOutput.Velocity = speed;
+  //   m_ArmMotor.setControl(m_ArmOutput);
+  //   m_ArmMotor.setNeutralMode(NeutralModeValue.Brake);
+  //   if (speed == 0.0)
+  //     m_ArmMotor.setControl(new StaticBrake());
+  // }
 
 
   /**
@@ -89,11 +103,11 @@ public class Arm extends SubsystemBase {
    * @return Command
    */
 
-  public Command setSpeed(double speed) {
-       return this.runOnce(() -> {
-         this.setArmSpeed(speed);
-       });
-     }
+  // public Command setSpeed(double speed) {
+  //      return this.runOnce(() -> {
+  //        this.setArmSpeed(speed);
+  //      });
+  //    }
    
 
 
@@ -122,7 +136,7 @@ public class Arm extends SubsystemBase {
    * @return Command
    */
   public Command stop() {
-    return this.setSpeed(0);
+    return new InstantCommand( () -> m_ArmMotor.setControl(new StaticBrake()));
   }
 
 /**
@@ -159,6 +173,18 @@ public class Arm extends SubsystemBase {
     (double position) -> m_ArmMotor.setPosition(position));
     builder.addDoubleProperty("Target Position", () -> m_ArmOutput.Position,
     (double target) -> this.goToAngle(target).schedule());
+
+    builder.addDoubleProperty("Voltage", () -> m_ArmMotor.getMotorVoltage().getValueAsDouble(),
+    null);
+
+    builder.addDoubleProperty("Supply Current", () -> m_ArmMotor.getSupplyCurrent().getValueAsDouble(),
+    null);
+
+    builder.addDoubleProperty("Stator Current", () -> m_ArmMotor.getStatorCurrent().getValueAsDouble(),
+    null);
+
+
+
     
 // call the superclass method
     // add upper motor target velocity property

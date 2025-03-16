@@ -6,6 +6,7 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.StaticBrake;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
 // import com.ctre.phoenix6.controls.StrictFollower;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
@@ -30,20 +31,19 @@ public class ElevatorMM extends SubsystemBase {
     public static final double kElevatorKS = 0.0; // output to overcome static friction (output)
     public static final double kElevatorKV = 0.12; // outpt per unit of target velocity (output/rps)
     public static final double kElevatorKA = 0.01; // output per unit of target acceleration (output/(rps/s))
-    public static final double kElevatorKP = 10.45; // output per unit of error in position (output/rotation)
+    public static final double kElevatorKP = 220; // output per unit of error in position (output/rotation)
     public static final double kElevatorKI = 0; // output per unit of integrated error in position (output/(rotation*s))
-    public static final double kElevatorKD = 0.30; // output per unit of error in velocity (output/rps)
-    public static final double kElevatorKG = 0.48; // output to overcome gravity (output)
-    public static final double kCruiseVelocity = 12; // target cruise velocity (rps)
-    public static final double kAcceleration = 36; // Target acceleration of rps/s (So if target v is 80 and target accel is 160)
-    public static final double kJerk = 60; // Target jerk rps/s^2
-    public static final double kCurrentLimit = 55; // 
-    public static final double kElevatorRatio = 5.0;
+    public static final double kElevatorKD = 12; ///0.30; // output per unit of error in velocity (output/rps)
+    public static final double kElevatorKG = 26; // output to overcome gravity (output)
+    public static final double kCruiseVelocity = 8; // target cruise velocity (rps)
+    public static final double kAcceleration = 22; // Target acceleration of rps/s (So if target v is 80 and target accel is 160)
+    public static final double kJerk = 32; // Target jerk rps/s^2
+    public static final double kCurrentLimit = 55; // Current Limit
+    public static final double kElevatorRatio = 5.0; // Elevator Ratio
     private final TalonFX m_ElevatorLeader = new TalonFX(kElevatorMotor1Id, kElevatorBus);
     private final TalonFX m_ElevatorFollower = new TalonFX(kElevatorMotor2Id, kElevatorBus);
-    private final MotionMagicVoltage m_MotionMagicControl = new MotionMagicVoltage(kElevatorPose);
-    private final DutyCycleOut m_request = new DutyCycleOut(0);
-
+    private final MotionMagicTorqueCurrentFOC m_MotionMagicControl = new MotionMagicTorqueCurrentFOC(kElevatorPose);
+ 
     public ElevatorMM() {
         super();
         
@@ -90,8 +90,6 @@ public class ElevatorMM extends SubsystemBase {
     public void setElevatorHeight(double position) {
         m_MotionMagicControl.Position = position;
         m_ElevatorLeader.setControl(m_MotionMagicControl);
-        System.out.println("Leader Current" + m_ElevatorLeader.getSupplyCurrent());
-        System.out.println("Follower Current" + m_ElevatorFollower.getSupplyCurrent());
     }
 
     /**
@@ -125,6 +123,8 @@ public class ElevatorMM extends SubsystemBase {
         builder.addDoubleProperty("Leader Motor Position", () -> m_ElevatorLeader.getPosition().getValueAsDouble(),
             (double position) -> setElevatorHeight(position));
 
+        builder.addDoubleProperty("Leader Motor Target Position", () -> m_MotionMagicControl.Position, (double position) -> setElevatorHeight(position));
+
         builder.addDoubleProperty("Leader Motor Voltage", () -> m_ElevatorLeader.getMotorVoltage().getValueAsDouble(), null);
         builder.addDoubleProperty("Follower Motor Voltage", () -> m_ElevatorFollower.getMotorVoltage().getValueAsDouble(), null);
 
@@ -133,5 +133,7 @@ public class ElevatorMM extends SubsystemBase {
 
         builder.addDoubleProperty("Motion Magic Running Leader", () ->  m_ElevatorLeader.getMotionMagicIsRunning().getValueAsDouble(), null);
         builder.addDoubleProperty("Motion Magic Running Follower", () ->  m_ElevatorFollower.getMotionMagicIsRunning().getValueAsDouble(), null);
+
+        
     }
 }

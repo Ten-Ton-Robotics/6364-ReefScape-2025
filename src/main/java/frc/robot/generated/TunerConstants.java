@@ -72,6 +72,8 @@ public class TunerConstants {
                 .withStatorCurrentLimit(Amps.of(40))
                 .withStatorCurrentLimitEnable(true)
         );
+
+    
     private static final CANcoderConfiguration encoderInitialConfigs = new CANcoderConfiguration();
     // Configs for the Pigeon 2; leave this null to skip applying Pigeon 2 configs
     private static final Pigeon2Configuration pigeonConfigs = null;
@@ -205,7 +207,7 @@ public class TunerConstants {
      */
     public static CommandSwerveDrivetrain createDrivetrain() {
         return new CommandSwerveDrivetrain(
-            DrivetrainConstants, 100, FrontLeft, FrontRight, BackLeft, BackRight
+            DrivetrainConstants, 250, FrontLeft, FrontRight, BackLeft, BackRight
         );
     }
 

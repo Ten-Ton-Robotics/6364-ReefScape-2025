@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.StaticBrake;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -73,12 +74,14 @@ public class Intake extends SubsystemBase {
     private final TalonFX m_lowerMotor = new TalonFX(kLowerMotorId, kLowerMotorBus);
     
     // Motor Outputs
-    private final VelocityVoltage m_upperOutput = new VelocityVoltage(kUpperSpeed);
-    private final VelocityVoltage m_lowerOutput = new VelocityVoltage(kLowerSpeed);
+    private final VelocityTorqueCurrentFOC m_upperOutput = new VelocityTorqueCurrentFOC(kUpperSpeed);
+    private final VelocityTorqueCurrentFOC m_lowerOutput = new VelocityTorqueCurrentFOC(kLowerSpeed);
 
     private boolean on = false;
     public boolean sensor_out;
     
+    private double kCurrentLimit = 10;
+      
     public Intake() {
         super();
         // configure motors
@@ -101,7 +104,16 @@ public class Intake extends SubsystemBase {
         // apply configuration
         m_upperMotor.getConfigurator().apply(upperConfig);
         m_lowerMotor.getConfigurator().apply(lowerConfig);
+
+        upperConfig.CurrentLimits.StatorCurrentLimit = kCurrentLimit;
+        lowerConfig.CurrentLimits.SupplyCurrentLimit = kCurrentLimit;
+        upperConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+        lowerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+
         // commands
+
+        // TODO: SET A CURRENT LIMIT AFTER WE GET FOC WORKING
+
       }
 
     public void setUpperSpeed(double speed) {

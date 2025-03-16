@@ -57,6 +57,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 // import org.photonvision.targeting.PhotonTrackedTarget;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Climb;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 // import frc.robot.subsystems.Elevator;
 // import frc.robot.subsystems.ElevatorEncoder;
@@ -76,6 +77,8 @@ public class RobotContainer {
 
     private PoseEstimatorInst frontPoseEstimator;
     private PoseEstimatorInst backPoseEstimator;
+
+    private Climb m_climber = new Climb();
 
     private Optional<EstimatedRobotPose> prevVisionOutFront = Optional.empty();
     private Optional<EstimatedRobotPose> prevVisionOutBack = Optional.empty();
@@ -97,15 +100,15 @@ public class RobotContainer {
     public static final DigitalInput m_koral_sensor = new DigitalInput(0);
     Trigger objectDetected = new Trigger(m_koral_sensor::get);
 
-    Trigger robotMoving = new Trigger(() -> {
+    // Trigger robotMoving = new Trigger(() -> {
 
-      if(Math.abs(m_controller.getLeftY()) > 0 || Math.abs(m_controller.getLeftY()) > 0 || Math.abs(m_controller.getRightX()) > 0 || Math.abs(m_controller.getRightY()) > 0){
-        return true;
-      } else{
-        return false;
-      }
+    //   if(Math.abs(m_controller.getLeftY()) > 0 || Math.abs(m_controller.getLeftY()) > 0 || Math.abs(m_controller.getRightX()) > 0 || Math.abs(m_controller.getRightY()) > 0){
+    //     return true;
+    //   } else{
+    //     return false;
+    //   }
       
-    });
+    // });
 
     public enum RobotState {  
       TOP,
@@ -132,20 +135,25 @@ public class RobotContainer {
     // Vision visionInstance;
 
     // Half a rotation per second max angular velocity.
-    private static final double kMaxAngularRate = 1.00 * Math.PI;
-    private static final double kMaxSpeed = 1.00;
+    private static final double kMaxAngularRate = 2.5 * Math.PI;
+    private static final double kMaxSpeed = 2.5;
+
+    private static final double kAngulardeadband = kMaxAngularRate * 0.1;
+    private static final double kLineardeadband = kMaxSpeed * 0.1;
+
 
     // private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     // private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
 
     private final SwerveRequest.FieldCentricFacingAngle m_angleRequest = new SwerveRequest.FieldCentricFacingAngle()
-    .withDeadband(kMaxSpeed * 0.1)
-    .withRotationalDeadband(kMaxAngularRate * 0.1)
+    .withDeadband(kLineardeadband)
+    .withRotationalDeadband(kAngulardeadband)
     .withDriveRequestType(DriveRequestType.Velocity);
 
     private final SwerveRequest.FieldCentric m_drive = new SwerveRequest.FieldCentric()
-    .withDeadband(kMaxSpeed * 0.1).withRotationalDeadband(kMaxAngularRate * 0.1) // 20% deadband
+    .withDeadband(kLineardeadband)
+    .withRotationalDeadband(kAngulardeadband) // 20% deadband
     .withDriveRequestType(DriveRequestType.Velocity); // closed loop velocity control
 
 
@@ -171,6 +179,15 @@ public class RobotContainer {
         return m_controller.getLeftX();
         return -m_controller.getLeftX();
     }
+
+    private double getSign(double input){
+      return (Math.abs(input) / input);
+    }
+
+    private double expoCurve(double input, double a, double deadband){
+      return ((Math.pow(a, Math.abs(input)) * Math.abs(input) * getSign(input) * (1 / a)) + (deadband * getSign(input)));
+    }
+
 
     // private Command testing(boolean tof){
     //   return new InstantCommand( () ->{
@@ -198,11 +215,13 @@ public class RobotContainer {
         frontPoseEstimator = new PoseEstimatorInst(visionHandlerFront, m_drivetrain, m_VisionposeFront);
         backPoseEstimator = new PoseEstimatorInst(visionHandlerBack, m_drivetrain, m_VisionposeBack);
   
-
-      
-        m_powerdistro.setSwitchableChannel(true);
-
-                // Build an auto chooser. This will use Commands.none() as the default option.
+        // m_powerdistro.setSwitchableChannel(true);
+        // if (m_powerdistro.getStickyFaults()) {
+          
+          
+        // }
+        System.out.print(m_powerdistro.getStickyFaults()); 
+        // Build an auto chooser. This will use Commands.none() as the default option.
         autoChooser = AutoBuilder.buildAutoChooser();
 
         // Another option that allows you to specify the default auto by its name
@@ -214,6 +233,8 @@ public class RobotContainer {
 
         SmartDashboard.putData("Arm", m_Arm);
         SmartDashboard.putData("intake", m_Intake);
+
+        SmartDashboard.putData("climb", m_climber);
 
         armstates.setDefaultOption("Top", RobotState.TOP);
         armstates.addOption("Mid", RobotState.MID);
@@ -257,8 +278,7 @@ public class RobotContainer {
         m_Arm.goToAngle(0.26 * 0.50).withTimeout(1.0),
         new WaitCommand(0.5),
         new InstantCommand(() -> loadangle = 0.26 * 0.65),
-        new WaitCommand(0.5),
-        m_Intake.stop()
+        new WaitCommand(0.5)
       );
     }
 
@@ -269,9 +289,7 @@ public class RobotContainer {
         m_Arm.goToAngle(0.26 * 0.55).withTimeout(1.0),
         new WaitCommand(0.5),
         new InstantCommand(() -> loadangle = 0.26 * 0.60),
-        new WaitCommand(0.5),
-        m_Intake.stop()
-
+        new WaitCommand(0.5)
       );
     }
 
@@ -292,7 +310,7 @@ public class RobotContainer {
       return new ParallelCommandGroup(
         m_Elevator.goToHeight(0.05),
         m_Intake.forwards(true),
-        m_Arm.goToAngle(0.26)
+        m_Arm.goToAngle(0.265)
       );
     }
 
@@ -323,13 +341,12 @@ public class RobotContainer {
       );
     }
     
-
     private void configureBindings() {
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
         m_drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
-        m_drivetrain.applyRequest(() -> m_drive.withVelocityX(m_controller.getLeftY() * kMaxSpeed)
-            .withVelocityY(m_controller.getLeftX() * kMaxSpeed)
+        m_drivetrain.applyRequest(() -> m_drive.withVelocityX(expoCurve(m_controller.getLeftY(), 10, 0) * kMaxSpeed)
+            .withVelocityY(expoCurve(m_controller.getLeftX(), 10, 0) * kMaxSpeed)
             .withRotationalRate(-m_controller.getRightX() * kMaxAngularRate))
           );
 
@@ -383,7 +400,11 @@ public class RobotContainer {
 
         // m_controller.a().onTrue(m_Elevator.goToHeight(2));
         // m_controller.y().onTrue(m_Elevator.goToHeight(1));
-        m_controller.rightTrigger().onTrue(m_Elevator.goToHeight(0.05).alongWith(m_Arm.goToAngle(0.26)).alongWith(m_Intake.forwards(true)));
+        // m_controller.rightTrigger().onTrue(m_Elevator.goToHeight(0.05).alongWith(m_Arm.goToAngle(0.26)).alongWith(m_Intake.forwards(true)));
+        m_controller.rightTrigger()
+        .whileTrue(m_climber.setVoltage(-2))
+        .onFalse(m_climber.stop());
+
 
         m_controller.leftTrigger()
         .onTrue(m_Arm.goToAngle(loadangle).andThen(m_Intake.forwards(false).withTimeout(1)))
