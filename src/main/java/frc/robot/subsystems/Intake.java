@@ -32,8 +32,8 @@ public class Intake extends SubsystemBase {
     public static final int kUpperMotorId = 1;
     public static final int kLowerMotorId = 2;
 
-    public static final double kUpperSpeed = 50;
-    public static final double kLowerSpeed = 50;
+    public static final double kUpperSpeed = 75;
+    public static final double kLowerSpeed = 75;
 
     public static final NeutralModeValue kUpperNeutralMode = NeutralModeValue.Brake;
     public static final NeutralModeValue kLowerNeutralMode = NeutralModeValue.Brake;

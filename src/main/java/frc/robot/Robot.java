@@ -22,6 +22,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
+    m_robotContainer.updatePoseEstimator();
     
   }
 
@@ -72,7 +73,6 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
-    m_robotContainer.updatePoseEstimator();
 
   }
 

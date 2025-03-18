@@ -27,7 +27,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-// import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
@@ -324,6 +324,7 @@ public Command AutoAlign(final Pose2d targetPose, final double finaltimeout){
     // public Command sysIdDynamic(SysIdRoutine.Direction direction) {
     //     return m_sysIdRoutineToApply.dynamic(direction);
     // }
+    
 
     @Override
     public void periodic() {

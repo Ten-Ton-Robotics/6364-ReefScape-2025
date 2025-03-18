@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import java.text.NumberFormat.Style;
 import java.util.List;
 // import java.io.Console;
 // import java.util.List;
@@ -14,11 +15,11 @@ import org.photonvision.EstimatedRobotPose;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.controls.StaticBrake;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.VecBuilder;
@@ -48,6 +49,10 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.autonomous.MoveToPose;
+// import frc.robot.autonomous.ReefAlign;
+// import frc.robot.autonomous.ReefAlignMovement;
+
 // import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 // import org.photonvision.EstimatedRobotPose;
 // import org.photonvision.PhotonCamera;
@@ -87,7 +92,6 @@ public class RobotContainer {
     private Optional<EstimatedRobotPose> VisionoutBack;
 
     private final SendableChooser<Command> autoChooser;
-    private final SendableChooser<RobotState> armstates = new SendableChooser<>();
 
     private final Field2d m_VisionposeFront = new Field2d();
     private final Field2d m_VisionposeBack = new Field2d();
@@ -100,22 +104,15 @@ public class RobotContainer {
     public static final DigitalInput m_koral_sensor = new DigitalInput(0);
     Trigger objectDetected = new Trigger(m_koral_sensor::get);
 
-    // Trigger robotMoving = new Trigger(() -> {
+    Trigger robotMoving = new Trigger(() -> {
 
-    //   if(Math.abs(m_controller.getLeftY()) > 0 || Math.abs(m_controller.getLeftY()) > 0 || Math.abs(m_controller.getRightX()) > 0 || Math.abs(m_controller.getRightY()) > 0){
-    //     return true;
-    //   } else{
-    //     return false;
-    //   }
+      if(Math.abs(m_controller.getLeftY()) > 0.1 || Math.abs(m_controller.getLeftY()) > 0.1 || Math.abs(m_controller.getRightX()) > 0.1 || Math.abs(m_controller.getRightY()) > 0.1){
+        return true;
+      } else{
+        return false;
+      }
       
-    // });
-
-    public enum RobotState {  
-      TOP,
-      MID,
-      LOW,
-      BOTTOM;
-  }
+    });
 
     private final Transform3d robotToCamBack =
       new Transform3d(new Translation3d(Units.inchesToMeters(-0.625), Units.inchesToMeters(0),
@@ -124,19 +121,21 @@ public class RobotContainer {
 
     // TODO: GET ROBOT TO CAM OFFSETS FROM CARA TMRW FOR FRONT CAM
     private final Transform3d robotToCamFront =
-          new Transform3d(new Translation3d(Units.inchesToMeters(-0.625), Units.inchesToMeters(0),
-              Units.inchesToMeters(35.10)), new Rotation3d(0, Math.toRadians(15), 0)); // Adjusted
+          new Transform3d(new Translation3d(Units.inchesToMeters(7.5), Units.inchesToMeters(0),
+              Units.inchesToMeters(13)), new Rotation3d(0, 0, Math.toRadians(30))); // Adjusted
     
     
     public final PhotonVisionHandler visionHandlerBack = new PhotonVisionHandler("Back", robotToCamBack);
     public final PhotonVisionHandler visionHandlerFront = new PhotonVisionHandler("Front", robotToCamFront);
 
+    // public final ReefAlign m_ReefAlign = new ReefAlign(m_drivetrain, visionHandlerFront);
+
     AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
     // Vision visionInstance;
 
     // Half a rotation per second max angular velocity.
-    private static final double kMaxAngularRate = 2.5 * Math.PI;
-    private static final double kMaxSpeed = 2.5;
+    private static final double kMaxAngularRate = 0.5 * Math.PI;
+    private static final double kMaxSpeed = 0.5;
 
     private static final double kAngulardeadband = kMaxAngularRate * 0.1;
     private static final double kLineardeadband = kMaxSpeed * 0.1;
@@ -161,7 +160,7 @@ public class RobotContainer {
 
     /* Setting up bindings for necessary control of the swerve drive platform */
 
-    private final Telemetry logger = new Telemetry(kMaxSpeed);
+    // private final Telemetry logger = new Telemetry(kMaxSpeed);
     private double loadangle = 0.26;
 
     public static final CommandXboxController m_controller = new CommandXboxController(0);
@@ -179,36 +178,18 @@ public class RobotContainer {
         return m_controller.getLeftX();
         return -m_controller.getLeftX();
     }
-
-    private double getSign(double input){
-      return (Math.abs(input) / input);
+ 
+    private double expoCurve(double input, final double a, final double deadband){
+      double absinput = Math.abs(input);
+      final double inverseA = (1.0 / a);
+      
+      if(absinput < deadband){
+        return 0;
+      }
+      return ((Math.pow(a, absinput) * input * inverseA) + (deadband * Math.signum(input)));
+      
     }
-
-    private double expoCurve(double input, double a, double deadband){
-      return ((Math.pow(a, Math.abs(input)) * Math.abs(input) * getSign(input) * (1 / a)) + (deadband * getSign(input)));
-    }
-
-
-    // private Command testing(boolean tof){
-    //   return new InstantCommand( () ->{
-
-    //     if(tof){
-    //       System.out.println("TRUE");
-    //       System.out.println("TRUE");
-    //       System.out.println("TRUE");
-    //       System.out.println("TRUE");
-
-    //     } else{
-    //       System.out.println("FALSE");
-    //       System.out.println("FALSE");
-    //       System.out.println("FALSE");
-    //       System.out.println("FALSE");
-    //     }
-
-    //   });
-    // }
-
-
+    
     public RobotContainer() {
         configureBindings();
 
@@ -227,19 +208,15 @@ public class RobotContainer {
         // Another option that allows you to specify the default auto by its name
         // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
 
-        SmartDashboard.putData("Auto Chooser", autoChooser);
-        SmartDashboard.putData("Koral Trigger", m_koral_sensor);
-        SmartDashboard.putData("Elevator", m_Elevator);
+        // SmartDashboard.putData("Auto Chooser", autoChooser);
+        // SmartDashboard.putData("Koral Trigger", m_koral_sensor);
+        // SmartDashboard.putData("Elevator", m_Elevator);
 
-        SmartDashboard.putData("Arm", m_Arm);
-        SmartDashboard.putData("intake", m_Intake);
+        // SmartDashboard.putData("Arm", m_Arm);
+        // SmartDashboard.putData("intake", m_Intake);
 
-        SmartDashboard.putData("climb", m_climber);
+        // SmartDashboard.putData("climb", m_climber);
 
-        armstates.setDefaultOption("Top", RobotState.TOP);
-        armstates.addOption("Mid", RobotState.MID);
-        armstates.addOption("Low", RobotState.LOW);
-        armstates.addOption("Bottom", RobotState.BOTTOM);
     }
 
     private Command l1Command(){
@@ -324,11 +301,11 @@ public class RobotContainer {
       );
     }
 
-    //For scoring Algue Under Author Aaron 
+    //For scoring Algue Under 
     private Command algueScoreCmd(){
       return new SequentialCommandGroup(
         m_Intake.forwardsame(),
-        m_Elevator.goToHeight(1.1), //TODO get from Shuffle board
+        m_Elevator.goToHeight(1.1),
         m_Arm.goToAngle(-0.05)
         // m_Arm.goToAngle(0), 
       );
@@ -345,10 +322,10 @@ public class RobotContainer {
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
         m_drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
-        m_drivetrain.applyRequest(() -> m_drive.withVelocityX(expoCurve(m_controller.getLeftY(), 10, 0) * kMaxSpeed)
-            .withVelocityY(expoCurve(m_controller.getLeftX(), 10, 0) * kMaxSpeed)
-            .withRotationalRate(-m_controller.getRightX() * kMaxAngularRate))
-          );
+        m_drivetrain.applyRequest(() -> m_drive.withVelocityX(expoCurve(m_controller.getLeftY(), 20, 0.1) * kMaxSpeed)
+            .withVelocityY(expoCurve(m_controller.getLeftX(), 20, 0.1) * kMaxSpeed)
+            .withRotationalRate(expoCurve(-m_controller.getRightX(), 20, 0.1) * kMaxAngularRate))
+        );
 
         NamedCommands.registerCommand("L1", l1Command());
         NamedCommands.registerCommand("L2", l2Command());
@@ -374,7 +351,7 @@ public class RobotContainer {
         // robotMoving.onTrue(m_Arm.goToAngle(0.28));
 
         // m_controller.rightTrigger().onTrue(m_Arm.goToAngle(0.29));
-//.andThen(m_Intake.reverse())
+        //.andThen(m_Intake.reverse())
 
 
         // L1
@@ -390,19 +367,21 @@ public class RobotContainer {
 
         m_controller.leftBumper().onTrue(algaeclearBottom());
         
-        m_controller.povRight().onTrue(algueScoreCmd()); 
+        // m_controller.povRight().onTrue(algueScoreCmd()); 
         
-        // m_controller.povLeft().onTrue(algaeOutCmd());
-        m_controller.povLeft().onTrue(m_Intake.reversesame());
+        // // m_controller.povLeft().onTrue(algaeOutCmd());  
+        // m_controller.povLeft().onTrue(m_Intake.reversesame());
 
-        m_controller.povDown().onTrue(m_Intake.stop());
+        // m_controller.povDown().onTrue(m_Intake.stop());
 
+        // m_controller.povRight().onTrue(m_drivetrain.AutoAlign(new Pose2d(14.25, 3.8, new Rotation2d(180)), 3));
+        m_controller.povRight().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(14.25, 3.8, new Rotation2d(180))));
 
         // m_controller.a().onTrue(m_Elevator.goToHeight(2));
         // m_controller.y().onTrue(m_Elevator.goToHeight(1));
         // m_controller.rightTrigger().onTrue(m_Elevator.goToHeight(0.05).alongWith(m_Arm.goToAngle(0.26)).alongWith(m_Intake.forwards(true)));
         m_controller.rightTrigger()
-        .whileTrue(m_climber.setVoltage(-2))
+        .whileTrue(m_climber.setVoltage(2))
         .onFalse(m_climber.stop());
 
 
@@ -431,16 +410,20 @@ public class RobotContainer {
         
         m_controller.povUp().onTrue(m_drivetrain.runOnce(() -> m_drivetrain.seedFieldCentric()));
 
-        m_drivetrain.registerTelemetry(logger::telemeterize);
+        // m_drivetrain.registerTelemetry(logger::telemeterize);
     }
 
 
     // Pose estimator update logic (meant to increase accuracy by filtering out bad or unusable output from the Cameras)
     public void updatePoseEstimator() {
-      frontPoseEstimator.updatePose();
-      backPoseEstimator.updatePose();
+      frontPoseEstimator.updatePose(false);
+      backPoseEstimator.updatePose(false);
+
+      m_Fieldpose.setRobotPose(m_drivetrain.getPose2d());
+      SmartDashboard.putData("RobotPose Field2D", m_Fieldpose);
     
  }
+
 
 
     public Command getAutonomousCommand() {

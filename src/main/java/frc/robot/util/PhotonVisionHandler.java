@@ -16,6 +16,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 // import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.wpilibj.DriverStation;
 // import edu.wpi.first.math.geometry.Translation3d;
 // import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -31,6 +32,9 @@ public class PhotonVisionHandler {
   private PhotonPoseEstimator photonPoseEstimator;
 
   private Transform3d robotToCam;
+
+  private PhotonPipelineResult campose;
+
 
 
   //Camera offset to center of robot including rotation
@@ -131,6 +135,45 @@ public class PhotonVisionHandler {
   //   return (target != null) ? target.getFiducialId() : -1;
   // }
 
+  public boolean doesMatchReefTags(int id){
+
+    final int[] idsBlue = {6, 7 , 8 , 9, 10, 11};
+    final int[] idsRed = {17, 18, 19, 20, 21, 22};
+    boolean match = false;
+
+    if(DriverStation.getAlliance().isPresent()){
+
+        if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue)
+        {
+            // Blue logic
+            for(int i = 0; i < idsBlue.length; i++){
+            // loop through idsBlue to see if the tag at hand matches one of the ids inside it
+                if(id == idsBlue[i]){
+                    match = true;
+                }
+            }
+
+        }
+        else
+        {
+
+            // Red logic
+            for(int i = 0; i < idsRed.length; i++){
+                // loop through idsRed to see if the tag at hand matches one of the ids inside it
+                    if(id == idsRed[i]){
+                        return match = true;
+                    }
+                }
+        }
+    }
+
+
+
+    // return match boolean
+    return match;
+    
+  }
+
   // public double areaOfAprilTag() {
   //   var result = vision.getLatestResult();
   //   PhotonTrackedTarget target = result.getBestTarget();
@@ -163,6 +206,28 @@ public class PhotonVisionHandler {
       SmartDashboard.putBoolean("Vision Target", targetVisible);
       PhotonPipelineResult output = results.get(results.size() - 1);
 
+      // if(reef){
+
+      //   if(doesMatchReefTags(output.getBestTarget().fiducialId)){
+
+      //   if (!run) { // If run is false
+      //       run = true;
+      //       return photonPoseEstimator.update(output); // Update and return result
+      //     }
+    
+      //     // Set the reference pose and update the estimator
+      //     photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
+          
+      //     return photonPoseEstimator.update(output);
+          
+      //   } else{
+
+      //       return Optional.empty();
+          
+      //   }
+    
+      // }
+
       if (!run) { // If run is false
         run = true;
         return photonPoseEstimator.update(output); // Update and return result
@@ -170,6 +235,7 @@ public class PhotonVisionHandler {
 
       // Set the reference pose and update the estimator
       photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
+      
       return photonPoseEstimator.update(output);
     }
     else {
@@ -212,6 +278,7 @@ public class PhotonVisionHandler {
       }  
       return ids;   
     }
+
 }
   // public OptionalDouble getLatestLatencyAdjustedTimeStamp() {
 
