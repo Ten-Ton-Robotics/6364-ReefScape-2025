@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.StaticBrake;
@@ -40,14 +41,12 @@ public class Climb extends SubsystemBase {
     public static final double kArmKA = 0;
     
     public static final double kCurrentLimit = 40;
-      
+    
     // Drive Ratio
-    public static final double kArmRatio = 75;
-
+    public static final double kArmRatio = 1;
     private final TalonFX m_ArmMotor = new TalonFX(kArmId, kArmBus);
-    
-    // private final VelocityTorqueCurrentFOC m_ArmOutput = 
-    
+    private final PositionVoltage m_ArmOutput = new PositionVoltage(kArmPose);
+    private final VelocityVoltage m_VelocityOutput = new VelocityVoltage(kArmPose);
 
     public Climb(){
         // configure Arm
@@ -73,32 +72,35 @@ public class Climb extends SubsystemBase {
         //Apply Configs 
         m_ArmMotor.getConfigurator().apply(armConfig); 
         m_ArmMotor.setPosition(0);
+        
     }
 
-    public void setClimbVoltage(double voltage) {
+      public void setClimbVoltage(double voltage) {
         // m_ArmOutput.Velocity = speed;
         m_ArmMotor.setControl(new VoltageOut(voltage));
         m_ArmMotor.setNeutralMode(NeutralModeValue.Brake);
         if (voltage == 0.0)
           m_ArmMotor.setControl(new StaticBrake());
       }
-    
 
       public Command setVoltage(double voltage) {
         return this.runOnce(() -> {
           this.setClimbVoltage(voltage);
         });
       }
- 
 
-      public Command climbCommand(){
-        return new SequentialCommandGroup(
+      public Command goToPosition(double position){
+        return this.runOnce(() -> {
+        m_ArmOutput.Position = position;
+        m_ArmMotor.setControl(m_ArmOutput);
+        });
+      }
 
-        this.setVoltage(2),
-        new WaitCommand(3),
-        this.setVoltage(0)
-            
-        );
+      public Command setVelocity(double velocity){
+        return this.runOnce(() ->{
+          m_VelocityOutput.Velocity = velocity;
+          m_ArmMotor.setControl(m_VelocityOutput);
+        });
       }
 
       public Command stop(){
@@ -119,7 +121,4 @@ public class Climb extends SubsystemBase {
         // builder.addDoubleProperty("Target Position", () -> m_ArmOutput.Position,
         // (double target) -> this.goToAngle(target).schedule());
       }
-    
-    
-    
 }

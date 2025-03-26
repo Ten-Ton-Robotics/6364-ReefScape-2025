@@ -35,18 +35,13 @@ public class PhotonVisionHandler {
 
   private PhotonPipelineResult campose;
 
-
-
   //Camera offset to center of robot including rotation
-
-  
-
 
   // private final Transform3d robotToCam2 =
   //         new Transform3d(new Translation3d(Units.inchesToMeters(10.4), Units.inchesToMeters(-6.5),
-  //             Units.inchesToMeters(13.8)), new Rotation3d(0, Math.toRadians(-15), 0)); // Adjusted
-    
-                                                                                   // camera angle
+  //         Units.inchesToMeters(13.8)), new Rotation3d(0, Math.toRadians(-15), 0)); 
+  // Adjusted  
+  // camera angle
 
   public PhotonVisionHandler(String name, Transform3d robotToCaminst) {
 

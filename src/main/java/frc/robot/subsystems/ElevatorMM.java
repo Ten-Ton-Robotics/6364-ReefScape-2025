@@ -31,7 +31,7 @@ public class ElevatorMM extends SubsystemBase {
     public static final double kElevatorKS = 0.0; // output to overcome static friction (output)
     public static final double kElevatorKV = 0.12; // outpt per unit of target velocity (output/rps)
     public static final double kElevatorKA = 0.01; // output per unit of target acceleration (output/(rps/s))
-    public static final double kElevatorKP = 220; // output per unit of error in position (output/rotation)
+    public static final double kElevatorKP = 225; // output per unit of error in position (output/rotation)
     public static final double kElevatorKI = 0; // output per unit of integrated error in position (output/(rotation*s))
     public static final double kElevatorKD = 12; ///0.30; // output per unit of error in velocity (output/rps)
     public static final double kElevatorKG = 26; // output to overcome gravity (output)

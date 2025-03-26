@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
+  private boolean climbrunce = false;
 
   private final RobotContainer m_robotContainer;
 
@@ -72,8 +73,10 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-
-
+    if(climbrunce == false){
+      climbrunce = true;
+      m_robotContainer.m_climber.goToPosition(75).schedule();
+    }
   }
 
   @Override

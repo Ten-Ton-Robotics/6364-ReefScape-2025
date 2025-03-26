@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.util.List;
+
 // import static edu.wpi.first.units.Units.*;
 
 import java.util.Optional;
@@ -172,7 +174,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     }
 
-public Command findAndFollowPath(final Pose2d targetPose) {
+public Command AutoAlign(final List<Pose2d> targetPoses) {
+    Pose2d targetPose = getPose2d().nearest(targetPoses);
+
     if (DriverStation.getAlliance().equals(Alliance.Blue)) {
         return AutoBuilder.pathfindToPose(targetPose, pathConstraints);
     } else {
@@ -181,27 +185,38 @@ public Command findAndFollowPath(final Pose2d targetPose) {
 } 
 
 
-public Command AutoAlign(final Pose2d targetPose, final double finaltimeout){
-    return new SequentialCommandGroup(
-        // Path Gen and Follower
-        new InstantCommand(() -> {
-            if (DriverStation.getAlliance().equals(Alliance.Blue)) {
-                System.out.println("DEBUG: RUNNING PATHFINDER BLUE");
-                AutoBuilder.pathfindToPose(targetPose, pathConstraints);
-            } else {
-                AutoBuilder.pathfindToPoseFlipped(targetPose, pathConstraints);
-                System.out.println("DEBUG: RUNNING PATHFINDER RED");
-            }
-        }),
+public Command findAndFollowPath(final Pose2d targetPose) {
 
-        new InstantCommand(() -> {
-            new MoveToPose(targetPose, this).withTimeout(finaltimeout);
-            System.out.println("DEBUG: RUNNING MOVE TO POSE");
-        })
+    if (DriverStation.getAlliance().equals(Alliance.Blue)) {
+        return AutoBuilder.pathfindToPose(targetPose, pathConstraints);
+    } else {
+        return AutoBuilder.pathfindToPoseFlipped(targetPose, pathConstraints);
+    }
+} 
+
+
+
+// public Command AutoAlign(final Pose2d targetPose, final double finaltimeout){
+//     return new SequentialCommandGroup(
+//         // Path Gen and Follower
+//         new InstantCommand(() -> {
+//             if (DriverStation.getAlliance().equals(Alliance.Blue)) {
+//                 System.out.println("DEBUG: RUNNING PATHFINDER BLUE");
+//                 AutoBuilder.pathfindToPose(targetPose, pathConstraints);
+//             } else {
+//                 AutoBuilder.pathfindToPoseFlipped(targetPose, pathConstraints);
+//                 System.out.println("DEBUG: RUNNING PATHFINDER RED");
+//             }
+//         }),
+
+//         new InstantCommand(() -> {
+//             new MoveToPose(targetPose, this).withTimeout(finaltimeout);
+//             System.out.println("DEBUG: RUNNING MOVE TO POSE");
+//         })
         
-        // End of Sequential CommandGroup
-    );
-}
+//         // End of Sequential CommandGroup
+//     );
+// }
 
     
 

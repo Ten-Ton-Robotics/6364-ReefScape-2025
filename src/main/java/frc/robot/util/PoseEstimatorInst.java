@@ -39,28 +39,28 @@ public class PoseEstimatorInst {
         this.prevVisionOut = Optional.empty();
     }
 
-    public void updatePose(boolean reef) {
-        if (visionHandler == null) {
+    public void updatePose(String key) {
+        if (this.visionHandler == null) {
             System.err.println("VisionHandler is null. Skipping pose estimation update.");
             return;
         }
 
         if (prevVisionOut.isPresent()) {
-            VisionOut = visionHandler.getEstimatedGlobalPose(prevVisionOut.get().estimatedPose.toPose2d());
+            this.VisionOut = this.visionHandler.getEstimatedGlobalPose(prevVisionOut.get().estimatedPose.toPose2d());
         } else {
-            VisionOut = visionHandler.getEstimatedGlobalPose(new Pose2d(new Translation2d(0, 0), new Rotation2d(0)));
+            this.VisionOut = this.visionHandler.getEstimatedGlobalPose(new Pose2d(new Translation2d(0, 0), new Rotation2d(0)));
         }
 
         prevVisionOut = VisionOut;
 
         try {
             if (VisionOut.isPresent()) {
-                final Pose2d visPose = VisionOut.get().estimatedPose.toPose2d();
-                final double posDiff = drivetrain.getPoseDifference(visPose);
+                final Pose2d visPose = this.VisionOut.get().estimatedPose.toPose2d();
+                final double posDiff = this.drivetrain.getPoseDifference(visPose);
                 final List<PhotonTrackedTarget> tags = VisionOut.get().targetsUsed;
 
                 // Set and put output from Vision on Smart Dashboard for debugging
-                m_VisionPose.setRobotPose(VisionOut.get().estimatedPose.toPose2d());
+                this.m_VisionPose.setRobotPose(this.VisionOut.get().estimatedPose.toPose2d());
                 // SmartDashboard.putData("Vision Pose", m_VisionPose);
 
                 if (tags.size() < 1) {
@@ -70,7 +70,7 @@ public class PoseEstimatorInst {
                 double lateralDeviation, angularDeviation;
 
                 // Logic for vision pose estimation based on tags and area
-                if (tags.size() > 1 && visionHandler.avgTagArea(tags) > 0.8) {
+                if (tags.size() > 1 && visionHandler.avgTagArea(tags) > 0.4) {
                     lateralDeviation = 0.5;
                     angularDeviation = 6; //6;
                 } else if (tags.get(0).getArea() > 0.8) {
@@ -78,20 +78,20 @@ public class PoseEstimatorInst {
                     angularDeviation = 12; //12;
                 } else if (tags.get(0).getArea() > 0.1) {
                     lateralDeviation = 2.0;
-                    angularDeviation = 30; //30;
+                    angularDeviation = 24; //30;
                 } else {
                     return;
                 }
 
                 // Only fuse with WPIlib Kalman filter when the simulation is off
-                Pose2d visPose2d = VisionOut.get().estimatedPose.toPose2d();
-                double visionstamp = VisionOut.get().timestampSeconds;
+                Pose2d visPose2d = this.VisionOut.get().estimatedPose.toPose2d();
+                double visionstamp = this.VisionOut.get().timestampSeconds;
                 this.drivetrain.addVisionMeasurement(visPose2d, visionstamp, VecBuilder.fill(lateralDeviation, lateralDeviation, Units.degreesToRadians(angularDeviation)));
                 
             }
 
-            this.m_VisionPose.setRobotPose(drivetrain.getState().Pose);
-            SmartDashboard.putData("Robot Pose", this.m_VisionPose);
+            this.m_VisionPose.setRobotPose(this.VisionOut.get().estimatedPose.toPose2d());
+            SmartDashboard.putData(key, this.m_VisionPose);
             
         } catch (Exception e) {
             System.out.println(e);

@@ -32,8 +32,8 @@ public class Intake extends SubsystemBase {
     public static final int kUpperMotorId = 1;
     public static final int kLowerMotorId = 2;
 
-    public static final double kUpperSpeed = 75;
-    public static final double kLowerSpeed = 75;
+    public static final double kUpperSpeed = 50;
+    public static final double kLowerSpeed = 80;
 
     public static final NeutralModeValue kUpperNeutralMode = NeutralModeValue.Brake;
     public static final NeutralModeValue kLowerNeutralMode = NeutralModeValue.Brake;
@@ -181,6 +181,27 @@ public void periodic() {
             });
     }
 
+    public Command backup3inch(){
+      return new SequentialCommandGroup(
+
+        reverse(25),
+        new WaitCommand(0.15),
+        stop()
+        
+      );
+    }
+
+    public Command forward3inch(){
+      return new SequentialCommandGroup(
+
+        setSpeed(25),
+        new WaitCommand(0.075),
+        stop()
+        
+      );
+    }
+
+
 /**
    * Spin up the intake motors in the same direction 
    * 
@@ -197,9 +218,8 @@ public void periodic() {
 
   public Command reversesame(){
     return this.runOnce(() -> {
-      
-        this.setUpperSpeed(50);
-        this.setLowerSpeed(-50);
+        this.setUpperSpeed(100);
+        this.setLowerSpeed(-100);
     });
   }
 

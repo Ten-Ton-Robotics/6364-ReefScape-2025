@@ -43,7 +43,7 @@ public class MoveToPose extends Command {
    * @param pose       the pose to move to
    * @param drivetrain the drivetrain to move
    */
-  public MoveToPose(Pose2d target, CommandSwerveDrivetrain drivetrain) {
+  public  MoveToPose(Pose2d target, CommandSwerveDrivetrain drivetrain) {
     m_target = target;
     m_drivetrain = drivetrain;
     // angular PID + Motion Profile
@@ -72,15 +72,16 @@ public class MoveToPose extends Command {
     // get the current pose of the robot
     final Pose2d pose = m_drivetrain.getState().Pose;
     // calculate speeds
-    final double xSpeed = m_xController.calculate(pose.getTranslation().getX(), m_target.getTranslation().getX());
-    final double ySpeed = m_yController.calculate(pose.getTranslation().getY(), m_target.getTranslation().getY());
-    final double angleSpeed = m_angleController.calculate(pose.getRotation().getRadians(),
+    double xSpeed = m_xController.calculate(pose.getTranslation().getX(), m_target.getTranslation().getX());
+    double ySpeed = m_yController.calculate(pose.getTranslation().getY(), m_target.getTranslation().getY());
+    double angleSpeed = m_angleController.calculate(pose.getRotation().getRadians(),
         m_target.getRotation().getRadians());
+
     // move the robot to the target pose
     m_drivetrain.applyRequest(
-        () -> m_drive.withVelocityX(xSpeed).withVelocityY(ySpeed).withRotationalRate(angleSpeed));
+        () -> m_drive.withVelocityX(xSpeed).withVelocityY(ySpeed).withRotationalRate(-angleSpeed));
     m_drivetrain.setControl(
-        m_drive.withVelocityX(xSpeed).withVelocityY(ySpeed).withRotationalRate(angleSpeed));
+        m_drive.withVelocityX(xSpeed).withVelocityY(ySpeed).withRotationalRate(-angleSpeed));
   }
 
   /**
