@@ -29,7 +29,7 @@ public class Constants {
     public static final double kAngularPositionP = 5;
     public static final double kAngularPositionD = 0; 
     // velocity/acceleration constraints
-    public static final double kMaxLateralSpeed = 0.5; // meters per second
+    public static final double kMaxLateralSpeed = 2.0; // meters per second
     public static final double kMaxLateralAcceleration = 1.0; // meters per second squared
     public static final double kMaxAngularSpeed = 2 * Math.PI; // radians per second
     public static final double kMaxAngularAcceleration = 1.0 * Math.PI; // radians per second

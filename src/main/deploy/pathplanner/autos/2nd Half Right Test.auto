@@ -7,19 +7,12 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Auton2-1"
+            "pathName": "Auton3-3"
           }
         },
         {
-          "type": "named",
           "data": {
-            "name": "ArmUp"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.5
+            "waitTime": 0.1
           }
         },
         {
@@ -31,7 +24,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 1.0
+            "waitTime": 0.5
           }
         },
         {
@@ -43,7 +36,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.3
+            "waitTime": 0.1
           }
         },
         {
@@ -56,12 +49,6 @@
           "type": "wait",
           "data": {
             "waitTime": 0.1
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Reset Elevator"
           }
         },
         {

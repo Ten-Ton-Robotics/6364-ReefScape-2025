@@ -10,6 +10,7 @@ import java.util.List;
 // import java.util.List;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
+import java.util.jar.Attributes.Name;
 
 import org.photonvision.EstimatedRobotPose;
 // import org.photonvision.targeting.PhotonTrackedTarget;
@@ -18,6 +19,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.controls.StaticBrake;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.fasterxml.jackson.databind.util.Named;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -52,6 +54,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 // import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -123,8 +126,7 @@ public class RobotContainer {
     public static final Servo m_rampRelease1 = new Servo(1); 
     public static final Servo m_rampRelease2 = new Servo(2); 
 
-
-    Trigger objectDetected = new Trigger(m_koral_sensor::get);
+    Trigger objectDetected = new Trigger(() -> m_koral_sensor.get());
 
     // Trigger robotMoving = new Trigger(() -> {
 
@@ -160,8 +162,8 @@ public class RobotContainer {
     // Vision visionInstance;
 
     // Half a rotation per second max angular velocity.
-    private static final double kMaxAngularRate = 1 * Math.PI;
-    private static final double kMaxSpeed = 1;
+    private static final double kMaxAngularRate = 4.0 * Math.PI;
+    private static final double kMaxSpeed = 4.0;
 
     private static final double kAngulardeadband = kMaxAngularRate * 0.1;
     private static final double kLineardeadband = kMaxSpeed * 0.1;
@@ -225,6 +227,10 @@ public class RobotContainer {
     public RobotContainer() {
         configureBindings();
 
+        m_rampRelease1.set(0);
+        m_rampRelease2.set(0);
+
+
         rightPoseEstimator = new PoseEstimatorInst(visionHandlerRight, m_drivetrain, m_VisionposeFront);
         leftPoseEstimator = new PoseEstimatorInst(visionHandlerLeft, m_drivetrain, m_VisionposeBack);
   
@@ -241,7 +247,6 @@ public class RobotContainer {
         // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
-        // SmartDashboard.putData("Koral Trigger", m_koral_sensor);
         SmartDashboard.putData("Elevator", m_Elevator);
 
         // SmartDashboard.putData("Arm", m_Arm);
@@ -261,6 +266,13 @@ public class RobotContainer {
         // updateShuffleboard();
 
 
+    }
+
+    private Command zeroheight(){
+      return new SequentialCommandGroup(
+        m_Elevator.goToHeight(0.05)
+
+      );
     }
 
     private Command l1Command(){
@@ -340,8 +352,8 @@ public class RobotContainer {
         m_Arm.goToAngle(0),
         new WaitCommand(0.25),
         m_Intake.reversesame(),
-        new WaitCommand(1),
-        m_Elevator.goToHeight(0.05)
+        new WaitCommand(1)
+        // m_Elevator.goToHeight(0.05)
 
       );
     }
@@ -359,31 +371,56 @@ public class RobotContainer {
     private Command outTakeCmd(){
       return new SequentialCommandGroup(
         m_Arm.goToAngle(loadangle),
-        m_Intake.forwards(false).withTimeout(1)
+        m_Intake.forwards(false).withTimeout(1),
+        m_Intake.forwards(true)
       );
     }
+
+
+    private Command waituntilKoral(){
+      return new SequentialCommandGroup(
+      Commands.waitUntil(() -> !  objectDetected.getAsBoolean()),
+      new WaitCommand(0.075),
+      m_Intake.stop()
+      );
+    }
+
 
     private Command ClimberControlLogic(){
       return new InstantCommand(() ->{
 
+          // if(!climbrunce){
+          //   m_climber.goToPosition(75);
+          //   climbrunce = true;
+          // } else{
+            // m_climber.setVelocity(120);
 
-          m_climber.setClimbVoltage(12);
-        
+            m_climber.setClimbVoltage(10);
+          //}
 
       });
     }
 
-    private Command RampRelease(){
+    private Command ClimberGoUp(){
       return new InstantCommand(() ->{
-          m_rampRelease1.set(0.5);
-          m_rampRelease2.set(0.5);  
+            m_climber.goToPosition(90).schedule();
+      });
+    }
+
+    private Command RampRelease(double val){
+      return new InstantCommand(() ->{
+        m_rampRelease1.set(val);
+        m_rampRelease2.set(val);  
         
       });
     }
+
+    
     
     private void configureBindings() {
-        m_rampRelease1.set(1);
-        m_rampRelease2.set(1);
+        RampRelease(1);
+        // m_rampRelease1.set(1);
+        // m_rampRelease2.set(1);
 
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
@@ -399,7 +436,14 @@ public class RobotContainer {
         //     .withRotationalRate(-m_controller.getRightX() * kMaxAngularRate))
         // );
 
+        // m_drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
+        //   RampRelease(m_controller.getLeftY())
+        // );
 
+
+        // NamedCommands.registerCommand(, getAutonomousCommand());
+        NamedCommands.registerCommand("Wait For Coral", waituntilKoral());
+        NamedCommands.registerCommand("zeroHeight", zeroheight());
         NamedCommands.registerCommand("L1", l1Command());
         NamedCommands.registerCommand("L2", l2Command());
         NamedCommands.registerCommand("L3", l3Command());
@@ -407,6 +451,9 @@ public class RobotContainer {
         NamedCommands.registerCommand("Score Koral", outTakeCmd());
         NamedCommands.registerCommand("Reset Elevator", resetElevatorCmd());
         NamedCommands.registerCommand("ArmUp", m_Arm.goToAngle(0.26));
+        NamedCommands.registerCommand("Climb Release", m_climber.goToPosition(90));
+        NamedCommands.registerCommand("Go Back Coral", m_Intake.backup3inch());
+        NamedCommands.registerCommand("Shorter Go Back", m_Intake.backup1andahalfinch());
       
 
         // reset the field-centric heading on left bumper press
@@ -442,11 +489,11 @@ public class RobotContainer {
 
         m_controller.x().onTrue(l4Command());
 
-        // m_controller.rightStick().onTrue(m_drivetrain.AutoAlign(Constants.Swerve.RIGHT_REEF_WAYPOINTS));
+        m_controller.leftStick().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(5.2619, 4.99953, Rotation2d.fromDegrees(240)))); // 20 Left
 
-        // m_controller.leftStick().onTrue(m_drivetrain.AutoAlign(Constants.Swerve.LEFT_REEF_WAYPOINTS));
+        m_controller.rightStick().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(5.2619, 3.05047, Rotation2d.fromDegrees(120)))); // 20 Right        ));
 
-      m_controller.rightBumper().onTrue(algaeclearTop());
+        m_controller.rightBumper().onTrue(algaeclearTop());
                 // new Pose2d(4.05, 2.95, Rotation2d.fromDegrees(60)), // 17 Right
 
         m_controller.leftBumper().onTrue(algaeclearBottom());
@@ -458,7 +505,7 @@ public class RobotContainer {
 
         m_controller.povDown().onTrue(m_Intake.stop());
 
-        m_controller.a().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(7.2, 4.2, Rotation2d.fromDegrees(180))));
+        // m_controller.a().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(7.2, 4.2, Rotation2d.fromDegrees(180))));
 
         // m_controller.povRight().onTrue(m_drivetrain.AutoAlign(new Pose2d(14.25, 3.8, new Rotation2d(180)), 3));
         // m_controller.povRight().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(6.25, 3.8, Rotation2d.fromDegrees(180))));
@@ -472,11 +519,11 @@ public class RobotContainer {
         // m_controller.y().onTrue(m_Elevator.goToHeight(1));
         // m_controller.rightTrigger().onTrue(m_Elevator.goToHeight(0.05).alongWith(m_Arm.goToAngle(0.26)).alongWith(m_Intake.forwards(true)));
 
+        m_controller.povUp().onTrue(RampRelease(0.5).andThen(ClimberGoUp()));
 
-        
-        // m_controller.rightTrigger()
-        // .whileTrue(RampRelease().andThen(ClimberControlLogic()))
-        // .onFalse(m_climber.stop());
+        m_controller.rightTrigger()
+        .whileTrue(ClimberControlLogic())
+        .onFalse(m_climber.stop());
 
 
         m_controller.leftTrigger()
@@ -485,8 +532,8 @@ public class RobotContainer {
 
         // m_controller.povDown().onTrue(m_Intake.forwards(true));
 
-        objectDetected.onFalse(m_Intake.koralControlCommand(0.075)); //-0.38
-        objectDetected.onTrue(m_Intake.forwards(true));
+        // objectDetected.onTrue(m_Intake.koralControlCommand(0.075)); //-0.38
+        // objectDetected.onFalse(m_Intake.forwards(true));
         
 
         // objectDetected.and().whileTrue(m_Arm.goToAngle(0));
@@ -502,7 +549,7 @@ public class RobotContainer {
       
         // m_controller.x().onTrue(m_Intake.stop());
         
-        m_controller.povUp().onTrue(m_drivetrain.runOnce(() -> m_drivetrain.seedFieldCentric()));
+        // m_controller.povUp().onTrue(m_drivetrain.runOnce(() -> m_drivetrain.seedFieldCentric()));
 
         // m_drivetrain.registerTelemetry(logger::telemeterize);
     }
@@ -512,6 +559,8 @@ public class RobotContainer {
     public void updatePoseEstimator() {
       rightPoseEstimator.updatePose("Right Side Pose");
       leftPoseEstimator.updatePose("Left Side Pose");
+      SmartDashboard.putBoolean("Koral Trigger", !m_koral_sensor.get());
+
 
       m_Fieldpose.setRobotPose(m_drivetrain.getPose2d());
       SmartDashboard.putData("RobotPose Field2D", m_Fieldpose);

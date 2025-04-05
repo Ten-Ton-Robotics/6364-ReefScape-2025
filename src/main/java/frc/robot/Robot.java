@@ -24,6 +24,8 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
     m_robotContainer.updatePoseEstimator();
+
+    // if(m_robotContainer.m_koral_sensor)
     
   }
 
@@ -50,6 +52,12 @@ public class Robot extends TimedRobot {
 
     m_robotContainer.updatePoseEstimator();
 
+    // if(!m_robotContainer.m_koral_sensor.get()){
+    //   m_robotContainer.m_Intake.koralControlCommand(0.075).schedule();
+    // } else{
+    //   m_robotContainer.m_Intake.forwards(true).;
+    // }
+
   }
 
   @Override
@@ -60,6 +68,14 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+
+    m_robotContainer.objectDetected.onFalse(m_robotContainer.m_Intake.koralControlCommand(0.075)); //-0.38
+    m_robotContainer.objectDetected.onTrue(m_robotContainer.m_Intake.forwards(true));
+
+
+    // m_robotContainer.objectDetected.onTrue(m_robotContainer.m_Intake.koralControlCommand(0.075)); //-0.38
+    // m_robotContainer.objectDetected.onFalse(m_robotContainer.m_Intake.forwards(true));
+
 
     m_robotContainer.m_Arm.goToAngle(0.26).schedule();
 
@@ -73,10 +89,10 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    if(climbrunce == false){
-      climbrunce = true;
-      m_robotContainer.m_climber.goToPosition(75).schedule();
-    }
+    // if(climbrunce == false){
+    //   climbrunce = true;
+    //   m_robotContainer.m_climber.goToPosition(75).schedule();
+    // }
   }
 
   @Override

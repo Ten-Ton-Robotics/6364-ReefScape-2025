@@ -15,6 +15,8 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 // import edu.wpi.first.wpilibj.DigitalInput;
 // import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 // import edu.wpi.first.wpilibj2.command.InstantCommand;
 // import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -126,12 +128,20 @@ public class Intake extends SubsystemBase {
 
 
 public Command koralControlCommand(double waitseconds) {
-    return new SequentialCommandGroup(
+  // return this.runOnce( () -> {
+  //     new WaitCommand(waitseconds);
+  //     this.stop();
 
+  // });
+  return new ParallelCommandGroup(
+     new SequentialCommandGroup(
         new WaitCommand(waitseconds),
         this.stop()
 
-    );
+    )
+  );
+
+  // return Commands.none();
 }
 
 
@@ -180,6 +190,18 @@ public void periodic() {
             this.setLowerSpeed(-speed);
             });
     }
+
+
+    public Command backup1andahalfinch(){
+      return new SequentialCommandGroup(
+
+        reverse(25),
+        new WaitCommand(0.075),
+        stop()
+        
+      );
+    }
+
 
     public Command backup3inch(){
       return new SequentialCommandGroup(

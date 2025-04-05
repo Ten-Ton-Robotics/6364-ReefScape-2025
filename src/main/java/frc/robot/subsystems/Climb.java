@@ -118,6 +118,10 @@ public class Climb extends SubsystemBase {
         
         builder.addDoubleProperty("Position", () -> m_ArmMotor.getPosition().getValueAsDouble(),
         (double position) -> m_ArmMotor.setPosition(position));
+
+        builder.addDoubleProperty("Motor Voltage", () -> m_ArmMotor.getMotorVoltage().getValueAsDouble(), null);
+        builder.addDoubleProperty("Motor Amperage Supply", () -> m_ArmMotor.getSupplyCurrent().getValueAsDouble(), null);
+
         // builder.addDoubleProperty("Target Position", () -> m_ArmOutput.Position,
         // (double target) -> this.goToAngle(target).schedule());
       }
