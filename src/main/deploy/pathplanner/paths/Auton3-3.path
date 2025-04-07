@@ -1,0 +1,68 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 1.0836,
+        "y": 1.031
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.8770491803278686,
+        "y": 1.141956967213115
+      },
+      "isLocked": false,
+      "linkedName": "StationPickup"
+    },
+    {
+      "anchor": {
+        "x": 4.015881147540983,
+        "y": 2.8801741803278684
+      },
+      "prevControl": {
+        "x": 3.3874257144395377,
+        "y": 1.7916574399034615
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Auton3-3End"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [
+    {
+      "name": "Slow Zone",
+      "minWaypointRelativePos": 0.7545109211775919,
+      "maxWaypointRelativePos": 1.0,
+      "constraints": {
+        "maxVelocity": 1.0,
+        "maxAcceleration": 5.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 2.5,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 59.99999999999999
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0.0,
+    "rotation": 53.24436865430491
+  },
+  "useDefaultConstraints": false
+}
