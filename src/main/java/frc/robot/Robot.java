@@ -10,23 +10,18 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
-  private boolean climbrunce = false;
 
   private final RobotContainer m_robotContainer;
 
   public Robot() {
     m_robotContainer = new RobotContainer();
-    m_robotContainer.m_drivetrain.getOdometryThread().start();
-
+    m_robotContainer.startthread();
   }
 
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
-    m_robotContainer.updatePoseEstimator();
-
-    // if(m_robotContainer.m_koral_sensor)
-    
+    m_robotContainer.updatePoseEstimator();    
   }
 
   @Override
@@ -51,13 +46,6 @@ public class Robot extends TimedRobot {
   public void autonomousPeriodic() {
 
     m_robotContainer.updatePoseEstimator();
-
-    // if(!m_robotContainer.m_koral_sensor.get()){
-    //   m_robotContainer.m_Intake.koralControlCommand(0.075).schedule();
-    // } else{
-    //   m_robotContainer.m_Intake.forwards(true).;
-    // }
-
   }
 
   @Override
@@ -69,19 +57,8 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
     }
 
-    m_robotContainer.objectDetected.onFalse(m_robotContainer.m_Intake.koralControlCommand(0.075)); //-0.38
-    m_robotContainer.objectDetected.onTrue(m_robotContainer.m_Intake.forwards(true));
-
-
-    // m_robotContainer.objectDetected.onTrue(m_robotContainer.m_Intake.koralControlCommand(0.075)); //-0.38
-    // m_robotContainer.objectDetected.onFalse(m_robotContainer.m_Intake.forwards(true));
-
-
-    m_robotContainer.m_Arm.goToAngle(0.26).schedule();
-
-    if (m_robotContainer.m_koral_sensor.get()) {
-      m_robotContainer.m_Intake.forwards(true).alongWith(m_robotContainer.m_Arm.goToAngle(0.26)).schedule();
-    }
+    //Custom Init function
+    m_robotContainer.init();
 
     // m_robotContainer.m_drivetrain.runOnce(() -> m_robotContainer.m_drivetrain.seedFieldCentric());
 
@@ -89,10 +66,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    // if(climbrunce == false){
-    //   climbrunce = true;
-    //   m_robotContainer.m_climber.goToPosition(75).schedule();
-    // }
   }
 
   @Override

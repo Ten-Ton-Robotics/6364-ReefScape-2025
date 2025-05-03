@@ -47,8 +47,6 @@ public class Elevator extends SubsystemBase {
     public static final double kElevatorKS = 0;
     public static final double kElevatorKV = 0;
     public static final double kElevatorKA = 0;
-
-    private int lasterdisint;
     
     public static final double kCurrentLimit = 10;
 
@@ -157,7 +155,6 @@ public class Elevator extends SubsystemBase {
     
     @Override
     public void periodic() {
-        // TODO Auto-generated method stub
         super.periodic();
         if (m_lc != null) { // Ensure the laser sensor is initialized
             laserHeight = m_lc.getMeasurement();

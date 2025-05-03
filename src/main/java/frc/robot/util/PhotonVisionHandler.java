@@ -24,16 +24,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class PhotonVisionHandler {
 
-  // private PhotonCameraSim cameraSim;
-  // private VisionSystemSim visionSim;
   private PhotonCamera vision;
   private AprilTagFieldLayout aprilTagFieldLayout;
   // private boolean simulated;
   private PhotonPoseEstimator photonPoseEstimator;
 
   private Transform3d robotToCam;
-
-  private PhotonPipelineResult campose;
 
   //Camera offset to center of robot including rotation
 

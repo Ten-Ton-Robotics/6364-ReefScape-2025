@@ -6,9 +6,7 @@ package frc.robot;
 
 // import java.io.Console;
 // import java.util.List;
-import java.util.Optional;
 
-import org.photonvision.EstimatedRobotPose;
 // import org.photonvision.targeting.PhotonTrackedTarget;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
@@ -24,8 +22,6 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -51,20 +47,11 @@ import frc.robot.util.PoseEstimatorInst;
 
 public class RobotContainer {
     PowerDistribution m_powerdistro = new PowerDistribution();
-    private boolean toggleState = false; // Track state
 
     private PoseEstimatorInst rightPoseEstimator;
     private PoseEstimatorInst leftPoseEstimator;
 
     public Climb m_climber = new Climb();
-
-    private boolean climbrunce = false;
-
-    private Optional<EstimatedRobotPose> prevVisionOutFront = Optional.empty();
-    private Optional<EstimatedRobotPose> prevVisionOutBack = Optional.empty();
-
-    private Optional<EstimatedRobotPose> VisionoutFront;
-    private Optional<EstimatedRobotPose> VisionoutBack;
 
     private final SendableChooser<Command> autoChooser;
 
@@ -87,8 +74,6 @@ public class RobotContainer {
       new Transform3d(new Translation3d(Units.inchesToMeters(8), Units.inchesToMeters(13),
           Units.inchesToMeters(13.50)), new Rotation3d(0, 0, Math.toRadians(-30))); // Adjusted
 
-
-    // TODO: GET ROBOT TO CAM OFFSETS FROM CARA TMRW FOR FRONT CAM
     private final Transform3d robotToCamRight =
           new Transform3d(new Translation3d(Units.inchesToMeters(8), Units.inchesToMeters(-13),
               Units.inchesToMeters(13.50)), new Rotation3d(0, 0, Math.toRadians(30))); // Adjusted
@@ -106,10 +91,10 @@ public class RobotContainer {
     private static final double kAngulardeadband = kMaxAngularRate * 0.1;
     private static final double kLineardeadband = kMaxSpeed * 0.1;
 
-    private final SwerveRequest.FieldCentricFacingAngle m_angleRequest = new SwerveRequest.FieldCentricFacingAngle()
-    .withDeadband(kLineardeadband)
-    .withRotationalDeadband(kAngulardeadband)
-    .withDriveRequestType(DriveRequestType.Velocity);
+    // private final SwerveRequest.FieldCentricFacingAngle m_angleRequest = new SwerveRequest.FieldCentricFacingAngle()
+    // .withDeadband(kLineardeadband)
+    // .withRotationalDeadband(kAngulardeadband)
+    // .withDriveRequestType(DriveRequestType.Velocity);
 
     private final SwerveRequest.FieldCentric m_drive = new SwerveRequest.FieldCentric()
     .withDeadband(kLineardeadband)
@@ -125,16 +110,15 @@ public class RobotContainer {
 
     public final static CommandSwerveDrivetrain m_drivetrain = TunerConstants.createDrivetrain();
 
-    private double getLeftY() {
-        if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red)
-        return m_controller.getLeftY();
-        return -m_controller.getLeftY();
-    }
+    public void init(){
+    objectDetected.onFalse(m_Intake.koralControlCommand(0.075)); //-0.38
+    objectDetected.onTrue(m_Intake.forwards(true));
 
-    private double getLeftX() {
-        if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red)
-        return m_controller.getLeftX();
-        return -m_controller.getLeftX();
+    m_Arm.goToAngle(0.26).schedule();
+
+    if (m_koral_sensor.get()) {
+      m_Intake.forwards(true).alongWith(m_Arm.goToAngle(0.26)).schedule();
+    }
     }
  
     final private double expoCurve(double input, final double a, final double deadband){
@@ -159,7 +143,6 @@ public class RobotContainer {
         rightPoseEstimator = new PoseEstimatorInst(visionHandlerRight, m_drivetrain, m_VisionposeFront);
         leftPoseEstimator = new PoseEstimatorInst(visionHandlerLeft, m_drivetrain, m_VisionposeBack);
   
-        System.out.print(m_powerdistro.getStickyFaults()); 
         // Build an auto chooser. This will use Commands.none() as the default option.
         autoChooser = AutoBuilder.buildAutoChooser();
 
@@ -302,8 +285,6 @@ public class RobotContainer {
         
       });
     }
-
-    
     
     private void configureBindings() {
         RampRelease(1);
@@ -342,7 +323,7 @@ public class RobotContainer {
 
         m_controller.leftStick().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(5.2619, 4.99953, Rotation2d.fromDegrees(240)))); // 20 Left
 
-        m_controller.rightStick().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(5.2619, 3.05047, Rotation2d.fromDegrees(120)))); // 20 Right        ));
+        m_controller.rightStick().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(5.2619, 3.05047, Rotation2d.fromDegrees(120)))); // 20 Right
 
         m_controller.rightBumper().onTrue(algaeclearTop());
         // new Pose2d(4.05, 2.95, Rotation2d.fromDegrees(60)), // 17 Right
@@ -375,7 +356,6 @@ public class RobotContainer {
       leftPoseEstimator.updatePose("Left Side Pose");
       SmartDashboard.putBoolean("Koral Trigger", !m_koral_sensor.get());
 
-
       m_Fieldpose.setRobotPose(m_drivetrain.getPose2d());
       SmartDashboard.putData("RobotPose Field2D", m_Fieldpose);
     
@@ -383,5 +363,9 @@ public class RobotContainer {
 
     public Command getAutonomousCommand() {
       return autoChooser.getSelected();
+    }
+
+    public void startthread() {
+      m_drivetrain.getOdometryThread().start();
     }
 }
