@@ -4,11 +4,6 @@
 
 package frc.robot;
 
-// import java.io.Console;
-// import java.util.List;
-
-// import org.photonvision.targeting.PhotonTrackedTarget;
-
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -151,6 +146,26 @@ public class RobotContainer {
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
         SmartDashboard.putData("Elevator", m_Elevator);
+
+        //-------------------------------
+        //UNCOMMENT FOR DIAGNOSTICS 
+        //-------------------------------
+        
+        // SmartDashboard.putData("Arm", m_Arm);
+        // SmartDashboard.putData("intake", m_Intake);
+        // SmartDashboard.putData("climb", m_climber);
+        // shuffleboardTab = Shuffleboard.getTab("Driver");  // Create or get the "Driver" tab
+        
+        // Add a button to Shuffleboard that will toggle the boolean
+        // shuffleboardTab.add("Toggle Ramp Release", new InstantCommand(() -> toggleStateRamp = !toggleStateRamp));
+
+        // Add a BooleanEntry to display the current state of toggleStateRamp on Shuffleboard
+        // toggleStateEntry = (BooleanEntry) shuffleboardTab.add("Ramp Release Enabled", toggleStateRamp).getEntry();
+
+        // Update the boolean entry whenever the toggleStateRamp changes
+        // updateShuffleboard();
+
+
 
     }
 
@@ -347,6 +362,9 @@ public class RobotContainer {
         m_controller.leftTrigger()
         .onTrue(m_Arm.goToAngle(loadangle).andThen(m_Intake.forwards(false).withTimeout(1)))
         .onFalse(resetElevatorCmd());
+
+        // m_drivetrain.registerTelemetry(logger::telemeterize);
+
    }
 
 
