@@ -32,7 +32,7 @@
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.7622302158273417,
+      "minWaypointRelativePos": 0.784900284900289,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
         "maxVelocity": 1.2,
@@ -59,7 +59,7 @@
     "rotation": -119.99999999999999
   },
   "reversed": false,
-  "folder": "Auton2",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
     "rotation": 180.0
