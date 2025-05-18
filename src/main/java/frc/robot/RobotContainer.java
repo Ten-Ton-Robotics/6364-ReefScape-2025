@@ -42,7 +42,7 @@ import frc.robot.Telemetry;
 
 
 public class RobotContainer {
-    PowerDistribution m_powerdistro = new PowerDistribution();
+    private PowerDistribution m_powerDistro = new PowerDistribution();
 
     private PoseEstimatorInst rightPoseEstimator;
     private PoseEstimatorInst leftPoseEstimator;
@@ -263,19 +263,19 @@ public class RobotContainer {
       );
     }
 
-    private Command ClimberControlLogic(){
+    private Command climberControlLogic(){
       return new InstantCommand(() ->{
             m_climber.setClimbVoltage(10);
       });
     }
 
-    private Command ClimberGoUp(){
+    private Command climberGoUp(){
       return new InstantCommand(() ->{
             m_climber.goToPosition(90).schedule();
       });
     }
 
-    private Command RampRelease(double val){
+    private Command rampRelease(double val){
       return new InstantCommand(() ->{
         m_rampRelease1.set(val);
         m_rampRelease2.set(val);
@@ -283,7 +283,7 @@ public class RobotContainer {
     }
     
     private void configureBindings() {
-        RampRelease(1);
+        rampRelease(1);
 
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
@@ -334,10 +334,10 @@ public class RobotContainer {
 
         m_controller.povDown().onTrue(m_Intake.stop());
 
-        m_controller.povUp().onTrue(RampRelease(0.5).andThen(ClimberGoUp()));
+        m_controller.povUp().onTrue(rampRelease(0.5).andThen(climberGoUp()));
 
         m_controller.rightTrigger()
-        .whileTrue(ClimberControlLogic())
+        .whileTrue(climberControlLogic())
         .onFalse(m_climber.stop());
 
 
