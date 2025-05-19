@@ -131,20 +131,26 @@ public class RobotContainer {
     private double getFieldCentricAngle(final double x, final double y, final double deadzone){
       final double magnitude = Math.hypot(x, y);
       boolean firstrun = true;
-      double defaultangle;
+      double defaultangle = 0;
+
       if(firstrun){
         firstrun = false;
         defaultangle = m_drivetrain.getPose2d().getRotation().getRadians();
       }
 
-      if (magnitude > deadzone) { // deadzone check
-          final double normX = x / magnitude;
-          final double normY = y / magnitude;
-          final double angle = Math.atan2(normY, normX);
-          defaultangle = angle;
-          return angle;
-          // convert to degrees if desired
-      }else{
+      if(magnitude > deadzone){
+
+        final double idealy = Math.sqrt((1-Math.pow(x, 2)));
+        double rawangle = Math.atan2(idealy, x);
+        defaultangle = rawangle;
+
+        if(y < 0){
+            rawangle = Math.PI + rawangle;
+        }
+
+        return rawangle;
+
+      } else{
         return defaultangle;
       }
     }
@@ -312,7 +318,7 @@ public class RobotContainer {
         m_drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
         m_drivetrain.applyRequest(() -> m_drive_new.withVelocityX(-expoCurve(m_controller.getLeftY(), 20, 0.1) * kMaxSpeed)
             .withVelocityY(-expoCurve(m_controller.getLeftX(), 20, 0.1) * kMaxSpeed)
-            .withTargetDirection(new Rotation2d(getFieldCentricAngle(m_controller.getRightX(), m_controller.getRightY())))
+            .withTargetDirection(new Rotation2d(getFieldCentricAngle(m_controller.getRightX(), m_controller.getRightY(), 0.3)))
             )
         );
 
