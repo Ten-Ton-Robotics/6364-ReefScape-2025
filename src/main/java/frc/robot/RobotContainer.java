@@ -5,6 +5,9 @@
 package frc.robot;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+
+import java.util.Optional;
+
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -65,7 +68,6 @@ public class RobotContainer {
 
     Trigger objectDetected = new Trigger(() -> !m_koral_sensor.get());
 
-
     private final Transform3d robotToCamLeft =
       new Transform3d(new Translation3d(Units.inchesToMeters(8), Units.inchesToMeters(13),
           Units.inchesToMeters(13.50)), new Rotation3d(0, 0, Math.toRadians(-30))); // Adjusted
@@ -73,8 +75,7 @@ public class RobotContainer {
     private final Transform3d robotToCamRight =
           new Transform3d(new Translation3d(Units.inchesToMeters(8), Units.inchesToMeters(-13),
               Units.inchesToMeters(13.50)), new Rotation3d(0, 0, Math.toRadians(30))); // Adjusted
-    
-    
+        
     public final PhotonVisionHandler visionHandlerLeft = new PhotonVisionHandler("Back", robotToCamLeft);
     public final PhotonVisionHandler visionHandlerRight = new PhotonVisionHandler("Front", robotToCamRight);
 
@@ -127,6 +128,27 @@ public class RobotContainer {
         return (((Math.pow(a, absinput) * input * inverseA) + s_deadband) * inversemax);
     }
 
+    private double getFieldCentricAngle(final double x, final double y, final double deadzone){
+      final double magnitude = Math.hypot(x, y);
+      boolean firstrun = true;
+      double defaultangle;
+      if(firstrun){
+        firstrun = false;
+        defaultangle = m_drivetrain.getPose2d().getRotation().getRadians();
+      }
+
+      if (magnitude > deadzone) { // deadzone check
+          final double normX = x / magnitude;
+          final double normY = y / magnitude;
+          final double angle = Math.atan2(normY, normX);
+          defaultangle = angle;
+          return angle;
+          // convert to degrees if desired
+      }else{
+        return defaultangle;
+      }
+    }
+
     
     public RobotContainer() {
         configureBindings();
@@ -145,10 +167,10 @@ public class RobotContainer {
         SmartDashboard.putData("Elevator", m_Elevator);
 
         //-------------------------------
-        //UNCOMMENT FOR DIAGNOSTICS 
+        // UNCOMMENT FOR DIAGNOSTICS     
         //-------------------------------
         
-        // SmartDashboard.putData("Arm", m_Arm);
+        // SmartDashboard.putData("Arm", m_Arm);      
         // SmartDashboard.putData("intake", m_Intake);
         // SmartDashboard.putData("climb", m_climber);
 
@@ -290,10 +312,8 @@ public class RobotContainer {
         m_drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
         m_drivetrain.applyRequest(() -> m_drive_new.withVelocityX(-expoCurve(m_controller.getLeftY(), 20, 0.1) * kMaxSpeed)
             .withVelocityY(-expoCurve(m_controller.getLeftX(), 20, 0.1) * kMaxSpeed)
-            .withTargetDirection(new Rotation2d(m_controller.getRightX(), m_controller.getLeftY()))
+            .withTargetDirection(new Rotation2d(getFieldCentricAngle(m_controller.getRightX(), m_controller.getRightY())))
             )
-            // Might need to add negative signs for turning
-            // .withRotationalRate(expoCurve(-m_controller.getRightX(), 20, 0.1) * kMaxAngularRate)),
         );
 
         NamedCommands.registerCommand("Wait For Coral", waituntilCoral());
