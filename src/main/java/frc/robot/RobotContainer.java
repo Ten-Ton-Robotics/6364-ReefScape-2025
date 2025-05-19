@@ -142,17 +142,17 @@ public class RobotContainer {
 
         final double idealy = Math.sqrt((1-Math.pow(x, 2)));
         double rawangle = Math.atan2(idealy, x);
-        defaultangle = rawangle;
 
         if(y < 0){
             rawangle = Math.PI + rawangle;
         }
 
-        return rawangle;
+        defaultangle = rawangle;
 
-      } else{
-        return defaultangle;
+
       }
+
+      return defaultangle;
     }
 
     
