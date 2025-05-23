@@ -128,7 +128,7 @@ public class RobotContainer {
         return (((Math.pow(a, absinput) * input * inverseA) + s_deadband) * inversemax);
     }
 
-    private double getFieldCentricAngle(final double x, final double y, final double deadzone){
+    private double getFieldCentricAngleFromJoystick(final double x, final double y, final double deadzone){
       final double magnitude = Math.hypot(x, y);
       boolean firstrun = true;
       double defaultangle = 0;
@@ -318,7 +318,7 @@ public class RobotContainer {
         m_drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
         m_drivetrain.applyRequest(() -> m_drive_new.withVelocityX(-expoCurve(m_controller.getLeftY(), 20, 0.1) * kMaxSpeed)
             .withVelocityY(-expoCurve(m_controller.getLeftX(), 20, 0.1) * kMaxSpeed)
-            .withTargetDirection(new Rotation2d(getFieldCentricAngle(m_controller.getRightX(), m_controller.getRightY(), 0.3)))
+            .withTargetDirection(new Rotation2d(getFieldCentricAngleFromJoystick(m_controller.getRightX(), m_controller.getRightY(), 0.3)))
             )
         );
 
