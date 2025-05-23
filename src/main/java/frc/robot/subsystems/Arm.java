@@ -60,11 +60,13 @@ public class Arm extends SubsystemBase {
         // set contoller gains
         armConfig.Slot0 = new Slot0Configs().withKP(kArmKP).withKI(kArmKI).withKD(kArmKD)
             .withKS(kArmKS).withKV(kArmKV).withKA(kArmKA).withKG(kArmKG).withGravityType(GravityTypeValue.Arm_Cosine);
+        
         //invert motor 
         armConfig.MotorOutput.Inverted = kArmInverted; 
 
         //set ratios 
         armConfig.Feedback.SensorToMechanismRatio = kArmRatio; 
+        
         //set neutral modes 
         m_ArmMotor.setNeutralMode(kArmNeutralMode);
 
