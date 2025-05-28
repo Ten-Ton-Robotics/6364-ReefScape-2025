@@ -34,7 +34,7 @@ public class Intake extends SubsystemBase {
     public static final InvertedValue kUpperMotorInverted = InvertedValue.CounterClockwise_Positive;
     public static final InvertedValue kLowerMotorInverted = InvertedValue.CounterClockwise_Positive;
     
-    // public final DigitalInput m_koral_sensor = new DigitalInput(0);
+    // public final DigitalInput m_CoralSensor = new DigitalInput(0);
 
     // private boolean m_isWaiting = false;
     // private Timer m_timer = new Timer();
@@ -116,7 +116,7 @@ public class Intake extends SubsystemBase {
   }
 
 
-public Command koralControlCommand(double waitseconds) {
+public Command coralControlCommand(double waitseconds) {
   // return this.runOnce( () -> {
   //     new WaitCommand(waitseconds);
   //     this.stop();
@@ -136,7 +136,7 @@ public Command koralControlCommand(double waitseconds) {
 
 @Override
 public void periodic() {
-    // sensor_out = !m_koral_sensor.get(); // Poll the sensor  
+    // sensor_out = !m_CoralSensor.get(); // Poll the sensor  
 }
 
   /**
@@ -277,7 +277,7 @@ public void periodic() {
   public void initSendable(SendableBuilder builder) {
     super.initSendable(builder); // call the superclass method
 
-    builder.addBooleanProperty("Koral detected", () -> !RobotContainer.m_koral_sensor.get(), null);
+    builder.addBooleanProperty("Coral detected", () -> !RobotContainer.m_CoralSensor.get(), null);
     builder.addBooleanProperty("Intake On", () -> on, null);
     // add upper motor target velocity property
     // builder.addDoubleProperty("Upper Target Velocity", () -> m_upperOutput.Velocity,

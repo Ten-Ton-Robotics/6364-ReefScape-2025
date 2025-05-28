@@ -45,33 +45,36 @@ import frc.robot.Telemetry;
 
 
 public class RobotContainer {
-    private PowerDistribution m_powerDistro = new PowerDistribution();
 
-    private PoseEstimatorInst rightPoseEstimator;
-    private PoseEstimatorInst leftPoseEstimator;
-
-    public Climb m_climber = new Climb();
-
+    //Misc Objects 
     private final SendableChooser<Command> autoChooser;
-
-    private final Field2d m_VisionposeFront = new Field2d();
-    private final Field2d m_VisionposeBack = new Field2d();
-
-    private final Field2d m_Fieldpose = new Field2d();
-
+    
+    //Sub-Objects 
+    private PowerDistribution m_powerDistro = new PowerDistribution(); 
+    public final Climb m_climber = new Climb();
     public final Intake m_Intake = new Intake();
     public static final Arm m_Arm = new Arm(); 
     public final ElevatorMM m_Elevator = new ElevatorMM();
-    public static final DigitalInput m_koral_sensor = new DigitalInput(0);
-    public static final Servo m_rampRelease1 = new Servo(1); 
-    public static final Servo m_rampRelease2 = new Servo(2); 
+    public static final DigitalInput m_CoralSensor = new DigitalInput(0);
+    public static final Servo m_RampRelease1 = new Servo(1); 
+    public static final Servo m_RampRelease2 = new Servo(2); 
 
-    Trigger objectDetected = new Trigger(() -> !m_koral_sensor.get());
+    //Variables for subobjects
+    Trigger objectDetected = new Trigger(() -> !m_CoralSensor.get());
+    
+    //Variables for vision/pose 
+    private PoseEstimatorInst rightPoseEstimator;
+    private PoseEstimatorInst leftPoseEstimator;
+    private final Field2d m_VisionPoseFront = new Field2d();
+    private final Field2d m_VisionPoseBack = new Field2d();
+    private final Field2d m_FieldPose = new Field2d();
 
+    //Left Camera Offsets 
     private final Transform3d robotToCamLeft =
       new Transform3d(new Translation3d(Units.inchesToMeters(8), Units.inchesToMeters(13),
           Units.inchesToMeters(13.50)), new Rotation3d(0, 0, Math.toRadians(-30))); // Adjusted
 
+    //Right Camera Offsets 
     private final Transform3d robotToCamRight =
           new Transform3d(new Translation3d(Units.inchesToMeters(8), Units.inchesToMeters(-13),
               Units.inchesToMeters(13.50)), new Rotation3d(0, 0, Math.toRadians(30))); // Adjusted
@@ -81,6 +84,8 @@ public class RobotContainer {
 
     AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
 
+
+    //Variables for Driving 
     private static final double kMaxAngularRate = 4.0 * Math.PI;
     private static final double kMaxSpeed = 4.0;
 
@@ -105,7 +110,7 @@ public class RobotContainer {
     public final static CommandSwerveDrivetrain m_drivetrain = TunerConstants.createDrivetrain();
 
     public void init(){
-      objectDetected.onTrue(m_Intake.koralControlCommand(0.075)); //-0.38
+      objectDetected.onTrue(m_Intake.coralControlCommand(0.075)); //-0.38
       objectDetected.onFalse(m_Intake.forwards(true));
 
       m_Arm.goToAngle(0.26).schedule();
@@ -159,12 +164,12 @@ public class RobotContainer {
     public RobotContainer() {
         configureBindings();
 
-        m_rampRelease1.set(0);
-        m_rampRelease2.set(0);
+        m_RampRelease1.set(0);
+        m_RampRelease2.set(0);
 
 
-        rightPoseEstimator = new PoseEstimatorInst(visionHandlerRight, m_drivetrain, m_VisionposeFront);
-        leftPoseEstimator = new PoseEstimatorInst(visionHandlerLeft, m_drivetrain, m_VisionposeBack);
+        rightPoseEstimator = new PoseEstimatorInst(visionHandlerRight, m_drivetrain, m_VisionPoseFront);
+        leftPoseEstimator = new PoseEstimatorInst(visionHandlerLeft, m_drivetrain, m_VisionPoseBack);
   
         // Build an auto chooser. This will use Commands.none() as the default option.
         autoChooser = AutoBuilder.buildAutoChooser();
@@ -305,8 +310,8 @@ public class RobotContainer {
 
     private Command rampRelease(double val){
       return new InstantCommand(() ->{
-        m_rampRelease1.set(val);
-        m_rampRelease2.set(val);
+        m_RampRelease1.set(val);
+        m_RampRelease2.set(val);
       });
     }
     
@@ -384,8 +389,8 @@ public class RobotContainer {
       SmartDashboard.putBoolean("Coral Trigger", objectDetected.getAsBoolean());
 
       // Display Robot Pose on shuffleboard
-      m_Fieldpose.setRobotPose(m_drivetrain.getPose2d());
-      SmartDashboard.putData("RobotPose Field2D", m_Fieldpose);
+      m_FieldPose.setRobotPose(m_drivetrain.getPose2d());
+      SmartDashboard.putData("RobotPose Field2D", m_FieldPose);
     
     }
 
