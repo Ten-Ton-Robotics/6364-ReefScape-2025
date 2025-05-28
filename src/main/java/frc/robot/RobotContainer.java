@@ -6,8 +6,6 @@ package frc.robot;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 
-import java.util.Optional;
-
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -41,7 +39,6 @@ import frc.robot.subsystems.ElevatorMM;
 import frc.robot.subsystems.Intake;
 import frc.robot.util.PhotonVisionHandler;
 import frc.robot.util.PoseEstimatorInst;
-import frc.robot.Telemetry;
 
 
 public class RobotContainer {

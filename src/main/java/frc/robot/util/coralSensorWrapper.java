@@ -3,10 +3,10 @@ package frc.robot.util;
 import edu.wpi.first.wpilibj.DigitalInput;
 //         public static final DigitalInput m_CoralSensor = new DigitalInput(0);
 
-public class coralSensorWrapper extends DigitalInput{
+public class CoralSensorWrapper extends DigitalInput{
     boolean initial_val;
 
-    public coralSensorWrapper(int id, boolean initial_state){
+    public CoralSensorWrapper(int id, boolean initial_state){
         super(id);
         initial_val = initial_state;
     }
