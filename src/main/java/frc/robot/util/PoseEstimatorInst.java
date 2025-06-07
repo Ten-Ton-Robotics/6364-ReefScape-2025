@@ -10,8 +10,6 @@ import java.util.Optional;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-import com.ctre.phoenix6.Utils;
-
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -19,9 +17,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.util.Constants.Drivetrain;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.util.PhotonVisionHandler;
 
 public class PoseEstimatorInst {
     private PhotonVisionHandler visionHandler;
@@ -29,13 +25,13 @@ public class PoseEstimatorInst {
     private Optional<EstimatedRobotPose> VisionOut;
     private CommandSwerveDrivetrain drivetrain;
     private Field2d m_VisionPose;
-    private boolean isSimulation;
+    // private Boolean isSimulation; LEAVE BE. TODO Sim up before next year
 
     public PoseEstimatorInst(PhotonVisionHandler visionHandler, CommandSwerveDrivetrain drivetrain, Field2d m_VisionPose) {
         this.visionHandler = visionHandler;
         this.drivetrain = drivetrain;
         this.m_VisionPose = m_VisionPose;
-        this.isSimulation = Utils.isSimulation();
+        // this.isSimulation = Utils.isSimulation(); LEAVE BE. I want to get Sim up before next year
         this.prevVisionOut = Optional.empty();
     }
 
@@ -55,8 +51,8 @@ public class PoseEstimatorInst {
 
         try {
             if (VisionOut.isPresent()) {
-                final Pose2d visPose = this.VisionOut.get().estimatedPose.toPose2d();
-                final double posDiff = this.drivetrain.getPoseDifference(visPose);
+                // final Pose2d visPose = this.VisionOut.get().estimatedPose.toPose2d();
+                // final double posDiff = this.drivetrain.getPoseDifference(visPose);
                 final List<PhotonTrackedTarget> tags = VisionOut.get().targetsUsed;
 
                 // Set and put output from Vision on Smart Dashboard for debugging

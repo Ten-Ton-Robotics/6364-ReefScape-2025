@@ -14,26 +14,19 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
-// import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.DriverStation;
-// import edu.wpi.first.math.geometry.Translation3d;
-// import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 
 public class PhotonVisionHandler {
 
-  // private PhotonCameraSim cameraSim;
-  // private VisionSystemSim visionSim;
   private PhotonCamera vision;
   private AprilTagFieldLayout aprilTagFieldLayout;
   // private boolean simulated;
   private PhotonPoseEstimator photonPoseEstimator;
 
   private Transform3d robotToCam;
-
-  private PhotonPipelineResult campose;
 
   //Camera offset to center of robot including rotation
 

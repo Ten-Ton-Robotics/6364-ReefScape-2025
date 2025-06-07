@@ -2,16 +2,11 @@ package frc.robot.subsystems;
 
 import java.util.List;
 
-// import static edu.wpi.first.units.Units.*;
-
 import java.util.Optional;
 import java.util.function.Supplier;
 
-// import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
-// import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
-// import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.Matrix;
@@ -24,12 +19,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
-// import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
@@ -37,7 +28,6 @@ import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.config.PIDConstants;
 
-import frc.robot.autonomous.MoveToPose;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.util.Constants.Drivetrain;
 
@@ -60,11 +50,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private boolean m_hasAppliedOperatorPerspective = false;
 
     private final SwerveRequest.ApplyRobotSpeeds m_robotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
-
-    /* Swerve requests to apply during SysId characterization */
-    private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
-    private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
-    private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
 
     private static final PathConstraints pathConstraints =
     new PathConstraints(Drivetrain.kMaxLateralSpeed, Drivetrain.kMaxLateralAcceleration,
@@ -177,7 +162,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 public Command AutoAlign(final List<Pose2d> targetPoses) {
     Pose2d targetPose = getPose2d().nearest(targetPoses);
 
-    if (DriverStation.getAlliance().equals(Alliance.Blue)) {
+    if (DriverStation.getAlliance().get() == Alliance.Blue) {
         return AutoBuilder.pathfindToPose(targetPose, pathConstraints);
     } else {
         return AutoBuilder.pathfindToPoseFlipped(targetPose, pathConstraints);
@@ -187,7 +172,7 @@ public Command AutoAlign(final List<Pose2d> targetPoses) {
 
 public Command findAndFollowPath(final Pose2d targetPose) {
 
-    if (DriverStation.getAlliance().equals(Alliance.Blue)) {
+    if (DriverStation.getAlliance().get() == Alliance.Blue) {
         return AutoBuilder.pathfindToPose(targetPose, pathConstraints);
     } else {
         return AutoBuilder.pathfindToPoseFlipped(targetPose, pathConstraints);
@@ -228,7 +213,7 @@ public Command findAndFollowPath(final Pose2d targetPose) {
         return new Command() {};
     }
 
-    if (DriverStation.getAlliance().equals(Alliance.Blue)){
+    if (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue){
       return AutoBuilder.followPath(path);
     }
     else{

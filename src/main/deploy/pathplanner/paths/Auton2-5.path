@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.8681044829631182,
-        "y": 6.401166277043564
+        "x": 2.0498975409836064,
+        "y": 7.09984631147541
       },
       "isLocked": false,
       "linkedName": "Auton2-2End"
@@ -20,8 +20,8 @@
         "y": 5.005769219642782
       },
       "prevControl": {
-        "x": 2.828442197724295,
-        "y": 5.639083951785638
+        "x": 3.032889344262295,
+        "y": 5.865112704918032
       },
       "nextControl": null,
       "isLocked": false,
@@ -59,7 +59,7 @@
     "rotation": -59.99999999999999
   },
   "reversed": false,
-  "folder": "Auton2",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
     "rotation": -53.5

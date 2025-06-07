@@ -4,25 +4,16 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.StaticBrake;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
-import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-// import edu.wpi.first.networktables.BooleanPublisher;
-// import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.SendableBuilder;
-// import edu.wpi.first.wpilibj.DigitalInput;
-// import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-// import edu.wpi.first.wpilibj2.command.InstantCommand;
-// import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-// import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.RobotContainer;
 
 public class Intake extends SubsystemBase {
@@ -43,7 +34,7 @@ public class Intake extends SubsystemBase {
     public static final InvertedValue kUpperMotorInverted = InvertedValue.CounterClockwise_Positive;
     public static final InvertedValue kLowerMotorInverted = InvertedValue.CounterClockwise_Positive;
     
-    // public final DigitalInput m_koral_sensor = new DigitalInput(0);
+    // public final DigitalInput m_CoralSensor = new DigitalInput(0);
 
     // private boolean m_isWaiting = false;
     // private Timer m_timer = new Timer();
@@ -111,9 +102,7 @@ public class Intake extends SubsystemBase {
         lowerConfig.CurrentLimits.SupplyCurrentLimit = kCurrentLimit;
         upperConfig.CurrentLimits.StatorCurrentLimitEnable = true;
         lowerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-
-        // commands
-
+        
         // TODO: SET A CURRENT LIMIT AFTER WE GET FOC WORKING
 
       }
@@ -127,7 +116,7 @@ public class Intake extends SubsystemBase {
   }
 
 
-public Command koralControlCommand(double waitseconds) {
+public Command coralControlCommand(double waitseconds) {
   // return this.runOnce( () -> {
   //     new WaitCommand(waitseconds);
   //     this.stop();
@@ -147,7 +136,7 @@ public Command koralControlCommand(double waitseconds) {
 
 @Override
 public void periodic() {
-    // sensor_out = !m_koral_sensor.get(); // Poll the sensor  
+    // sensor_out = !m_CoralSensor.get(); // Poll the sensor  
 }
 
   /**
@@ -288,7 +277,7 @@ public void periodic() {
   public void initSendable(SendableBuilder builder) {
     super.initSendable(builder); // call the superclass method
 
-    builder.addBooleanProperty("Koral detected", () -> !RobotContainer.m_koral_sensor.get(), null);
+    builder.addBooleanProperty("Coral detected", () -> !RobotContainer.m_CoralSensor.get(), null);
     builder.addBooleanProperty("Intake On", () -> on, null);
     // add upper motor target velocity property
     // builder.addDoubleProperty("Upper Target Velocity", () -> m_upperOutput.Velocity,

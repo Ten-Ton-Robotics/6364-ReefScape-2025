@@ -3,10 +3,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
-import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
-import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.StaticBrake;
-// import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -63,11 +60,13 @@ public class Arm extends SubsystemBase {
         // set contoller gains
         armConfig.Slot0 = new Slot0Configs().withKP(kArmKP).withKI(kArmKI).withKD(kArmKD)
             .withKS(kArmKS).withKV(kArmKV).withKA(kArmKA).withKG(kArmKG).withGravityType(GravityTypeValue.Arm_Cosine);
+        
         //invert motor 
         armConfig.MotorOutput.Inverted = kArmInverted; 
 
         //set ratios 
         armConfig.Feedback.SensorToMechanismRatio = kArmRatio; 
+        
         //set neutral modes 
         m_ArmMotor.setNeutralMode(kArmNeutralMode);
 
@@ -131,7 +130,7 @@ public class Arm extends SubsystemBase {
   
 
   /**
-   * @brief Stop the flywheel motors
+   * @brief Stop the Arm motors
    * 
    * @return Command
    */
