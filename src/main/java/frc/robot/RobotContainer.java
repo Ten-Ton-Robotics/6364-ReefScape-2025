@@ -130,6 +130,30 @@ public class RobotContainer {
         return (((Math.pow(a, absinput) * input * inverseA) + s_deadband) * inversemax);
     }
 
+    public void init(){
+      objectDetected.onTrue(m_Intake.coralControlCommand(0.055)); //-0.38
+      objectDetected.onFalse(m_Intake.forwards(true));
+
+      m_Arm.goToAngle(0.26).schedule();
+
+      if (!objectDetected.getAsBoolean()) {
+        m_Intake.forwards(true).alongWith(m_Arm.goToAngle(0.26)).schedule();
+      }
+    }
+ 
+    private double expoCurve(final double input, final double a, final double deadband) {
+        final double absinput = Math.abs(input);
+        final double inverseA = (1.0 / a);
+        final double s_deadband = (deadband * Math.signum(input));
+        final double inversemax = 1.0 / (1.0 + deadband);
+
+        if (absinput < deadband) {
+            return 0;
+        }
+
+        return (((Math.pow(a, absinput) * input * inverseA) + s_deadband) * inversemax);
+    }
+
     private double getFieldCentricAngleFromJoystick(final double x, final double y, final double deadzone){
       final double magnitude = Math.hypot(x, y);
       boolean firstrun = true;
@@ -158,6 +182,7 @@ public class RobotContainer {
     }
 
     
+
     public RobotContainer() {
         configureBindings();
 
@@ -362,6 +387,27 @@ public class RobotContainer {
 
         m_controller.povDown().onTrue(m_Intake.stop());
 
+
+        drivetrain.registerTelemetry(logger::telemeterize);
+
+        m_controller.x().onTrue(l4Command());
+
+        //m_controller.leftStick().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(5.2619, 4.99953, Rotation2d.fromDegrees(240)))); // 20 Left
+
+        //m_controller.rightStick().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(5.2619, 3.05047, Rotation2d.fromDegrees(120)))); // 20 Right
+
+        m_controller.rightBumper().onTrue(algaeclearTop());
+        // new Pose2d(4.05, 2.95, Rotation2d.fromDegrees(60)), // 17 Right
+
+        m_controller.leftBumper().onTrue(algaeclearBottom());
+        
+        m_controller.povRight().onTrue(algueScoreCmd()); 
+        
+        m_controller.povLeft().onTrue(algaeOutCmd());  
+        // m_controller.povLeft().onTrue(m_Intake.reversesame());
+
+        m_controller.povDown().onTrue(m_Intake.stop());
+
         m_controller.povUp().onTrue(rampRelease(0.5).andThen(climberGoUp()));
 
         m_controller.rightTrigger()
@@ -388,7 +434,7 @@ public class RobotContainer {
       // Display Robot Pose on shuffleboard
       m_FieldPose.setRobotPose(m_drivetrain.getPose2d());
       SmartDashboard.putData("RobotPose Field2D", m_FieldPose);
-    
+      
     }
 
     // Command to return the result of the autochooser to select the autonomous
