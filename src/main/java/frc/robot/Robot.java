@@ -15,11 +15,13 @@ public class Robot extends TimedRobot {
 
   public Robot() {
     m_robotContainer = new RobotContainer();
+    m_robotContainer.startOdometryThread();
   }
 
   @Override
   public void robotPeriodic() {
-    CommandScheduler.getInstance().run(); 
+    CommandScheduler.getInstance().run();
+    m_robotContainer.updatePoseEstimator();    
   }
 
   @Override
@@ -41,7 +43,9 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+    m_robotContainer.updatePoseEstimator();
+  }
 
   @Override
   public void autonomousExit() {}
@@ -51,10 +55,17 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+
+    //Custom Init function
+    m_robotContainer.init();
+
+    // m_robotContainer.m_drivetrain.runOnce(() -> m_robotContainer.m_drivetrain.seedFieldCentric());
+
   }
 
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+  }
 
   @Override
   public void teleopExit() {}
