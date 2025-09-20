@@ -49,7 +49,7 @@ public class PhotonVisionHandler {
 
     // Load AprilTag field layout
     try { 
-      aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+      aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
     } 
     
     catch (UncheckedIOException e) {

@@ -18,7 +18,6 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -40,14 +39,11 @@ import frc.robot.subsystems.Intake;
 import frc.robot.util.PhotonVisionHandler;
 import frc.robot.util.PoseEstimatorInst;
 
-
 public class RobotContainer {
-
     //Misc Objects 
     private final SendableChooser<Command> autoChooser;
     
     //Sub-Objects 
-    private PowerDistribution m_powerDistro = new PowerDistribution(); 
     public final Climb m_climber = new Climb();
     public final Intake m_Intake = new Intake();
     public static final Arm m_Arm = new Arm(); 
@@ -79,21 +75,21 @@ public class RobotContainer {
     public final PhotonVisionHandler visionHandlerLeft = new PhotonVisionHandler("Back", robotToCamLeft);
     public final PhotonVisionHandler visionHandlerRight = new PhotonVisionHandler("Front", robotToCamRight);
 
-    AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+    AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
 
 
     //Variables for Driving 
-    private static final double kMaxAngularRate = 4.0 * Math.PI;
-    private static final double kMaxSpeed = 4.0;
+    private static final double kMaxAngularRate = 0.5 * Math.PI;
+    private static final double kMaxSpeed = 0.5; 
 
-    private static final double kAngulardeadband = kMaxAngularRate * 0.1;
-    private static final double kLineardeadband = kMaxSpeed * 0.1;
+    // private static final double kAngulardeadband = kMaxAngularRate * 0.1;
+    // private static final double kLineardeadband = kMaxSpeed * 0.1;
 
     // private final SwerveRequest.FieldCentric m_drive = new SwerveRequest.FieldCentric();
     //     .withDeadband(kLineardeadband)
     // .withRotationalDeadband(kAngulardeadband) // 20% deadband
     // .withDriveRequestType(DriveRequestType.Velocity); // closed loop velocity control
-
+    
     private final SwerveRequest.FieldCentricFacingAngle m_drive_new = new SwerveRequest.FieldCentricFacingAngle()
     .withDriveRequestType(DriveRequestType.Velocity); // closed loop velocity control
 
@@ -105,30 +101,6 @@ public class RobotContainer {
     public static final CommandXboxController m_controller = new CommandXboxController(0);
 
     public final static CommandSwerveDrivetrain m_drivetrain = TunerConstants.createDrivetrain();
-
-    public void init(){
-      objectDetected.onTrue(m_Intake.coralControlCommand(0.075)); //-0.38
-      objectDetected.onFalse(m_Intake.forwards(true));
-
-      m_Arm.goToAngle(0.26).schedule();
-
-      if (!objectDetected.getAsBoolean()) {
-        m_Intake.forwards(true).alongWith(m_Arm.goToAngle(0.26)).schedule();
-      }
-    }
- 
-    private double expoCurve(final double input, final double a, final double deadband) {
-        final double absinput = Math.abs(input);
-        final double inverseA = (1.0 / a);
-        final double s_deadband = (deadband * Math.signum(input));
-        final double inversemax = 1.0 / (1.0 + deadband);
-
-        if (absinput < deadband) {
-            return 0;
-        }
-
-        return (((Math.pow(a, absinput) * input * inverseA) + s_deadband) * inversemax);
-    }
 
     public void init(){
       objectDetected.onTrue(m_Intake.coralControlCommand(0.055)); //-0.38
@@ -154,31 +126,27 @@ public class RobotContainer {
         return (((Math.pow(a, absinput) * input * inverseA) + s_deadband) * inversemax);
     }
 
-    private double getFieldCentricAngleFromJoystick(final double x, final double y, final double deadzone){
+    private Rotation2d AngleGetter(final double x, final double y, final double deadzone){
       final double magnitude = Math.hypot(x, y);
-      boolean firstrun = true;
-      double defaultangle = 0;
-
-      if(firstrun){
-        firstrun = false;
-        defaultangle = m_drivetrain.getPose2d().getRotation().getRadians();
-      }
+      Rotation2d angle; 
 
       if(magnitude > deadzone){
 
-        final double idealy = Math.sqrt((1-Math.pow(x, 2)));
-        double rawangle = Math.atan2(idealy, x);
-
-        if(y < 0){
-            rawangle = Math.PI + rawangle;
-        }
-
-        defaultangle = rawangle;
-
-
+        angle = new Rotation2d(Math.atan2(y*-1, x)); 
       }
+      else{
+        angle = m_drivetrain.getPose2d().getRotation(); 
+      }
+      return angle;
+    }
 
-      return defaultangle;
+    private double maxRate(final double x, final double y, final double deadzone){
+      final double magnitude = Math.hypot(x, y); 
+      if(magnitude > deadzone){
+        return kMaxAngularRate * magnitude; 
+      }else{
+        return 0; 
+      }
     }
 
     
@@ -345,7 +313,9 @@ public class RobotContainer {
         m_drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
         m_drivetrain.applyRequest(() -> m_drive_new.withVelocityX(-expoCurve(m_controller.getLeftY(), 20, 0.1) * kMaxSpeed)
             .withVelocityY(-expoCurve(m_controller.getLeftX(), 20, 0.1) * kMaxSpeed)
-            .withTargetDirection(new Rotation2d(getFieldCentricAngleFromJoystick(m_controller.getRightX(), m_controller.getRightY(), 0.3)))
+            .withTargetDirection(AngleGetter(m_controller.getRightX(), m_controller.getRightY(), 0.3))
+            .withHeadingPID(20, 0, 0)
+            .withMaxAbsRotationalRate(maxRate(m_controller.getRightX(), m_controller.getRightY(), 0.3))
             )
         );
 
@@ -371,10 +341,6 @@ public class RobotContainer {
 
         m_controller.x().onTrue(l4Command());
 
-        m_controller.leftStick().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(5.2619, 4.99953, Rotation2d.fromDegrees(240)))); // 20 Left
-
-        m_controller.rightStick().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(5.2619, 3.05047, Rotation2d.fromDegrees(120)))); // 20 Right
-
         m_controller.rightBumper().onTrue(algaeclearTop());
         // new Pose2d(4.05, 2.95, Rotation2d.fromDegrees(60)), // 17 Right
 
@@ -387,28 +353,13 @@ public class RobotContainer {
 
         m_controller.povDown().onTrue(m_Intake.stop());
 
-
-        drivetrain.registerTelemetry(logger::telemeterize);
-
-        m_controller.x().onTrue(l4Command());
 
         //m_controller.leftStick().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(5.2619, 4.99953, Rotation2d.fromDegrees(240)))); // 20 Left
 
         //m_controller.rightStick().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(5.2619, 3.05047, Rotation2d.fromDegrees(120)))); // 20 Right
 
-        m_controller.rightBumper().onTrue(algaeclearTop());
         // new Pose2d(4.05, 2.95, Rotation2d.fromDegrees(60)), // 17 Right
-
-        m_controller.leftBumper().onTrue(algaeclearBottom());
         
-        m_controller.povRight().onTrue(algueScoreCmd()); 
-        
-        m_controller.povLeft().onTrue(algaeOutCmd());  
-        // m_controller.povLeft().onTrue(m_Intake.reversesame());
-
-        m_controller.povDown().onTrue(m_Intake.stop());
-
-        m_controller.povUp().onTrue(rampRelease(0.5).andThen(climberGoUp()));
 
         m_controller.rightTrigger()
         .whileTrue(climberControlLogic())
@@ -435,6 +386,8 @@ public class RobotContainer {
       m_FieldPose.setRobotPose(m_drivetrain.getPose2d());
       SmartDashboard.putData("RobotPose Field2D", m_FieldPose);
       
+      SmartDashboard.putNumber("Heading", new Rotation2d(Math.atan2(m_controller.getRightY(), m_controller.getRightX())).getDegrees());
+      SmartDashboard.putNumber("Right Joy Stick X", m_controller.getRightX()); 
     }
 
     // Command to return the result of the autochooser to select the autonomous
