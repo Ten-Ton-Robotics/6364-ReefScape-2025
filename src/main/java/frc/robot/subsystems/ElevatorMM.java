@@ -88,6 +88,11 @@ public class ElevatorMM extends SubsystemBase {
         m_MotionMagicControl.Position = position;
         m_ElevatorLeader.setControl(m_MotionMagicControl);
     }
+    
+    public double getElevatorHeight(){
+        return m_MotionMagicControl.Position; 
+    }
+
 
     /**
      * @brief Moves elevator up 

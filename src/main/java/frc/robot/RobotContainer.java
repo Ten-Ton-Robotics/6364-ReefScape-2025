@@ -5,7 +5,6 @@
 package frc.robot;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
-
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -76,11 +75,11 @@ public class RobotContainer {
     public final PhotonVisionHandler visionHandlerRight = new PhotonVisionHandler("Front", robotToCamRight);
 
     AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
-
+    
 
     //Variables for Driving 
-    private static final double kMaxAngularRate = 0.5 * Math.PI;
-    private static final double kMaxSpeed = 0.5; 
+    private static final double kMaxAngularRate = 1.0; //Radians/s 
+    private static final double kMaxSpeed = 1.0;
 
     // private static final double kAngulardeadband = kMaxAngularRate * 0.1;
     // private static final double kLineardeadband = kMaxSpeed * 0.1;
@@ -132,7 +131,7 @@ public class RobotContainer {
 
       if(magnitude > deadzone){
 
-        angle = new Rotation2d(Math.atan2(y*-1, x)); 
+        angle = new Rotation2d(Math.atan2(y*-1, x) - Math.toRadians(90));  
       }
       else{
         angle = m_drivetrain.getPose2d().getRotation(); 
@@ -143,7 +142,7 @@ public class RobotContainer {
     private double maxRate(final double x, final double y, final double deadzone){
       final double magnitude = Math.hypot(x, y); 
       if(magnitude > deadzone){
-        return kMaxAngularRate * magnitude; 
+        return magnitude * 20; //20 is the recommended max PID  
       }else{
         return 0; 
       }
@@ -313,9 +312,9 @@ public class RobotContainer {
         m_drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
         m_drivetrain.applyRequest(() -> m_drive_new.withVelocityX(-expoCurve(m_controller.getLeftY(), 20, 0.1) * kMaxSpeed)
             .withVelocityY(-expoCurve(m_controller.getLeftX(), 20, 0.1) * kMaxSpeed)
-            .withTargetDirection(AngleGetter(m_controller.getRightX(), m_controller.getRightY(), 0.3))
-            .withHeadingPID(20, 0, 0)
-            .withMaxAbsRotationalRate(maxRate(m_controller.getRightX(), m_controller.getRightY(), 0.3))
+            .withTargetDirection(AngleGetter(m_controller.getRightX(), m_controller.getRightY() , 0.3))
+            .withHeadingPID(maxRate(m_controller.getRightX(), m_controller.getRightY(), 0.3), 0, 0)
+            .withMaxAbsRotationalRate(kMaxAngularRate)
             )
         );
 
@@ -341,32 +340,38 @@ public class RobotContainer {
 
         m_controller.x().onTrue(l4Command());
 
-        m_controller.rightBumper().onTrue(algaeclearTop());
-        // new Pose2d(4.05, 2.95, Rotation2d.fromDegrees(60)), // 17 Right
+        m_controller.leftStick().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(5.2619, 4.99953, Rotation2d.fromDegrees(240)))); // 20 Left
 
-        m_controller.leftBumper().onTrue(algaeclearBottom());
-        
-        m_controller.povRight().onTrue(algueScoreCmd()); 
-        
-        m_controller.povLeft().onTrue(algaeOutCmd());  
-        // m_controller.povLeft().onTrue(m_Intake.reversesame());
+        m_controller.rightStick().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(5.2619, 3.05047, Rotation2d.fromDegrees(120)))); // 20 Right
 
-        m_controller.povDown().onTrue(m_Intake.stop());
+        //m_controller.rightBumper().onTrue(algaeclearTop());
+
+        //m_controller.leftBumper().onTrue(algaeclearBottom());
 
 
-        //m_controller.leftStick().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(5.2619, 4.99953, Rotation2d.fromDegrees(240)))); // 20 Left
 
         //m_controller.rightStick().onTrue(m_drivetrain.findAndFollowPath(new Pose2d(5.2619, 3.05047, Rotation2d.fromDegrees(120)))); // 20 Right
 
         // new Pose2d(4.05, 2.95, Rotation2d.fromDegrees(60)), // 17 Right
         
+        
+        // new Pose2d(4.05, 2.95, Rotation2d.fromDegrees(60)), // 17 Right
+        
+        m_controller.povRight().onTrue(algueScoreCmd()); 
+        
+        m_controller.povLeft().onTrue(algaeOutCmd());  
+        
+        // m_controller.povLeft().onTrue(m_Intake.reversesame());
 
-        m_controller.rightTrigger()
+        m_controller.povDown().onTrue(m_Intake.stop());
+
+        m_controller.povUp().onTrue(rampRelease(0.5).andThen(climberGoUp()));
+
+        m_controller.leftTrigger()
         .whileTrue(climberControlLogic())
         .onFalse(m_climber.stop());
 
-
-        m_controller.leftTrigger()
+        m_controller.rightTrigger()
         .onTrue(m_Arm.goToAngle(loadangle).andThen(m_Intake.forwards(false).withTimeout(1)))
         .onFalse(resetElevatorCmd());
 
