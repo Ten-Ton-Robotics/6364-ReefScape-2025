@@ -117,12 +117,17 @@ public class RobotContainer {
         final double inverseA = (1.0 / a);
         final double s_deadband = (deadband * Math.signum(input));
         final double inversemax = 1.0 / (1.0 + deadband);
-
+        double elevatorHeightDampener = 1; 
         if (absinput < deadband) {
             return 0;
         }
 
-        return (((Math.pow(a, absinput) * input * inverseA) + s_deadband) * inversemax);
+        if(m_Elevator.getElevatorHeight() > 1){
+          elevatorHeightDampener = (1/m_Elevator.getElevatorHeight()); 
+        }
+
+
+        return (((Math.pow(a, absinput) * input * inverseA) + s_deadband) * inversemax * elevatorHeightDampener);
     }
 
     private Rotation2d AngleGetter(final double x, final double y, final double deadzone){
