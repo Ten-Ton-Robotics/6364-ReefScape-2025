@@ -16,40 +16,40 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Arm extends SubsystemBase {
 
-    public static final String kArmBus = "rio";
-    public static final int kArmId = 3;
-    public static final double kArmPose = 0;
-    public static final NeutralModeValue kArmNeutralMode = NeutralModeValue.Brake;
-    public static final InvertedValue kArmInverted = InvertedValue.Clockwise_Positive;
+    public static final String ARM_BUS = "rio";
+    public static final int ARM_ID = 3;
+    public static final double ARM_POSE = 0;
+    public static final NeutralModeValue ARM_NEUTRAL_MODE = NeutralModeValue.Brake;
+    public static final InvertedValue ARM_INVERTED = InvertedValue.Clockwise_Positive;
     
     //arm controller gains
-    public static final double kArmKP = 550; //90
-    public static final double kArmKI = 0;
-    public static final double kArmKD = 25.5; //8
+    public static final double ARM_KP = 550; //90
+    public static final double ARM_KI = 0;
+    public static final double ARM_KD = 25.5; //8
 
     //arm controller feedforward gains
-    public static final double kArmKG = 4;
-    public static final double kArmKS = 0;
-    public static final double kArmKV = 0;
-    public static final double kArmKA = 0;
+    public static final double ARM_KG = 4;
+    public static final double ARM_KS = 0;
+    public static final double ARM_KV = 0;
+    public static final double ARM_KA = 0;
 
     // Motion Magic Consts
-    public static final double kCruiseVelocity = 0.6; // 0.5s
-    public static final double kAcceleration = 1.2;
-    public static final double kJerk = 1.8;
+    public static final double CRUISE_VELOCITY = 0.6; // 0.5s
+    public static final double ACCELERATION = 1.2;
+    public static final double JERK = 1.8;
 
 
-    public static final double kCurrentLimit = 12;
+    public static final double CURRENT_LIMIT = 12;
 
     // Arm Pose
-    public static final double kMaxPosition = 0.26220703125;
+    public static final double MAX_POSITION = 0.26220703125;
 
     // Drive Ratio
-    public static final double kArmRatio = 75;
+    public static final double ARM_RATIO = 75;
 
-    private final TalonFX m_ArmMotor = new TalonFX(kArmId, kArmBus);
+    private final TalonFX m_ArmMotor = new TalonFX(ARM_ID, ARM_BUS);
     
-    private final MotionMagicTorqueCurrentFOC m_ArmOutput = new MotionMagicTorqueCurrentFOC(kArmPose);
+    private final MotionMagicTorqueCurrentFOC m_ArmOutput = new MotionMagicTorqueCurrentFOC(ARM_POSE);
 
     public Arm() {
       
@@ -58,32 +58,32 @@ public class Arm extends SubsystemBase {
         final TalonFXConfiguration armConfig = new TalonFXConfiguration(); 
 
         // set contoller gains
-        armConfig.Slot0 = new Slot0Configs().withKP(kArmKP).withKI(kArmKI).withKD(kArmKD)
-            .withKS(kArmKS).withKV(kArmKV).withKA(kArmKA).withKG(kArmKG).withGravityType(GravityTypeValue.Arm_Cosine);
+        armConfig.Slot0 = new Slot0Configs().withKP(ARM_KP).withKI(ARM_KI).withKD(ARM_KD)
+            .withKS(ARM_KS).withKV(ARM_KV).withKA(ARM_KA).withKG(ARM_KG).withGravityType(GravityTypeValue.Arm_Cosine);
         
         //invert motor 
-        armConfig.MotorOutput.Inverted = kArmInverted; 
+        armConfig.MotorOutput.Inverted = ARM_INVERTED; 
 
         //set ratios 
-        armConfig.Feedback.SensorToMechanismRatio = kArmRatio; 
+        armConfig.Feedback.SensorToMechanismRatio = ARM_RATIO; 
         
         //set neutral modes 
-        m_ArmMotor.setNeutralMode(kArmNeutralMode);
+        m_ArmMotor.setNeutralMode(ARM_NEUTRAL_MODE);
 
         // set current limit
-        armConfig.CurrentLimits.StatorCurrentLimit = kCurrentLimit;
-        armConfig.CurrentLimits.SupplyCurrentLimit = kCurrentLimit;
+        armConfig.CurrentLimits.StatorCurrentLimit = CURRENT_LIMIT;
+        armConfig.CurrentLimits.SupplyCurrentLimit = CURRENT_LIMIT;
         armConfig.CurrentLimits.StatorCurrentLimitEnable = true;
         armConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
         // Configure Motion Magic settings
-        armConfig.MotionMagic.MotionMagicCruiseVelocity = kCruiseVelocity;
-        armConfig.MotionMagic.MotionMagicAcceleration = kAcceleration;
-        armConfig.MotionMagic.MotionMagicJerk = kJerk;
+        armConfig.MotionMagic.MotionMagicCruiseVelocity = CRUISE_VELOCITY;
+        armConfig.MotionMagic.MotionMagicAcceleration = ACCELERATION;
+        armConfig.MotionMagic.MotionMagicJerk = JERK;
 
         //Apply Configs 
         m_ArmMotor.getConfigurator().apply(armConfig); 
-        m_ArmMotor.setPosition(kMaxPosition);
+        m_ArmMotor.setPosition(MAX_POSITION);
       }
     
   //   public void setArmSpeed(double speed) {
