@@ -337,9 +337,19 @@ public class RobotContainer {
         NamedCommands.registerCommand("Go Back Coral", m_Intake.backup3inch());
         NamedCommands.registerCommand("Shorter Go Back", m_Intake.backup1andahalfinch());
       
+        //Hamburger button
         m_controller.start().onTrue(m_Intake.forward3inch());
+
+        //Dual window button
         m_controller.back().onTrue(m_Intake.backup3inch());
 
+        m_controller.rightBumper().onTrue(resetElevatorCmd()); 
+
+        m_controller.leftBumper().onTrue(m_drivetrain.runOnce(() -> m_drivetrain.seedFieldCentric()));
+
+
+        m_controller.a().onTrue(l1Command()); 
+        
         m_controller.b().onTrue(l2Command());
 
         m_controller.y().onTrue(l3Command());
