@@ -5,9 +5,10 @@
 package frc.robot;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
-import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.ctre.phoenix6.swerve.SwerveRequest;  
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -55,8 +56,8 @@ public class RobotContainer {
     Trigger objectDetected = new Trigger(() -> !m_CoralSensor.get());
     
     //Variables for vision/pose 
-    private PoseEstimatorInst rightPoseEstimator;
-    private PoseEstimatorInst leftPoseEstimator;
+    private final PoseEstimatorInst rightPoseEstimator;
+    private final PoseEstimatorInst leftPoseEstimator;
     private final Field2d m_VisionPoseFront = new Field2d();
     private final Field2d m_VisionPoseBack = new Field2d();
     private final Field2d m_FieldPose = new Field2d();
@@ -78,8 +79,8 @@ public class RobotContainer {
     
 
     //Variables for Driving 
-    private static final double kMaxAngularRate = 1.0; //Radians/s 
-    private static final double kMaxSpeed = 1.0;
+    private static final double MAX_ANGULAR_RATE = 1.0; //Radians/s 
+    private static final double MAX_SPEED = 1.0;
 
     // private static final double kAngulardeadband = kMaxAngularRate * 0.1;
     // private static final double kLineardeadband = kMaxSpeed * 0.1;
@@ -94,7 +95,7 @@ public class RobotContainer {
 
     /* Setting up bindings for necessary control of the swerve drive platform */
 
-    private final Telemetry logger = new Telemetry(kMaxSpeed);
+    private final Telemetry logger = new Telemetry(MAX_SPEED);
     private double loadangle = 0.26;
 
     public static final CommandXboxController m_controller = new CommandXboxController(0);
@@ -315,11 +316,11 @@ public class RobotContainer {
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
         m_drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
-        m_drivetrain.applyRequest(() -> m_drive_new.withVelocityX(-expoCurve(m_controller.getLeftY(), 20, 0.1) * kMaxSpeed)
-            .withVelocityY(-expoCurve(m_controller.getLeftX(), 20, 0.1) * kMaxSpeed)
+        m_drivetrain.applyRequest(() -> m_drive_new.withVelocityX(-expoCurve(m_controller.getLeftY(), 20, 0.1) * MAX_SPEED)
+            .withVelocityY(-expoCurve(m_controller.getLeftX(), 20, 0.1) * MAX_SPEED)
             .withTargetDirection(AngleGetter(m_controller.getRightX(), m_controller.getRightY() , 0.3))
             .withHeadingPID(maxRate(m_controller.getRightX(), m_controller.getRightY(), 0.3), 0, 0)
-            .withMaxAbsRotationalRate(kMaxAngularRate)
+            .withMaxAbsRotationalRate(MAX_ANGULAR_RATE)
             )
         );
 

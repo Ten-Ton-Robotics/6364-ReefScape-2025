@@ -17,49 +17,49 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Climb extends SubsystemBase {
 
-    public static final String kArmBus = "drivecan";
-    public static final int kArmId = 20;
-    public static final double kArmPose = 0;
-    public static final NeutralModeValue kArmNeutralMode = NeutralModeValue.Brake;
-    public static final InvertedValue kArmInverted = InvertedValue.Clockwise_Positive;
+    public static final String ARM_BUS = "drivecan";
+    public static final int ARM_ID = 20;
+    public static final double ARM_POSE = 0;
+    public static final NeutralModeValue ARM_NEUTRAL_MODE = NeutralModeValue.Brake;
+    public static final InvertedValue ARM_INVERTED = InvertedValue.Clockwise_Positive;
     
     //arm controller gains
-    public static final double kArmKP = 5; //70
-    public static final double kArmKI = 0;
-    public static final double kArmKD = 0; //4
+    public static final double ARM_KP = 5; //70
+    public static final double ARM_KI = 0;
+    public static final double ARM_KD = 0; //4
 
     //arm controller feedforward gains
-    public static final double kArmKG = 0;
-    public static final double kArmKS = 0;
-    public static final double kArmKV = 0;
-    public static final double kArmKA = 0;
+    public static final double ARM_KG = 0;
+    public static final double ARM_KS = 0;
+    public static final double ARM_KV = 0;
+    public static final double ARM_KA = 0;
     
-    public static final double kCurrentLimit = 40;
+    public static final double CURRENT_LIST = 40;
     
     // Drive Ratio
-    public static final double kArmRatio = 1;
-    private final TalonFX m_ArmMotor = new TalonFX(kArmId, kArmBus);
-    private final PositionVoltage m_ArmOutput = new PositionVoltage(kArmPose);
-    private final VelocityVoltage m_VelocityOutput = new VelocityVoltage(kArmPose);
+    public static final double ARM_RATIO = 1;
+    private final TalonFX m_ArmMotor = new TalonFX(ARM_ID, ARM_BUS);
+    private final PositionVoltage m_ArmOutput = new PositionVoltage(ARM_POSE);
+    private final VelocityVoltage m_VelocityOutput = new VelocityVoltage(ARM_POSE);
 
     public Climb(){
         // configure Arm
         final TalonFXConfiguration armConfig = new TalonFXConfiguration(); 
 
         // set contoller gains
-        armConfig.Slot0 = new Slot0Configs().withKP(kArmKP).withKI(kArmKI).withKD(kArmKD)
-            .withKS(kArmKS).withKV(kArmKV).withKA(kArmKA).withKG(kArmKG).withGravityType(GravityTypeValue.Arm_Cosine);
+        armConfig.Slot0 = new Slot0Configs().withKP(ARM_KP).withKI(ARM_KI).withKD(ARM_KD)
+            .withKS(ARM_KS).withKV(ARM_KV).withKA(ARM_KA).withKG(ARM_KG).withGravityType(GravityTypeValue.Arm_Cosine);
         //invert motor 
-        armConfig.MotorOutput.Inverted = kArmInverted; 
+        armConfig.MotorOutput.Inverted = ARM_INVERTED; 
 
         //set ratios 
-        armConfig.Feedback.SensorToMechanismRatio = kArmRatio; 
+        armConfig.Feedback.SensorToMechanismRatio = ARM_RATIO; 
         //set neutral modes 
-        m_ArmMotor.setNeutralMode(kArmNeutralMode);
+        m_ArmMotor.setNeutralMode(ARM_NEUTRAL_MODE);
 
         // set current limit
-        armConfig.CurrentLimits.StatorCurrentLimit = kCurrentLimit;
-        armConfig.CurrentLimits.SupplyCurrentLimit = kCurrentLimit;
+        armConfig.CurrentLimits.StatorCurrentLimit = CURRENT_LIST;
+        armConfig.CurrentLimits.SupplyCurrentLimit = CURRENT_LIST;
         armConfig.CurrentLimits.StatorCurrentLimitEnable = true;
         armConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     
