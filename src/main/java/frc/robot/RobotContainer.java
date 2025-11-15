@@ -11,7 +11,6 @@ import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -79,8 +78,8 @@ public class RobotContainer {
     
 
     //Variables for Driving 
-    private static final double MAX_ANGULAR_RATE = 1.0; //Radians/s 
-    private static final double MAX_SPEED = 1.0;
+    private static final double MAX_ANGULAR_RATE = 1.5; //Radians/s //1.5 Good for Team | 2 for Driver  
+    private static final double MAX_SPEED = 1.0; //Practice Speed 1 | 1.5 for Driver  
 
     // private static final double kAngulardeadband = kMaxAngularRate * 0.1;
     // private static final double kLineardeadband = kMaxSpeed * 0.1;
